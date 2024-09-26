@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+  web:
+    container_name: movie-reservation-system-web
+    build: .
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm run start:docker
+    environment:
+      - PORT=3000

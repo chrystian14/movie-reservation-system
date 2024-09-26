@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
+    "start:docker": "npm run build && node dist/server.js",
     "dev": "tsnd --cls --rs --respawn src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
