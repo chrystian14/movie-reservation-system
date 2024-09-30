@@ -2,7 +2,7 @@ version: "3"
 
 services:
   web:
-    container_name: movie-reservation-system-web
+    container_name: mrs-web-api
     build: .
     ports:
       - 3000:3000
@@ -12,3 +12,33 @@ services:
     command: npm run start:docker
     environment:
       - PORT=3000
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/dev_db?schema=public
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      default:
+        aliases:
+          - mrs-net-web
+
+  db:
+    container_name: mrs-net-db
+    image: postgres:17-alpine
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5403:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      default:
+        aliases:
+          - mrs-net-db
+
+networks:
+  default:
+    name: mrs-net

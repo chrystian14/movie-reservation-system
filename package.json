@@ -4,9 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "rimraf dist && tsc",
     "start": "node dist/server.js",
-    "start:docker": "npm run build && node dist/server.js",
+    "start:docker": "npm run build && npm run migrate:dev && node dist/server.js",
+    "watch": "watchy --no-init-spawn --debounce 1 -w src -- docker compose restart web",
+    "migrate:dev": "prisma migrate dev",
+    "migrate:docker": "docker compose run web npm run migrate:dev",
     "dev": "tsnd --cls --rs --respawn src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -20,10 +23,14 @@
     "@typescript-eslint/eslint-plugin": "^8.7.0",
     "@typescript-eslint/parser": "^8.7.0",
     "eslint": "^9.11.1",
+    "prisma": "^5.20.0",
+    "rimraf": "^6.0.1",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.6.2"
+    "typescript": "^5.6.2",
+    "watchy": "^0.10.2"
   },
   "dependencies": {
+    "@prisma/client": "^5.20.0",
     "express": "^4.21.0",
     "morgan": "^1.10.0"
   }
