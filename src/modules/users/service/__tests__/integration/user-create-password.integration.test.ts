@@ -2,13 +2,16 @@ import { prisma } from "configs/prisma-client.config";
 import { clearDatabase } from "configs/jest-setup.config";
 import { type UserCreateInput } from "modules/users/types";
 import { UserService } from "modules/users/service";
+import { UserRepository, type IUserRepository } from "modules/users/repository";
 
 describe("INTEGRATION: UserService.create password hash", () => {
   let userService: UserService;
   let userCreateInput: UserCreateInput;
+  let userRepository: IUserRepository;
 
   beforeEach(() => {
-    userService = new UserService();
+    userRepository = new UserRepository();
+    userService = new UserService(userRepository);
 
     userCreateInput = {
       firstName: "John",
@@ -22,7 +25,7 @@ describe("INTEGRATION: UserService.create password hash", () => {
     await clearDatabase();
   });
 
-  it("should create a user with a password hash", async () => {
+  it("should create a user with hashed password", async () => {
     const plainPassword = userCreateInput.password;
     await userService.create(userCreateInput);
 
