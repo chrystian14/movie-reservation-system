@@ -1,7 +1,7 @@
-import { clearDatabase } from "../../../../../configs/jest-setup.config";
-import { prisma } from "../../../../../configs/prisma-client.config";
-import type { UserCreateInput } from "../../../types";
-import { UserService } from "../../user.service";
+import { prisma } from "configs/prisma-client.config";
+import { clearDatabase } from "configs/jest-setup.config";
+import { type UserCreateInput } from "modules/users/types";
+import { UserService } from "modules/users/service";
 
 describe("INTEGRATION: UserService.create password hash", () => {
   let userService: UserService;
@@ -24,7 +24,7 @@ describe("INTEGRATION: UserService.create password hash", () => {
 
   it("should create a user with a password hash", async () => {
     const plainPassword = userCreateInput.password;
-    const user = await userService.create(userCreateInput);
+    await userService.create(userCreateInput);
 
     const createdUser = await prisma.user.findUnique({
       where: { email: userCreateInput.email },
@@ -35,7 +35,7 @@ describe("INTEGRATION: UserService.create password hash", () => {
 
     const isPasswordMatch = await UserService.comparePassword(
       plainPassword,
-      createdUser?.password!
+      createdUser!.password
     );
 
     expect(isPasswordMatch).toBe(true);
