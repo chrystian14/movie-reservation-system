@@ -30,6 +30,7 @@ export default tseslint.config(
       ],
       "@typescript-eslint/consistent-type-exports": "error",
       "@typescript-eslint/no-unused-vars": "warn",
+      "no-console": "warn",
     },
   }
 );
