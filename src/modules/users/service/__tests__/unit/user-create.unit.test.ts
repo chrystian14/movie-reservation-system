@@ -13,7 +13,7 @@ describe("UNIT: UserService.create", () => {
     userService = new UserService(mockedUserRepository);
   });
 
-  it("should throw an error if the email already exists", async () => {
+  test("should throw an error if the email already exists", async () => {
     const userCreateInput: UserCreateInput = {
       firstName: "John",
       lastName: "Doe",

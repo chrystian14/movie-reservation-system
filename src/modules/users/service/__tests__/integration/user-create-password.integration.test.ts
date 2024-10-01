@@ -25,7 +25,7 @@ describe("INTEGRATION: UserService.create password hash", () => {
     await clearDatabase();
   });
 
-  it("should create a user with hashed password", async () => {
+  test("should create a user with hashed password", async () => {
     const plainPassword = userCreateInput.password;
     await userService.create(userCreateInput);
 
