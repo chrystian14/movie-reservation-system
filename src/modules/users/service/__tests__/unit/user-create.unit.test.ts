@@ -1,5 +1,5 @@
 import { prisma } from "../../../../../configs/prisma-client.config";
-import { UserCreateInput } from "../../../types";
+import type { UserCreateInput } from "../../../types";
 import { UserService } from "../../user.service";
 
 describe("UNIT: UserService.create", () => {

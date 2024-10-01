@@ -1,6 +1,6 @@
 import { prisma } from "../../../configs/prisma-client.config";
 import bcrypt from "bcryptjs";
-import { UserCreateInput } from "../types";
+import type { UserCreateInput, UserWithoutPassword } from "../types";
 
 export class UserService {
   static hashPassword = async (password: string) => {
@@ -11,7 +11,9 @@ export class UserService {
     return await bcrypt.compare(password, hashedPassword);
   };
 
-  create = async (userCreateInput: UserCreateInput) => {
+  create = async (
+    userCreateInput: UserCreateInput
+  ): Promise<UserWithoutPassword> => {
     const userEmailCount = await prisma.user.count({
       where: { email: userCreateInput.email },
     });

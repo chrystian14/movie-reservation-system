@@ -1,6 +1,6 @@
 import { clearDatabase } from "../../../../../configs/jest-setup.config";
 import { prisma } from "../../../../../configs/prisma-client.config";
-import { UserCreateInput } from "../../../types";
+import type { UserCreateInput } from "../../../types";
 import { UserService } from "../../user.service";
 
 describe("INTEGRATION: UserService.create password hash", () => {
