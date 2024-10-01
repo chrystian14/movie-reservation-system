@@ -1,4 +1,3 @@
-import { prisma } from "configs/prisma-client.config";
 import bcrypt from "bcryptjs";
 import type { UserCreateInput, UserWithoutPassword } from "../types";
 import type { IUserRepository } from "../repository";
@@ -22,9 +21,9 @@ export class UserService {
   create = async (
     userCreateInput: UserCreateInput
   ): Promise<UserWithoutPassword> => {
-    const userEmailCount = await prisma.user.count({
-      where: { email: userCreateInput.email },
-    });
+    const userEmailCount = await this.userRepository.countByEmail(
+      userCreateInput.email
+    );
 
     if (userEmailCount > 0) {
       throw new Error("Email already exists");
@@ -34,9 +33,8 @@ export class UserService {
       userCreateInput.password
     );
 
-    const { password, ...userWithoutPassword } = await prisma.user.create({
-      data: userCreateInput,
-    });
+    const { password, ...userWithoutPassword } =
+      await this.userRepository.create(userCreateInput);
 
     return userWithoutPassword;
   };
