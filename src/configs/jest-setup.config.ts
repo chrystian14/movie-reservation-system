@@ -7,6 +7,8 @@ export async function clearDatabase() {
 }
 
 afterAll(async () => {
+  jest.restoreAllMocks();
+
   await clearDatabase();
   await prisma.$disconnect();
 });

@@ -1,12 +1,16 @@
 import type { UserCreateInput } from "modules/users/types";
-import { prisma } from "configs/prisma-client.config";
 import { UserService } from "modules/users/service";
+import { UserRepository, type IUserRepository } from "modules/users/repository";
+
+jest.mock("modules/users/repository/user.repository.ts");
 
 describe("UNIT: UserService.create", () => {
   let userService: UserService;
+  let mockedUserRepository: jest.Mocked<IUserRepository>;
 
   beforeEach(() => {
-    userService = new UserService();
+    mockedUserRepository = jest.mocked(new UserRepository());
+    userService = new UserService(mockedUserRepository);
   });
 
   it("should throw an error if the email already exists", async () => {
@@ -17,20 +21,17 @@ describe("UNIT: UserService.create", () => {
       password: "password",
     };
 
-    const prismaUserCountSpy = jest
-      .spyOn(prisma.user, "count")
-      .mockResolvedValue(1);
-
-    const prismaUserCreateSpy = jest.spyOn(prisma.user, "create");
+    mockedUserRepository.countByEmail.mockResolvedValueOnce(1);
 
     await expect(userService.create(userCreateInput)).rejects.toThrow(
       "Email already exists"
     );
 
-    expect(prismaUserCreateSpy).not.toHaveBeenCalled();
-    expect(prismaUserCountSpy).toHaveBeenCalledWith({
-      where: { email: userCreateInput.email },
-    });
-    expect(prismaUserCountSpy).toHaveBeenCalledTimes(1);
+    expect(mockedUserRepository.countByEmail).toHaveBeenCalledTimes(1);
+    expect(mockedUserRepository.countByEmail).toHaveBeenCalledWith(
+      userCreateInput.email
+    );
+
+    expect(mockedUserRepository.create).not.toHaveBeenCalled();
   });
 });

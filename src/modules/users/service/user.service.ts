@@ -3,9 +3,7 @@ import type { UserCreateInput, UserWithoutPassword } from "../types";
 import type { IUserRepository } from "../repository";
 
 export class UserService {
-  constructor(private userRepository: IUserRepository) {
-    this.userRepository = userRepository;
-  }
+  constructor(private userRepository: IUserRepository) {}
 
   static hashPassword = async (password: string): Promise<string> => {
     return await bcrypt.hash(password, 10);
