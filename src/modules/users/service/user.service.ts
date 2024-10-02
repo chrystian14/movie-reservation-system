@@ -1,24 +1,23 @@
 import bcrypt from "bcryptjs";
 import type { UserCreateInput, UserWithoutPassword } from "../types";
 import type { IUserRepository } from "../repository";
+import type { IUserService } from "./user.service.interface";
 
-export class UserService {
+export class UserService implements IUserService {
   constructor(private userRepository: IUserRepository) {}
 
-  static hashPassword = async (password: string): Promise<string> => {
+  static async hashPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, 10);
-  };
+  }
 
-  static comparePassword = async (
+  static async comparePassword(
     password: string,
     hashedPassword: string
-  ): Promise<boolean> => {
+  ): Promise<boolean> {
     return await bcrypt.compare(password, hashedPassword);
-  };
+  }
 
-  create = async (
-    userCreateInput: UserCreateInput
-  ): Promise<UserWithoutPassword> => {
+  async create(userCreateInput: UserCreateInput): Promise<UserWithoutPassword> {
     const userEmailCount = await this.userRepository.countByEmail(
       userCreateInput.email
     );
@@ -35,5 +34,5 @@ export class UserService {
       await this.userRepository.create(userCreateInput);
 
     return userWithoutPassword;
-  };
+  }
 }
