@@ -62,4 +62,35 @@ describe("INTEGRATION: UserControler.create", () => {
     const userCount = await prisma.user.count();
     expect(userCount).toBe(1);
   });
+
+  test("should return an error when creating a user without required fields", async () => {
+    const response = await apiClient.post(userEndpoint).send({});
+
+    const expectedResponseBody = {
+      details: [
+        {
+          field: ["firstName"],
+          message: "Required",
+        },
+        {
+          field: ["lastName"],
+          message: "Required",
+        },
+        {
+          field: ["email"],
+          message: "Required",
+        },
+        {
+          field: ["password"],
+          message: "Required",
+        },
+      ],
+    };
+
+    expect(response.status).toBe(status.HTTP_400_BAD_REQUEST);
+    expect(response.body).toStrictEqual(expectedResponseBody);
+
+    const userCount = await prisma.user.count();
+    expect(userCount).toBe(0);
+  });
 });
