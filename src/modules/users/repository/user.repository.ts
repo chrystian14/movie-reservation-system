@@ -1,5 +1,4 @@
-import type { User } from "@prisma/client";
-import type { UserCreateInput } from "../types";
+import type { User, UserCreateInput } from "../types";
 import type { IUserRepository } from "./user.repository.interface";
 import { prisma } from "configs/prisma-client.config";
 

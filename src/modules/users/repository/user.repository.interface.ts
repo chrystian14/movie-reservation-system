@@ -1,5 +1,4 @@
-import type { User } from "@prisma/client";
-import type { UserCreateInput } from "../types";
+import type { User, UserCreateInput } from "../types";
 
 export interface IUserRepository {
   create(userCreateInput: UserCreateInput): Promise<User>;
