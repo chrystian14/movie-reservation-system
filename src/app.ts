@@ -1,4 +1,5 @@
 import express from "express";
+import "express-async-errors";
 import { userRouter } from "modules/users";
 import morgan from "morgan";
 
