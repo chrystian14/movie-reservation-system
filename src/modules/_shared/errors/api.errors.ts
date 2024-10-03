@@ -1,4 +1,5 @@
 import { status } from "modules/_shared/utils";
+import { ZodError } from "zod";
 
 export class ApiError extends Error {
   constructor(
@@ -6,6 +7,15 @@ export class ApiError extends Error {
     public statusCode: number = status.HTTP_500_INTERNAL_SERVER_ERROR
   ) {
     super(message);
+  }
+}
+
+export class BodyValidationError extends ZodError {
+  constructor(
+    error: ZodError,
+    readonly statusCode: number = status.HTTP_400_BAD_REQUEST
+  ) {
+    super(error.errors);
   }
 }
 

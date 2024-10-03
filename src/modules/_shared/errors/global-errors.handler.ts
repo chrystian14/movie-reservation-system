@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { ApiError } from "./api.errors";
+import { ApiError, BodyValidationError } from "./api.errors";
 import { status } from "modules/_shared/utils";
 
 export function handleGlobalErrors(
@@ -11,6 +11,15 @@ export function handleGlobalErrors(
   if (error instanceof ApiError) {
     return res.status(error.statusCode).json({
       details: error.message,
+    });
+  }
+
+  if (error instanceof BodyValidationError) {
+    return res.status(error.statusCode).json({
+      details: error.errors.map(({ path, message }) => ({
+        field: path,
+        message,
+      })),
     });
   }
 
