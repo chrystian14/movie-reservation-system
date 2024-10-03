@@ -8,3 +8,12 @@ export class ApiError extends Error {
     super(message);
   }
 }
+
+export class ConflictError extends ApiError {
+  constructor(
+    message: string,
+    readonly statusCode: number = status.HTTP_409_CONFLICT
+  ) {
+    super(message, statusCode);
+  }
+}

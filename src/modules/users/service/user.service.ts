@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import type { UserCreateInput, UserWithoutPassword } from "../types";
 import type { IUserRepository } from "../repository";
 import type { IUserService } from "./user.service.interface";
+import { EmailAlreadyExistsError } from "../errors";
 
 export class UserService implements IUserService {
   constructor(private userRepository: IUserRepository) {}
@@ -23,7 +24,7 @@ export class UserService implements IUserService {
     );
 
     if (userEmailCount > 0) {
-      throw new Error("Email already exists");
+      throw new EmailAlreadyExistsError();
     }
 
     userCreateInput.password = await UserService.hashPassword(
