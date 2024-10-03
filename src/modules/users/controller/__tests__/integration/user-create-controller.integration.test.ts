@@ -1,5 +1,6 @@
-import { apiClient, clearDatabase } from "configs/jest-setup.config";
+import { clearDatabase } from "configs/jest-setup.config";
 import { prisma } from "configs/prisma-client.config";
+import { apiClient } from "modules/_shared/tests";
 import { type UserCreateInput } from "modules/users/types";
 
 describe("INTEGRATION: UserControler.create", () => {
