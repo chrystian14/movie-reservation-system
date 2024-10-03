@@ -1,6 +1,7 @@
 import { clearDatabase } from "configs/jest-setup.config";
 import { prisma } from "configs/prisma-client.config";
 import { apiClient } from "modules/_shared/tests";
+import { status } from "modules/_shared/utils";
 import { type UserCreateInput } from "modules/users/types";
 
 describe("INTEGRATION: UserControler.create", () => {
@@ -44,7 +45,7 @@ describe("INTEGRATION: UserControler.create", () => {
     expect(userCount).toBe(1);
   });
 
-  test("should throw an error if email already exists", async () => {
+  test("should return an 409 if email already exists", async () => {
     await prisma.user.create({
       data: userCreateInput,
     });
@@ -52,10 +53,10 @@ describe("INTEGRATION: UserControler.create", () => {
     const response = await apiClient.post(userEndpoint).send(userCreateInput);
 
     const expectedResponseBody = {
-      message: "Email already exists",
+      details: "Email already exists",
     };
 
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(status.HTTP_409_CONFLICT);
     expect(response.body).toStrictEqual(expectedResponseBody);
 
     const userCount = await prisma.user.count();
