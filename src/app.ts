@@ -1,5 +1,6 @@
 import express from "express";
 import "express-async-errors";
+import { handleGlobalErrors } from "modules/_shared/errors";
 import { userRouter } from "modules/users";
 import morgan from "morgan";
 
@@ -13,3 +14,5 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/v1/users", userRouter);
+
+app.use(handleGlobalErrors);
