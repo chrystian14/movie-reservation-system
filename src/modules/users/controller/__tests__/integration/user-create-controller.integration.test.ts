@@ -43,4 +43,22 @@ describe("INTEGRATION: UserControler.create", () => {
     const userCount = await prisma.user.count();
     expect(userCount).toBe(1);
   });
+
+  test("should throw an error if email already exists", async () => {
+    await prisma.user.create({
+      data: userCreateInput,
+    });
+
+    const response = await apiClient.post(userEndpoint).send(userCreateInput);
+
+    const expectedResponseBody = {
+      message: "Email already exists",
+    };
+
+    expect(response.status).toBe(400);
+    expect(response.body).toStrictEqual(expectedResponseBody);
+
+    const userCount = await prisma.user.count();
+    expect(userCount).toBe(1);
+  });
 });
