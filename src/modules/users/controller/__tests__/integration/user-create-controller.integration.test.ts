@@ -26,7 +26,7 @@ describe("INTEGRATION: UserControler.create", () => {
   test("should create a regular user and return user data without password", async () => {
     const response = await apiClient.post(userEndpoint).send(userCreateInput);
 
-    expect(response.status).toBe(201);
+    expect(response.status).toBe(status.HTTP_201_CREATED);
     expect(response.body).not.toHaveProperty("password");
 
     const expectedResponseBody = {

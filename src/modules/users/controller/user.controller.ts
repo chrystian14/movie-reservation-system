@@ -1,3 +1,4 @@
+import { status } from "modules/_shared/utils";
 import type { IUserService } from "../service";
 import type { Request, Response } from "express";
 
@@ -14,6 +15,6 @@ export class UserController {
       password,
     });
 
-    return res.status(201).json(user);
+    return res.status(status.HTTP_201_CREATED).json(user);
   };
 }
