@@ -3,6 +3,7 @@ import type { UserCreateInput, UserWithoutPassword } from "../types";
 import type { IUserRepository } from "../repository";
 import type { IUserService } from "./user.service.interface";
 import { EmailAlreadyExistsError } from "../errors";
+import { userWithoutPasswordSchema } from "../types/schemas";
 
 export class UserService implements IUserService {
   constructor(private userRepository: IUserRepository) {}
@@ -31,9 +32,8 @@ export class UserService implements IUserService {
       userCreateInput.password
     );
 
-    const { password, ...userWithoutPassword } =
-      await this.userRepository.create(userCreateInput);
+    const user = await this.userRepository.create(userCreateInput);
 
-    return userWithoutPassword;
+    return userWithoutPasswordSchema.parse(user);
   }
 }
