@@ -3,22 +3,19 @@ import { clearDatabase } from "configs/jest-setup.config";
 import { type UserCreateInput } from "modules/users/types";
 import { UserService } from "modules/users/service";
 import { UserRepository, type IUserRepository } from "modules/users/repository";
+import { UserBuilder } from "modules/users/builder";
 
 describe("INTEGRATION: UserService.create password hash", () => {
-  let userService: UserService;
-  let userCreateInput: UserCreateInput;
   let userRepository: IUserRepository;
+  let userService: UserService;
+
+  let userCreateInput: UserCreateInput;
 
   beforeEach(() => {
     userRepository = new UserRepository();
     userService = new UserService(userRepository);
 
-    userCreateInput = {
-      firstName: "John",
-      lastName: "Doe",
-      email: "john.doe@example.com",
-      password: "password",
-    };
+    userCreateInput = new UserBuilder().requiredForCreation();
   });
 
   afterEach(async () => {

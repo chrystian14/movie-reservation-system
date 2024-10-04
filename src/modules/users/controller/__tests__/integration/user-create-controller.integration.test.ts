@@ -2,21 +2,25 @@ import { clearDatabase } from "configs/jest-setup.config";
 import { prisma } from "configs/prisma-client.config";
 import { apiClient } from "modules/_shared/tests";
 import { status } from "modules/_shared/utils";
+import { UserBuilder } from "modules/users/builder";
+import { UserRepository } from "modules/users/repository";
 import { type UserCreateInput } from "modules/users/types";
 
 describe("INTEGRATION: UserControler.create", () => {
-  let userCreateInput: UserCreateInput;
   const userEndpoint = "/api/v1/users";
+
+  let userBuilder: UserBuilder;
+  let userRepository: UserRepository;
+
+  let userCreateInput: UserCreateInput;
 
   beforeEach(async () => {
     await clearDatabase();
 
-    userCreateInput = {
-      firstName: "John",
-      lastName: "Doe",
-      email: "john.doe@example.com",
-      password: "johndoepassword",
-    };
+    userBuilder = new UserBuilder();
+    userRepository = new UserRepository();
+
+    userCreateInput = userBuilder.requiredForCreation();
   });
 
   afterEach(async () => {
@@ -46,10 +50,7 @@ describe("INTEGRATION: UserControler.create", () => {
   });
 
   test("should return an 409 if email already exists", async () => {
-    await prisma.user.create({
-      data: userCreateInput,
-    });
-
+    await userBuilder.save(userRepository);
     const response = await apiClient.post(userEndpoint).send(userCreateInput);
 
     const expectedResponseBody = {
