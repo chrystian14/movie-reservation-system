@@ -21,6 +21,8 @@ services:
       - PORT=3000
       - NODE_ENV=dev
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/dev_db?schema=public
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
 
     networks:
       default:
@@ -34,6 +36,8 @@ services:
     environment:
       - NODE_ENV=test
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/test_db?schema=public
+      - JWT_SECRET_KEY=testsecretkey
+      - JWT_EXPIRES_IN=1h
 
     networks:
       default:
