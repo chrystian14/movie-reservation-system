@@ -4,6 +4,7 @@ import { type UserCreateInput } from "modules/users/types";
 import { UserService } from "modules/users/service";
 import { UserRepository, type IUserRepository } from "modules/users/repository";
 import { UserBuilder } from "modules/users/builder";
+import { comparePassword } from "modules/users/utils";
 
 describe("INTEGRATION: UserService.create password hash", () => {
   let userRepository: IUserRepository;
@@ -33,7 +34,7 @@ describe("INTEGRATION: UserService.create password hash", () => {
     expect(createdUser).toBeDefined();
     expect(createdUser?.password).not.toBe(plainPassword);
 
-    const isPasswordMatch = await UserService.comparePassword(
+    const isPasswordMatch = await comparePassword(
       plainPassword,
       createdUser!.password
     );
