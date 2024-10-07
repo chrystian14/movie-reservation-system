@@ -1,6 +1,7 @@
 import { app } from "./app";
+import { parsedEnv } from "configs/env.config";
 
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = parsedEnv.PORT;
 
 app.listen(PORT, () => {
   console.log(`Server listening at http://localhost:${PORT}`);
