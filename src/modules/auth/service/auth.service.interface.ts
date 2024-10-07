@@ -1,5 +1,5 @@
 import type { LoginInput } from "../types";
 
 export interface IAuthService {
-  login(loginData: LoginInput): Promise<null>;
+  login(loginData: LoginInput): Promise<string>;
 }

@@ -3,6 +3,7 @@ import type { LoginInput } from "../types";
 import { InvalidCredentialsError } from "../errors";
 import type { IAuthService } from "./auth.service.interface";
 import { comparePassword } from "modules/users/utils";
+import { generateToken } from "../jwt/jwt.handlers";
 
 export class AuthService implements IAuthService {
   constructor(private userRepository: IUserRepository) {}
@@ -20,6 +21,8 @@ export class AuthService implements IAuthService {
       throw new InvalidCredentialsError();
     }
 
-    return null;
+    const token = generateToken(user.id, { isAdmin: user.isAdmin });
+
+    return token;
   }
 }
