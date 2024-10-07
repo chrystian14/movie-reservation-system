@@ -27,3 +27,12 @@ export class ConflictError extends ApiError {
     super(message, statusCode);
   }
 }
+
+export class UnauthorizedError extends ApiError {
+  constructor(
+    message: string,
+    readonly statusCode: number = status.HTTP_401_UNAUTHORIZED
+  ) {
+    super(message, statusCode);
+  }
+}
