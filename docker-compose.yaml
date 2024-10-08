@@ -3,8 +3,6 @@ version: "3"
 x-service-defaults: &service-defaults
   build:
     context: .
-  ports:
-    - "3000:3000"
   volumes:
     - .:/usr/src/app
     - /usr/src/app/node_modules
@@ -17,6 +15,8 @@ services:
     <<: *service-defaults
     container_name: mrs-api-dev
     command: npm run start:docker
+    ports:
+      - "3000:3000"
     environment:
       - PORT=3000
       - NODE_ENV=dev
@@ -33,7 +33,10 @@ services:
     <<: *service-defaults
     container_name: mrs-api-test
     command: sh -c "npm run migrate:dev && npm run test"
+    ports:
+      - "3001:3001"
     environment:
+      - PORT=3001
       - NODE_ENV=test
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/test_db?schema=public
       - JWT_SECRET_KEY=testsecretkey
