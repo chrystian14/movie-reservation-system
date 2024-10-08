@@ -2,8 +2,8 @@ import z from "zod";
 
 const envSchema = z.object({
   DATABASE_URL: z.string(),
-  JWT_SECRET_KEY: z.string(),
-  JWT_EXPIRES_IN: z.string(),
+  JWT_SECRET_KEY: z.string().min(1),
+  JWT_EXPIRES_IN: z.string().min(1),
   PORT: z.coerce.number().default(3000),
 });
 

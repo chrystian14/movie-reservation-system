@@ -12,4 +12,8 @@ app.use(morgan("dev"));
 
 initRoutes(app);
 
+app.get("/health-check", (req, res) => {
+  return res.json({ status: "healthy" });
+});
+
 app.use(handleGlobalErrors);
