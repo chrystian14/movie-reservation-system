@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import type { User, UserCreateInput } from "../types";
 import type { IUserRepository } from "../repository";
+import { hashPassword } from "../utils";
 
 export class UserBuilder {
   protected entity: User;
@@ -23,7 +24,12 @@ export class UserBuilder {
   }
 
   async save(repository: IUserRepository) {
-    return await repository.create(this.entity);
+    const hashedPassword = await hashPassword(this.entity.password);
+
+    return await repository.create({
+      ...this.entity,
+      password: hashedPassword,
+    });
   }
 
   withAdminRole() {
