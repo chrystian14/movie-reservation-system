@@ -6,12 +6,11 @@ const defaultPreset = createDefaultPreset();
 
 const jestConfig: JestConfigWithTsJest = {
   ...defaultPreset,
-  roots: ["<rootDir>"],
   modulePaths: [compilerOptions.baseUrl],
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths),
   preset: "ts-jest",
   setupFilesAfterEnv: ["./src/configs/jest-setup.config.ts"],
-  testMatch: ["**/__tests__/(unit|integration)/**/*.test.[jt]s"],
+  testMatch: ["**/__tests__/(unit|integration)/**/*.test.[t]s"],
   clearMocks: true,
 };
 
