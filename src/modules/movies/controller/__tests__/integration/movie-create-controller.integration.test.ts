@@ -35,6 +35,22 @@ describe("INTEGRATION: MovieControler.create - POST /api/v1/movies", () => {
       .requiredForCreation();
   });
 
+  test("should return a 401 when user is not authenticated", async () => {
+    const response = await apiClient
+      .post(movieEndpoint)
+      .send(movieWithValidGenre);
+
+    const expectedResponseBody = {
+      details: "Missing authorization header with bearer token",
+    };
+
+    expect(response.statusCode).toBe(status.HTTP_401_UNAUTHORIZED);
+    expect(response.body).toEqual(expectedResponseBody);
+
+    const movieCount = await prisma.movie.count();
+    expect(movieCount).toBe(0);
+  });
+
   test("should create a movie", async () => {
     const response = await apiClient
       .post(movieEndpoint)
