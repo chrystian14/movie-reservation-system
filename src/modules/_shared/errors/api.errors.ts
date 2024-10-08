@@ -36,3 +36,12 @@ export class UnauthorizedError extends ApiError {
     super(message, statusCode);
   }
 }
+
+export class NotFoundError extends ApiError {
+  constructor(
+    message: string,
+    readonly statusCode: number = status.HTTP_404_NOT_FOUND
+  ) {
+    super(message, statusCode);
+  }
+}
