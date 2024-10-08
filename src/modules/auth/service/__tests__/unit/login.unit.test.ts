@@ -2,6 +2,7 @@ import { AuthService } from "modules/auth/service";
 import { UserBuilder } from "modules/users/builder";
 import { UserRepository, type IUserRepository } from "modules/users/repository";
 import * as passwordHashing from "modules/users/utils/password-hashing";
+import jwt from "jsonwebtoken";
 
 jest.mock("modules/users/repository/user.repository.ts");
 
@@ -20,7 +21,6 @@ describe("UNIT: AuthService.login", () => {
       password: "1234567",
     };
 
-    // jest.spyOn(prisma.user, "findUnique").mockResolvedValueOnce(null);
     mockedUserRepository.findByEmail.mockResolvedValueOnce(null);
 
     await expect(
@@ -60,5 +60,38 @@ describe("UNIT: AuthService.login", () => {
       nonMatchingPasswordLoginData.password,
       mockedUser.password
     );
+  });
+
+  test("should return a token with user data and `isAdmin` flag if login-in with matching password", async () => {
+    const mockedUser = new UserBuilder().build();
+
+    mockedUserRepository.findByEmail.mockResolvedValueOnce(mockedUser);
+    const comparePasswordSpy = jest
+      .spyOn(passwordHashing, "comparePassword")
+      .mockResolvedValueOnce(true);
+
+    const matchingPasswordLoginData = {
+      email: mockedUser.email,
+      password: mockedUser.password,
+    };
+
+    const token = await authService.login(matchingPasswordLoginData);
+
+    expect(mockedUserRepository.findByEmail).toHaveBeenCalledTimes(1);
+    expect(mockedUserRepository.findByEmail).toHaveBeenCalledWith(
+      matchingPasswordLoginData.email
+    );
+
+    expect(comparePasswordSpy).toHaveBeenCalledTimes(1);
+    expect(comparePasswordSpy).toHaveBeenCalledWith(
+      matchingPasswordLoginData.password,
+      mockedUser.password
+    );
+
+    const decodedToken = jwt.decode(token, { json: true });
+    const expectedTokenPayloadKeys = ["isAdmin", "sub", "exp", "iat"].sort();
+
+    expect(decodedToken).toBeDefined();
+    expect(Object.keys(decodedToken!).sort()).toEqual(expectedTokenPayloadKeys);
   });
 });
