@@ -1,1 +1,1 @@
-
+export { authRouter } from "./router";
