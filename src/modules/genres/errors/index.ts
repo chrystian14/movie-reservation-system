@@ -1,1 +1,4 @@
-export { GenreNameAlreadyExistsError } from "./genre.errors";
+export {
+  GenreNameAlreadyExistsError,
+  GenreNotFoundError,
+} from "./genre.errors";
