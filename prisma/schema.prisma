@@ -25,3 +25,24 @@ model User {
 
   @@map("users")
 }
+
+model Movie {
+  id          String @id @default(uuid())
+  title       String @db.VarChar(255)
+  description String @db.VarChar(255)
+  posterUrl   String @map("poster_url") @db.VarChar(255)
+
+  genreId String @map("genre_id")
+  genre   Genre  @relation(fields: [genreId], references: [id])
+
+  @@map("movies")
+}
+
+model Genre {
+  id   String @id @default(uuid())
+  name String @db.VarChar(50)
+
+  movies Movie[]
+
+  @@map("genres")
+}
