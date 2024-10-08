@@ -1,14 +1,14 @@
 import { prisma } from "configs/prisma-client.config";
 import { clearDatabase } from "configs/jest-setup.config";
 import { type UserCreateInput } from "modules/users/types";
-import { UserService } from "modules/users/service";
+import { UserService, type IUserService } from "modules/users/service";
 import { UserRepository, type IUserRepository } from "modules/users/repository";
 import { UserBuilder } from "modules/users/builder";
 import { comparePassword } from "modules/users/utils";
 
 describe("INTEGRATION: UserService.create password hash", () => {
   let userRepository: IUserRepository;
-  let userService: UserService;
+  let userService: IUserService;
 
   let userCreateInput: UserCreateInput;
 

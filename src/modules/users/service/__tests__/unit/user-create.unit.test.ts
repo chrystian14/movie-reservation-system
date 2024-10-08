@@ -1,5 +1,5 @@
 import type { UserCreateInput } from "modules/users/types";
-import { UserService } from "modules/users/service";
+import { UserService, type IUserService } from "modules/users/service";
 import { UserRepository, type IUserRepository } from "modules/users/repository";
 import { UserBuilder } from "modules/users/builder";
 
@@ -9,7 +9,7 @@ describe("UNIT: UserService.create", () => {
   let mockedUserRepository: jest.Mocked<IUserRepository>;
   let userCreateInput: UserCreateInput;
 
-  let userService: UserService;
+  let userService: IUserService;
 
   beforeEach(() => {
     mockedUserRepository = jest.mocked(new UserRepository());

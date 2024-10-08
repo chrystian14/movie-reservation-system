@@ -3,14 +3,14 @@ import { prisma } from "configs/prisma-client.config";
 import { apiClient } from "modules/_shared/tests";
 import { status } from "modules/_shared/utils";
 import { UserBuilder } from "modules/users/builder";
-import { UserRepository } from "modules/users/repository";
+import { UserRepository, type IUserRepository } from "modules/users/repository";
 import { type UserCreateInput } from "modules/users/types";
 
 describe("INTEGRATION: UserControler.create", () => {
   const userEndpoint = "/api/v1/users";
 
   let userBuilder: UserBuilder;
-  let userRepository: UserRepository;
+  let userRepository: IUserRepository;
 
   let userCreateInput: UserCreateInput;
 
