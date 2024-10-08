@@ -12,7 +12,15 @@ export class GenreRepository implements IGenreRepository {
   async countByName(name: string): Promise<number> {
     return await prisma.genre.count({
       where: {
-        name: name,
+        name,
+      },
+    });
+  }
+
+  async countById(id: string): Promise<number> {
+    return await prisma.genre.count({
+      where: {
+        id,
       },
     });
   }
