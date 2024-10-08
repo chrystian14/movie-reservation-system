@@ -2,6 +2,7 @@ import type { IGenreRepository } from "modules/genres/repository";
 import type { IMovieRepository } from "../repository";
 import type { Movie, MovieCreateInput } from "../types";
 import type { IMovieService } from "./movie.service.interface";
+import { GenreNotFoundError } from "modules/genres/errors";
 
 export class MovieService implements IMovieService {
   constructor(
@@ -15,7 +16,7 @@ export class MovieService implements IMovieService {
     );
 
     if (genreCount === 0) {
-      throw new Error("Genre not found");
+      throw new GenreNotFoundError();
     }
 
     return await this.movieRepository.create(movieCreateInput);
