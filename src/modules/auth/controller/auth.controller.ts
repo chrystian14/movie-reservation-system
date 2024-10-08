@@ -8,6 +8,6 @@ export class AuthController {
   login = async (req: Request, res: Response) => {
     const token = await this.authService.login(req.body);
 
-    return res.status(status.HTTP_200_OK).json({ token });
+    return res.status(status.HTTP_200_OK).json({ access_token: token });
   };
 }

@@ -20,9 +20,9 @@ describe("INTEGRATION: AuthController.login - POST /api/v1/login", () => {
 
     userBuilder = new UserBuilder();
     const userData = userBuilder.build();
-
     validLoginInput = { email: userData.email, password: userData.password };
-    userBuilder.save(userRepository);
+
+    await userBuilder.save(userRepository);
   });
 
   test("should return a 401 if the user email is not found", async () => {
@@ -67,5 +67,15 @@ describe("INTEGRATION: AuthController.login - POST /api/v1/login", () => {
 
     expect(response.status).toBe(status.HTTP_400_BAD_REQUEST);
     expect(response.body).toStrictEqual(expectedResponseBody);
+  });
+
+  test("should return an access token if login-in with valid credentials", async () => {
+    const response = await apiClient.post(authEndpoint).send({
+      email: validLoginInput.email,
+      password: validLoginInput.password,
+    });
+
+    expect(response.status).toBe(status.HTTP_200_OK);
+    expect(response.body).toHaveProperty("access_token");
   });
 });
