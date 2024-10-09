@@ -23,7 +23,7 @@ export function isAuthenticated(
     );
   }
 
-  res.locals.verifiedToken = verifyToken(token);
+  res.locals.authenticatedUser = verifyToken(token);
 
   return next();
 }

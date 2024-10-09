@@ -3,10 +3,11 @@ import type { loginInputSchema } from "./schemas";
 import type { Response } from "express";
 
 export type LoginInput = z.infer<typeof loginInputSchema>;
-export type JwtGeneratedTokenPayload = { isAdmin: boolean };
+
+export type TokenPayload = { isAdmin: boolean };
 
 type AuthenticatedResLocals = {
-  verifiedToken: string;
+  authenticatedUser: TokenPayload;
 };
 
 export type AutheticatedResponse<T = unknown> = Response<

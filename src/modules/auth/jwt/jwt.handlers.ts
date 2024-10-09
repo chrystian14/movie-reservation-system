@@ -1,12 +1,12 @@
 import jwt from "jsonwebtoken";
-import type { JwtGeneratedTokenPayload } from "../types";
+import type { TokenPayload } from "../types";
 import { parsedEnv } from "configs/env.config";
 import type { User } from "modules/users/types";
 
 export function generateToken(user: User): string {
-  const jwtPayload: JwtGeneratedTokenPayload = { isAdmin: user.isAdmin };
+  const tokenPayload: TokenPayload = { isAdmin: user.isAdmin };
 
-  const token = jwt.sign(jwtPayload, parsedEnv.JWT_SECRET_KEY, {
+  const token = jwt.sign(tokenPayload, parsedEnv.JWT_SECRET_KEY, {
     expiresIn: parsedEnv.JWT_EXPIRES_IN,
     subject: user.id,
   });
@@ -15,7 +15,9 @@ export function generateToken(user: User): string {
 }
 
 export function verifyToken(token: string) {
-  const decodedJwtPayload = jwt.verify(token, parsedEnv.JWT_SECRET_KEY);
+  const decodedTokenPayload = <TokenPayload>(
+    jwt.verify(token, parsedEnv.JWT_SECRET_KEY)
+  );
 
-  return decodedJwtPayload;
+  return decodedTokenPayload;
 }
