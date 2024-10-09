@@ -82,6 +82,40 @@ describe("INTEGRATION: MovieControler.create - POST /api/v1/movies", () => {
     expect(movieCount).toBe(0);
   });
 
+  test("should return an error when creating a movie with admin user but without required fields", async () => {
+    const response = await apiClient
+      .post(movieEndpoint)
+      .set("Authorization", `Bearer ${adminUsertoken}`)
+      .send({});
+
+    const expectedResponseBody = {
+      details: [
+        {
+          field: ["title"],
+          message: "Required",
+        },
+        {
+          field: ["description"],
+          message: "Required",
+        },
+        {
+          field: ["posterUrl"],
+          message: "Required",
+        },
+        {
+          field: ["genreId"],
+          message: "Required",
+        },
+      ],
+    };
+
+    expect(response.status).toBe(status.HTTP_400_BAD_REQUEST);
+    expect(response.body).toEqual(expectedResponseBody);
+
+    const movieCount = await prisma.movie.count();
+    expect(movieCount).toBe(0);
+  });
+
   test("should create a movie if user is admin", async () => {
     const response = await apiClient
       .post(movieEndpoint)
