@@ -45,3 +45,12 @@ export class NotFoundError extends ApiError {
     super(message, statusCode);
   }
 }
+
+export class ForbiddenError extends ApiError {
+  constructor(
+    message = "You don't have permission to perform this action",
+    readonly statusCode: number = status.HTTP_403_FORBIDDEN
+  ) {
+    super(message, statusCode);
+  }
+}
