@@ -2,17 +2,22 @@ import { randomUUID } from "crypto";
 import type { User, UserCreateInput } from "../types";
 import type { IUserRepository } from "../repository";
 import { hashPassword } from "../utils";
+import { Chance } from "chance";
 
 export class UserBuilder {
   protected entity: User;
+  protected chance: Chance.Chance;
 
   constructor() {
+    this.chance = new Chance();
+    const uniqueEmail = `${Date.now()}-${this.chance.email()}`;
+
     this.entity = {
       id: randomUUID(),
-      firstName: "John Doe",
-      lastName: "Doe",
-      email: "john.doe@example.com",
-      password: "password",
+      firstName: this.chance.first(),
+      lastName: this.chance.last(),
+      email: uniqueEmail,
+      password: this.chance.string({ length: 13 }),
       isAdmin: false,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -30,6 +35,11 @@ export class UserBuilder {
       ...this.entity,
       password: hashedPassword,
     });
+  }
+
+  withNonAdminRole() {
+    this.entity.isAdmin = false;
+    return this;
   }
 
   withAdminRole() {
