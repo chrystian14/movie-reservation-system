@@ -21,7 +21,7 @@ export class AuthService implements IAuthService {
       throw new InvalidCredentialsError();
     }
 
-    const token = generateToken(user.id, { isAdmin: user.isAdmin });
+    const token = generateToken(user);
 
     return token;
   }
