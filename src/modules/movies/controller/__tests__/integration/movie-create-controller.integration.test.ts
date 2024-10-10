@@ -25,7 +25,7 @@ describe("INTEGRATION: MovieControler.create - POST /api/v1/movies", () => {
   let createdGenre: Genre;
 
   let regularUserToken: string;
-  let adminUsertoken: string;
+  let adminUserToken: string;
 
   beforeEach(async () => {
     await clearDatabase();
@@ -46,7 +46,7 @@ describe("INTEGRATION: MovieControler.create - POST /api/v1/movies", () => {
 
     const adminUserBuilder = new UserBuilder().withAdminRole();
     const adminUser = await adminUserBuilder.save(userRepository);
-    adminUsertoken = generateToken(adminUser);
+    adminUserToken = generateToken(adminUser);
   });
 
   test("should return a 401 when user is not authenticated", async () => {
@@ -85,7 +85,7 @@ describe("INTEGRATION: MovieControler.create - POST /api/v1/movies", () => {
   test("should return an error when creating a movie with admin user but without required fields", async () => {
     const response = await apiClient
       .post(movieEndpoint)
-      .set("Authorization", `Bearer ${adminUsertoken}`)
+      .set("Authorization", `Bearer ${adminUserToken}`)
       .send({});
 
     const expectedResponseBody = {
@@ -119,7 +119,7 @@ describe("INTEGRATION: MovieControler.create - POST /api/v1/movies", () => {
   test("should create a movie if user is admin", async () => {
     const response = await apiClient
       .post(movieEndpoint)
-      .set("Authorization", `Bearer ${adminUsertoken}`)
+      .set("Authorization", `Bearer ${adminUserToken}`)
       .send(movieWithValidGenre);
 
     expect(response.status).toBe(status.HTTP_201_CREATED);
