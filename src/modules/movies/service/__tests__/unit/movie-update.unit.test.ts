@@ -2,13 +2,14 @@ import {
   MovieRepository,
   type IMovieRepository,
 } from "modules/movies/repository";
-import type { Movie } from "modules/movies/types";
+import type { Movie, MovieUpdateInput } from "modules/movies/types";
 import { MovieService, type IMovieService } from "modules/movies/service";
 import { MovieBuilder } from "modules/movies/builder";
 import {
   GenreRepository,
   type IGenreRepository,
 } from "modules/genres/repository";
+import { randomUUID } from "crypto";
 
 jest.mock("modules/movies/repository/movie.repository.ts");
 jest.mock("modules/genres/repository/genre.repository.ts");
@@ -17,6 +18,8 @@ describe("UNIT: MovieService.update", () => {
   let movieBuilder: MovieBuilder;
   let movieService: IMovieService;
   let movie: Movie;
+
+  let movieUpdateInput: MovieUpdateInput;
 
   let mockedMovieRepository: jest.Mocked<IMovieRepository>;
   let mockedGenreRepository: jest.Mocked<IGenreRepository>;
@@ -32,18 +35,40 @@ describe("UNIT: MovieService.update", () => {
 
     movieBuilder = new MovieBuilder();
     movie = movieBuilder.build();
+
+    movieUpdateInput = {
+      title: "Updated title",
+      description: "Updated description",
+      posterUrl: "Updated posterUrl",
+      genreId: randomUUID(),
+    };
   });
 
   test("should throw an error if updating a movie with non-existing id", async () => {
     mockedMovieRepository.countById.mockResolvedValue(0);
 
-    await expect(movieService.delete(movie.id)).rejects.toThrow(
-      "Movie not found"
-    );
+    await expect(
+      movieService.update(movie.id, movieUpdateInput)
+    ).rejects.toThrow("Movie not found");
 
     expect(mockedMovieRepository.countById).toHaveBeenCalledTimes(1);
     expect(mockedMovieRepository.countById).toHaveBeenCalledWith(movie.id);
 
     expect(mockedMovieRepository.delete).not.toHaveBeenCalled();
+  });
+
+  test("should throw an error if updating a movie with non-existing genre id", async () => {
+    mockedGenreRepository.countById.mockResolvedValue(0);
+
+    await expect(
+      movieService.update(movie.id, movieUpdateInput)
+    ).rejects.toThrow("Genre not found");
+
+    expect(mockedGenreRepository.countById).toHaveBeenCalledTimes(1);
+    expect(mockedGenreRepository.countById).toHaveBeenCalledWith(
+      movieUpdateInput.genreId
+    );
+
+    expect(mockedMovieRepository.update).not.toHaveBeenCalled();
   });
 });
