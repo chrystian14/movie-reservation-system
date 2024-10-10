@@ -1,5 +1,5 @@
 import { clearDatabase } from "configs/jest-setup.config";
-import { prisma } from "configs/prisma-client.config";
+import { randomUUID } from "crypto";
 import { apiClient } from "modules/_shared/tests";
 import { status } from "modules/_shared/utils";
 import { generateToken } from "modules/auth/jwt";
@@ -27,7 +27,7 @@ describe("INTEGRATION: MovieControler.delete - DEL /api/v1/movies/{id}", () => {
   let createdGenre: Genre;
 
   let regularUserToken: string;
-  let adminUsertoken: string;
+  let adminUserToken: string;
 
   beforeEach(async () => {
     await clearDatabase();
@@ -49,7 +49,7 @@ describe("INTEGRATION: MovieControler.delete - DEL /api/v1/movies/{id}", () => {
 
     const adminUserBuilder = new UserBuilder().withAdminRole();
     const adminUser = await adminUserBuilder.save(userRepository);
-    adminUsertoken = generateToken(adminUser);
+    adminUserToken = generateToken(adminUser);
   });
 
   test("should return a 401 when user is not authenticated", async () => {
@@ -62,12 +62,14 @@ describe("INTEGRATION: MovieControler.delete - DEL /api/v1/movies/{id}", () => {
     expect(response.statusCode).toBe(status.HTTP_401_UNAUTHORIZED);
     expect(response.body).toEqual(expectedResponseBody);
 
-    const movieCount = await prisma.movie.count();
-    expect(movieCount).toBe(0);
+    const movieCount = await movieRepository.countById(movie.id);
+    expect(movieCount).toBe(1);
   });
 
   test("should return a 403 when user is authenticated but not an admin", async () => {
-    const response = await apiClient.delete(`${movieEndpoint}/${movie.id}`);
+    const response = await apiClient
+      .delete(`${movieEndpoint}/${movie.id}`)
+      .set("Authorization", `Bearer ${regularUserToken}`);
 
     const expectedResponseBody = {
       details: "You don't have permission to perform this action",
@@ -76,7 +78,35 @@ describe("INTEGRATION: MovieControler.delete - DEL /api/v1/movies/{id}", () => {
     expect(response.statusCode).toBe(status.HTTP_403_FORBIDDEN);
     expect(response.body).toEqual(expectedResponseBody);
 
-    const movieCount = await prisma.movie.count();
+    const movieCount = await movieRepository.countById(movie.id);
+    expect(movieCount).toBe(1);
+  });
+
+  test("should return a 404 when user is an authenticated admin and trying to delete a movie with non-existing id", async () => {
+    const nonExistingId = randomUUID();
+    const response = await apiClient
+      .delete(`${movieEndpoint}/${nonExistingId}`)
+      .set("Authorization", `Bearer ${adminUserToken}`);
+
+    const expectedResponseBody = {
+      details: "Movie not found",
+    };
+
+    expect(response.statusCode).toBe(status.HTTP_404_NOT_FOUND);
+    expect(response.body).toEqual(expectedResponseBody);
+
+    const movieCount = await movieRepository.countById(movie.id);
+    expect(movieCount).toBe(1);
+  });
+
+  test("should delete a movie with valid id and return a 204 when user is authenticated and is an admin", async () => {
+    const response = await apiClient
+      .delete(`${movieEndpoint}/${movie.id}`)
+      .set("Authorization", `Bearer ${adminUserToken}`);
+
+    expect(response.statusCode).toBe(status.HTTP_204_NO_CONTENT);
+
+    const movieCount = await movieRepository.countById(movie.id);
     expect(movieCount).toBe(0);
   });
 });
