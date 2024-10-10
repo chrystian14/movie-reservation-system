@@ -8,4 +8,16 @@ export class MovieRepository implements IMovieRepository {
       data: movieCreateInput,
     });
   }
+
+  async countById(id: string): Promise<number> {
+    return await prisma.movie.count({
+      where: { id },
+    });
+  }
+
+  async delete(id: string): Promise<void> {
+    await prisma.movie.delete({
+      where: { id },
+    });
+  }
 }

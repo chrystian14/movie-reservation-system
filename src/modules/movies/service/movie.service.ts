@@ -3,6 +3,7 @@ import type { IMovieRepository } from "../repository";
 import type { Movie, MovieCreateInput } from "../types";
 import type { IMovieService } from "./movie.service.interface";
 import { GenreNotFoundError } from "modules/genres/errors";
+import { MovieNotFoundError } from "../errors";
 
 export class MovieService implements IMovieService {
   constructor(
@@ -20,5 +21,15 @@ export class MovieService implements IMovieService {
     }
 
     return await this.movieRepository.create(movieCreateInput);
+  }
+
+  async delete(id: string): Promise<void> {
+    const movieCount = await this.movieRepository.countById(id);
+
+    if (movieCount === 0) {
+      throw new MovieNotFoundError();
+    }
+
+    await this.movieRepository.delete(id);
   }
 }
