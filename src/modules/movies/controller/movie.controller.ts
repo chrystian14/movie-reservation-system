@@ -11,4 +11,9 @@ export class MovieController {
 
     return res.status(status.HTTP_201_CREATED).json(movie);
   };
+
+  delete = async (req: Request, res: AutheticatedResponse) => {
+    await this.movieService.delete(req.params.id);
+    return res.status(status.HTTP_204_NO_CONTENT).end();
+  };
 }

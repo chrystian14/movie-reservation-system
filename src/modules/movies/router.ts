@@ -21,3 +21,5 @@ movieRouter.post(
   validateBody(movieCreateInputSchema),
   movieController.create
 );
+
+movieRouter.delete("/:id", isAuthenticated, isAdmin, movieController.delete);
