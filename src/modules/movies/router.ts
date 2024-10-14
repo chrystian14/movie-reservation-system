@@ -23,3 +23,4 @@ movieRouter.post(
 );
 
 movieRouter.delete("/:id", isAuthenticated, isAdmin, movieController.delete);
+movieRouter.patch("/:id", isAuthenticated, isAdmin, movieController.update);
