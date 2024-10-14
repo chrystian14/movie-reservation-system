@@ -11,3 +11,5 @@ export const movieSchema = z.object({
 export const movieCreateInputSchema = movieSchema.omit({
   id: true,
 });
+
+export const movieUpdateInputSchema = movieSchema.partial();
