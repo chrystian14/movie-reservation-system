@@ -72,4 +72,34 @@ describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () =>
     const showtimeCount = await showtimeRepository.count();
     expect(showtimeCount).toBe(0);
   });
+
+  test("should return an error when creating a showtime with admin user but without required fields", async () => {
+    const response = await apiClient
+      .post(showtimeEndpoint)
+      .set("Authorization", `Bearer ${adminUserToken}`)
+      .send({});
+
+    const expectedResponseBody = {
+      details: [
+        {
+          field: ["datetime"],
+          message: "Required",
+        },
+        {
+          field: ["movieId"],
+          message: "Required",
+        },
+        {
+          field: ["roomId"],
+          message: "Required",
+        },
+      ],
+    };
+
+    expect(response.status).toBe(status.HTTP_400_BAD_REQUEST);
+    expect(response.body).toEqual(expectedResponseBody);
+
+    const showtimeCount = await showtimeRepository.count();
+    expect(showtimeCount).toBe(0);
+  });
 });
