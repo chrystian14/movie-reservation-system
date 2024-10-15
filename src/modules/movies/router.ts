@@ -5,7 +5,10 @@ import { MovieRepository } from "./repository";
 import { GenreRepository } from "modules/genres/repository";
 import { isAdmin, isAuthenticated } from "modules/auth/middlewares";
 import { validateBody } from "modules/_shared/middlewares";
-import { movieCreateInputSchema } from "./types/schemas";
+import {
+  movieCreateInputSchema,
+  movieUpdateInputSchema,
+} from "./types/schemas";
 
 export const movieRouter = Router();
 
@@ -23,4 +26,10 @@ movieRouter.post(
 );
 
 movieRouter.delete("/:id", isAuthenticated, isAdmin, movieController.delete);
-movieRouter.patch("/:id", isAuthenticated, isAdmin, movieController.update);
+movieRouter.patch(
+  "/:id",
+  validateBody(movieUpdateInputSchema),
+  isAuthenticated,
+  isAdmin,
+  movieController.update
+);
