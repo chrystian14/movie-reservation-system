@@ -19,3 +19,8 @@ export const seatSchema = z.object({
 export const seatCreateInputSchema = seatSchema.omit({
   id: true,
 });
+
+export const seatCreateWithoutRoomIdSchema = seatSchema.omit({
+  id: true,
+  roomId: true,
+});
