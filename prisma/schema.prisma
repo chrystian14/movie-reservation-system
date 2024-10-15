@@ -32,8 +32,9 @@ model Movie {
   description String @db.VarChar(255)
   posterUrl   String @map("poster_url") @db.VarChar(255)
 
-  genreId String @map("genre_id")
-  genre   Genre  @relation(fields: [genreId], references: [id])
+  genreId  String     @map("genre_id")
+  genre    Genre      @relation(fields: [genreId], references: [id])
+  Showtime Showtime[]
 
   @@map("movies")
 }
@@ -54,7 +55,8 @@ model Room {
   columns       Int     @db.SmallInt
   baseSeatPrice Decimal @db.Decimal(8, 2)
 
-  seats Seat[]
+  seats     Seat[]
+  showtimes Showtime[]
 
   @@map("rooms")
 }
@@ -69,4 +71,17 @@ model Seat {
   room   Room   @relation(fields: [roomId], references: [id])
 
   @@map("seats")
+}
+
+model Showtime {
+  id       String   @id @default(uuid())
+  datetime DateTime
+
+  movieId String @map("movie_id")
+  movie   Movie  @relation(fields: [movieId], references: [id])
+
+  roomId String @map("room_id")
+  room   Room   @relation(fields: [roomId], references: [id])
+
+  @@map("showtimes")
 }
