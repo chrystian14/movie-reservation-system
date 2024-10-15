@@ -2,3 +2,4 @@
 node_modules
 dist
 anotacoes.md
+**/testing-script.ts
