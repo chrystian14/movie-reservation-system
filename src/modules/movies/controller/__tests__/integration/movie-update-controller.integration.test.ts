@@ -151,4 +151,22 @@ describe("INTEGRATION: MovieControler.update - PATCH /api/v1/movies/{id}", () =>
     expect(response.statusCode).toBe(status.HTTP_404_NOT_FOUND);
     expect(response.body).toEqual(expectedResponseBody);
   });
+
+  test("should return a 400 when updating a movie with a title that is longer than 255 characters", async () => {
+    const movieUpdateInput: MovieUpdateInput = {
+      title: "A".repeat(256),
+    };
+
+    const response = await apiClient
+      .patch(`${movieEndpoint}/${movie.id}`)
+      .set("Authorization", `Bearer ${adminUserToken}`)
+      .send(movieUpdateInput);
+
+    const expectedResponseBody = {
+      details: "Title is too long",
+    };
+
+    expect(response.statusCode).toBe(status.HTTP_400_BAD_REQUEST);
+    expect(response.body).toEqual(expectedResponseBody);
+  });
 });
