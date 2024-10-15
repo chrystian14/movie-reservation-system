@@ -18,7 +18,7 @@ export class ShowtimeService implements IShowtimeService {
       showtimeCreateInput.roomId
     );
 
-    if (roomCount === 0) {
+    if (!roomCount) {
       throw new RoomNotFoundError();
     }
 
@@ -26,7 +26,7 @@ export class ShowtimeService implements IShowtimeService {
       showtimeCreateInput.movieId
     );
 
-    if (movieCount === 0) {
+    if (!movieCount) {
       throw new MovieNotFoundError();
     }
 
