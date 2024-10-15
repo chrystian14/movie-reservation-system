@@ -163,10 +163,84 @@ describe("INTEGRATION: MovieControler.update - PATCH /api/v1/movies/{id}", () =>
       .send(movieUpdateInput);
 
     const expectedResponseBody = {
-      details: "Title is too long",
+      details: [
+        {
+          field: ["title"],
+          message: "String must contain at most 255 character(s)",
+        },
+      ],
     };
 
     expect(response.statusCode).toBe(status.HTTP_400_BAD_REQUEST);
-    expect(response.body).toEqual(expectedResponseBody);
+    expect(response.body).toStrictEqual(expectedResponseBody);
+  });
+
+  test("should return a 400 when updating a movie with a title that is an empty string", async () => {
+    const movieUpdateInput: MovieUpdateInput = {
+      title: "",
+    };
+
+    const response = await apiClient
+      .patch(`${movieEndpoint}/${movie.id}`)
+      .set("Authorization", `Bearer ${adminUserToken}`)
+      .send(movieUpdateInput);
+
+    const expectedResponseBody = {
+      details: [
+        {
+          field: ["title"],
+          message: "String must contain at least 1 character(s)",
+        },
+      ],
+    };
+
+    expect(response.statusCode).toBe(status.HTTP_400_BAD_REQUEST);
+    expect(response.body).toStrictEqual(expectedResponseBody);
+  });
+
+  test("should return a 400 when updating a movie with a description that is longer than 255 characters", async () => {
+    const movieUpdateInput: MovieUpdateInput = {
+      description: "A".repeat(256),
+    };
+
+    const response = await apiClient
+      .patch(`${movieEndpoint}/${movie.id}`)
+      .set("Authorization", `Bearer ${adminUserToken}`)
+      .send(movieUpdateInput);
+
+    const expectedResponseBody = {
+      details: [
+        {
+          field: ["description"],
+          message: "String must contain at most 255 character(s)",
+        },
+      ],
+    };
+
+    expect(response.statusCode).toBe(status.HTTP_400_BAD_REQUEST);
+    expect(response.body).toStrictEqual(expectedResponseBody);
+  });
+
+  test("should return a 400 when updating a movie with a description that is an empty string", async () => {
+    const movieUpdateInput: MovieUpdateInput = {
+      description: "",
+    };
+
+    const response = await apiClient
+      .patch(`${movieEndpoint}/${movie.id}`)
+      .set("Authorization", `Bearer ${adminUserToken}`)
+      .send(movieUpdateInput);
+
+    const expectedResponseBody = {
+      details: [
+        {
+          field: ["description"],
+          message: "String must contain at least 1 character(s)",
+        },
+      ],
+    };
+
+    expect(response.statusCode).toBe(status.HTTP_400_BAD_REQUEST);
+    expect(response.body).toStrictEqual(expectedResponseBody);
   });
 });
