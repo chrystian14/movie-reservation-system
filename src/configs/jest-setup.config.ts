@@ -4,6 +4,8 @@ export async function clearDatabase() {
   await prisma.user.deleteMany();
   await prisma.movie.deleteMany();
   await prisma.genre.deleteMany();
+  await prisma.seat.deleteMany();
+  await prisma.room.deleteMany();
 }
 
 afterAll(async () => {
