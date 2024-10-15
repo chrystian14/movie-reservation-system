@@ -33,7 +33,7 @@ describe("UNIT: MovieService.create", () => {
   });
 
   test("should throw an error if creating a movie with non-existent genre id", async () => {
-    mockedGenreRepository.countById.mockResolvedValue(0);
+    mockedGenreRepository.countById.mockResolvedValueOnce(0);
 
     await expect(movieService.create(movieCreateInput)).rejects.toThrow(
       "Genre not found"

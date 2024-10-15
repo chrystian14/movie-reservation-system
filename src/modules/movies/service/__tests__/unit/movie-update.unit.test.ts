@@ -45,7 +45,7 @@ describe("UNIT: MovieService.update", () => {
   });
 
   test("should throw an error if updating a movie with non-existing id", async () => {
-    mockedMovieRepository.countById.mockResolvedValue(0);
+    mockedMovieRepository.countById.mockResolvedValueOnce(0);
 
     await expect(
       movieService.update(movie.id, movieUpdateInput)
@@ -58,7 +58,8 @@ describe("UNIT: MovieService.update", () => {
   });
 
   test("should throw an error if updating a movie with non-existing genre id", async () => {
-    mockedGenreRepository.countById.mockResolvedValue(0);
+    mockedMovieRepository.countById.mockResolvedValueOnce(1);
+    mockedGenreRepository.countById.mockResolvedValueOnce(0);
 
     await expect(
       movieService.update(movie.id, movieUpdateInput)

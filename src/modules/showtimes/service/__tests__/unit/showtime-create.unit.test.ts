@@ -41,7 +41,7 @@ describe("UNIT: ShowtimeService.create", () => {
   });
 
   test("should throw an error if creating a showtime with non-existent room id", async () => {
-    mockedRoomRepository.countById.mockResolvedValue(0);
+    mockedRoomRepository.countById.mockResolvedValueOnce(0);
 
     await expect(showtimeService.create(showtimeCreateInput)).rejects.toThrow(
       "Room not found"
@@ -56,10 +56,16 @@ describe("UNIT: ShowtimeService.create", () => {
   });
 
   test("should throw an error if creating a showtime with non-existent movie id", async () => {
-    mockedMovieRepository.countById.mockResolvedValue(0);
+    mockedRoomRepository.countById.mockResolvedValueOnce(1);
+    mockedMovieRepository.countById.mockResolvedValueOnce(0);
 
     await expect(showtimeService.create(showtimeCreateInput)).rejects.toThrow(
       "Movie not found"
+    );
+
+    expect(mockedRoomRepository.countById).toHaveBeenCalledTimes(1);
+    expect(mockedRoomRepository.countById).toHaveBeenCalledWith(
+      showtimeCreateInput.roomId
     );
 
     expect(mockedMovieRepository.countById).toHaveBeenCalledTimes(1);

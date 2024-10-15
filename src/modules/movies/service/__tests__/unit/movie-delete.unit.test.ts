@@ -35,7 +35,7 @@ describe("UNIT: MovieService.delete", () => {
   });
 
   test("should throw an error if deleting a movie with non-existing id", async () => {
-    mockedMovieRepository.countById.mockResolvedValue(0);
+    mockedMovieRepository.countById.mockResolvedValueOnce(0);
 
     await expect(movieService.delete(movie.id)).rejects.toThrow(
       "Movie not found"

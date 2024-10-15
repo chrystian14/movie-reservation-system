@@ -22,7 +22,7 @@ describe("UNIT: GenreService.create", () => {
   });
 
   test("should throw an error if creating a genre with duplicated name", async () => {
-    mockedGenreRepository.countByName.mockResolvedValue(1);
+    mockedGenreRepository.countByName.mockResolvedValueOnce(1);
 
     await expect(genreService.create(genreCreateInput)).rejects.toThrow(
       "Genre name already exists"
