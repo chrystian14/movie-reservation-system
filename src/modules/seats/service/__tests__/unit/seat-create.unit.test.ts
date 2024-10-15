@@ -3,6 +3,7 @@ import { SeatRepository, type ISeatRepository } from "modules/seats/repository";
 import type { SeatCreateInput } from "modules/seats/types";
 import type { ISeatService } from "../../seat.service.interface";
 import { SeatService } from "../../seat.service";
+import { SeatBuilder } from "modules/seats/builder";
 
 jest.mock("modules/rooms/repository/room.repository.ts");
 jest.mock("modules/seats/repository/seat.repository.ts");
@@ -17,6 +18,8 @@ describe("UNIT: SeatService.create", () => {
   beforeEach(() => {
     mockedSeatRepository = jest.mocked(new SeatRepository());
     mockedRoomRepository = jest.mocked(new RoomRepository());
+
+    seatCreateInput = new SeatBuilder().requiredForCreation();
 
     seatService = new SeatService(mockedSeatRepository, mockedRoomRepository);
   });
