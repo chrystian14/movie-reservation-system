@@ -11,4 +11,9 @@ export const showtimeCreateInputSchema = showtimeSchema
   .omit({
     id: true,
   })
-  .extend({ datetime: z.string().datetime() });
+  .extend({
+    datetime: z
+      .string()
+      .datetime()
+      .transform((str) => new Date(str)),
+  });
