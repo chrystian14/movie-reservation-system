@@ -31,6 +31,16 @@ export class ShowtimeBuilder {
     return this;
   }
 
+  withRoomId(roomId: string) {
+    this.entity.roomId = roomId;
+    return this;
+  }
+
+  withMovieId(movieId: string) {
+    this.entity.movieId = movieId;
+    return this;
+  }
+
   withIsoDatetime(isoDatetime: string) {
     this.entity.datetime = new Date(isoDatetime);
 
