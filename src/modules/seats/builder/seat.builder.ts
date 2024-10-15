@@ -49,8 +49,10 @@ export class SeatBuilder {
     return this;
   }
 
-  withPrice(price: number) {
-    this.entity.price = new Prisma.Decimal(price);
+  withPrice(price: number | Prisma.Decimal) {
+    this.entity.price =
+      price instanceof Prisma.Decimal ? price : new Prisma.Decimal(price);
+
     return this;
   }
 
