@@ -9,3 +9,4 @@ README*
 .git
 .dockerignore
 anotacoes.md
+**/*testing-scripts/**
