@@ -54,5 +54,19 @@ model Room {
   columns       Int     @db.SmallInt
   baseSeatPrice Decimal @db.Decimal(8, 2)
 
+  seats Seat[]
+
   @@map("rooms")
+}
+
+model Seat {
+  id     String  @id @default(uuid())
+  column String  @db.VarChar(1)
+  row    Int     @db.SmallInt
+  price  Decimal @db.Decimal(8, 2)
+
+  roomId String @map("room_id")
+  room   Room   @relation(fields: [roomId], references: [id])
+
+  @@map("seats")
 }
