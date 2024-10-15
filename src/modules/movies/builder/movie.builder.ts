@@ -25,6 +25,11 @@ export class MovieBuilder {
     return await repository.create(this.entity);
   }
 
+  withNewUUID() {
+    this.entity.id = randomUUID();
+    return this;
+  }
+
   withGenreId(genreId: string) {
     this.entity.genreId = genreId;
     return this;

@@ -37,6 +37,11 @@ export class UserBuilder {
     });
   }
 
+  withNewUUID() {
+    this.entity.id = randomUUID();
+    return this;
+  }
+
   withNonAdminRole() {
     this.entity.isAdmin = false;
     return this;
