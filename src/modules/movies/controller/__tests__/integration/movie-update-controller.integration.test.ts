@@ -130,7 +130,25 @@ describe("INTEGRATION: MovieControler.update - PATCH /api/v1/movies/{id}", () =>
     expect(expectedResponseBody).toStrictEqual(response.body);
   });
 
-  test.todo(
-    "should return a 404 when updating a movie with non-existing genre id"
-  );
+  test("should return a 404 when updating a movie with non-existing genre id", async () => {
+    const nonExistingGenreId = randomUUID();
+    const movieUpdateInput: MovieUpdateInput = {
+      title: "The Matrix",
+      description: "The Matrix is a science fiction movie",
+      posterUrl: "https://www.example.com/poster.jpg",
+      genreId: nonExistingGenreId,
+    };
+
+    const response = await apiClient
+      .patch(`${movieEndpoint}/${movie.id}`)
+      .set("Authorization", `Bearer ${adminUserToken}`)
+      .send(movieUpdateInput);
+
+    const expectedResponseBody = {
+      details: "Genre not found",
+    };
+
+    expect(response.statusCode).toBe(status.HTTP_404_NOT_FOUND);
+    expect(response.body).toEqual(expectedResponseBody);
+  });
 });
