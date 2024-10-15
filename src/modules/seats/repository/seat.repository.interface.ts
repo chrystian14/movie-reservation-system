@@ -1,5 +1,5 @@
 import type { Seat, SeatCreateInput } from "../types";
 
 export interface ISeatRepository {
-  create(movieCreateInput: SeatCreateInput): Promise<Seat>;
+  create(seatCreateInput: SeatCreateInput): Promise<Seat>;
 }
