@@ -4,6 +4,7 @@ import type { Showtime, ShowtimeCreateInput } from "../types";
 import type { IShowtimeService } from "./showtime.service.interface";
 import type { IMovieRepository } from "modules/movies/repository";
 import { RoomNotFoundError } from "modules/rooms/errors";
+import { MovieNotFoundError } from "modules/movies/errors";
 
 export class ShowtimeService implements IShowtimeService {
   constructor(
@@ -19,6 +20,14 @@ export class ShowtimeService implements IShowtimeService {
 
     if (roomCount === 0) {
       throw new RoomNotFoundError();
+    }
+
+    const movieCount = await this.movieRepository.countById(
+      showtimeCreateInput.movieId
+    );
+
+    if (movieCount === 0) {
+      throw new MovieNotFoundError();
     }
 
     return await this.showtimeRepository.create(showtimeCreateInput);
