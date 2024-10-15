@@ -8,5 +8,6 @@ export interface IRoomRepository {
     seats: Array<SeatWithoutRoomId>
   ): Promise<Room>;
   countById(id: string): Promise<number>;
+  count(): Promise<number>;
   delete(id: string): Promise<void>;
 }

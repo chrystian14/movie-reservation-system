@@ -19,6 +19,10 @@ export class RoomRepository implements IRoomRepository {
     });
   }
 
+  async count(): Promise<number> {
+    return await prisma.room.count();
+  }
+
   async countById(id: string): Promise<number> {
     return await prisma.room.count({
       where: { id },
