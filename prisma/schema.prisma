@@ -46,3 +46,13 @@ model Genre {
 
   @@map("genres")
 }
+
+model Room {
+  id            String  @id @default(uuid())
+  name          String  @db.VarChar(50)
+  rows          Int     @db.SmallInt
+  columns       Int     @db.SmallInt
+  baseSeatPrice Decimal @db.Decimal(8, 2)
+
+  @@map("rooms")
+}
