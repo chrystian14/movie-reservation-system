@@ -11,7 +11,7 @@ import {
 import type { Genre } from "modules/genres/types";
 import { MovieBuilder } from "modules/movies/builder";
 import { MovieRepository } from "modules/movies/repository";
-import { type Movie } from "modules/movies/types";
+import { type Movie, type MovieUpdateInput } from "modules/movies/types";
 import { UserBuilder } from "modules/users/builder";
 import { UserRepository } from "modules/users/repository";
 
@@ -24,7 +24,8 @@ describe("INTEGRATION: MovieControler.update - PATCH /api/v1/movies/{id}", () =>
 
   let genreBuilder: GenreBuilder;
   let genreRepository: IGenreRepository;
-  let createdGenre: Genre;
+  let createdActionGenre: Genre;
+  let createdThrillerGenre: Genre;
 
   let regularUserToken: string;
   let adminUserToken: string;
@@ -34,12 +35,17 @@ describe("INTEGRATION: MovieControler.update - PATCH /api/v1/movies/{id}", () =>
 
     genreRepository = new GenreRepository();
     genreBuilder = new GenreBuilder();
-    createdGenre = await genreBuilder.save(genreRepository);
+    genreBuilder.withName("action");
+    createdActionGenre = await genreBuilder.save(genreRepository);
+
+    genreBuilder = new GenreBuilder();
+    genreBuilder.withName("thriller");
+    createdThrillerGenre = await genreBuilder.save(genreRepository);
 
     movieRepository = new MovieRepository();
     movieBuilder = new MovieBuilder();
     movie = await movieBuilder
-      .withGenreId(createdGenre.id)
+      .withGenreId(createdActionGenre.id)
       .save(movieRepository);
 
     const userRepository = new UserRepository();
@@ -99,14 +105,32 @@ describe("INTEGRATION: MovieControler.update - PATCH /api/v1/movies/{id}", () =>
     expect(movieCount).toBe(1);
   });
 
-  test("should delete a movie with valid id and return a 204 when user is authenticated and is an admin", async () => {
+  test("should update a movie given a valid movie ID and return a 200 status code when the user is an authenticated admin.", async () => {
+    const movieUpdateInput: MovieUpdateInput = {
+      title: "The Matrix",
+      description: "The Matrix is a science fiction movie",
+      posterUrl: "https://www.example.com/poster.jpg",
+      genreId: createdThrillerGenre.id,
+    };
+
     const response = await apiClient
-      .delete(`${movieEndpoint}/${movie.id}`)
-      .set("Authorization", `Bearer ${adminUserToken}`);
+      .patch(`${movieEndpoint}/${movie.id}`)
+      .set("Authorization", `Bearer ${adminUserToken}`)
+      .send(movieUpdateInput);
 
-    expect(response.statusCode).toBe(status.HTTP_204_NO_CONTENT);
+    const expectedResponseBody = {
+      id: movie.id,
+      title: movieUpdateInput.title,
+      description: movieUpdateInput.description,
+      posterUrl: movieUpdateInput.posterUrl,
+      genreId: createdThrillerGenre.id,
+    };
 
-    const movieCount = await movieRepository.countById(movie.id);
-    expect(movieCount).toBe(0);
+    expect(response.statusCode).toBe(status.HTTP_200_OK);
+    expect(expectedResponseBody).toStrictEqual(response.body);
   });
+
+  test.todo(
+    "should return a 404 when updating a movie with non-existing genre id"
+  );
 });
