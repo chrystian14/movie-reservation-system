@@ -169,12 +169,31 @@ describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () =>
     expect(showtimeCount).toBe(0);
   });
 
-  test.todo(
-    "should return a 400 when creating a showtime with invalid datetime"
-  );
-  test.todo(
-    "should return a 400 when creating a showtime with invalid datetime format"
-  );
+  test("should return a 400 when creating a showtime with invalid datetime format", async () => {
+    const showtimeWithInvalidDatetimeFormat = {
+      ...showtimeCreateInput,
+      datetime: "2022-01-01",
+    };
+
+    const response = await apiClient
+      .post(showtimeEndpoint)
+      .set("Authorization", `Bearer ${adminUserToken}`)
+      .send(showtimeWithInvalidDatetimeFormat);
+
+    const expectedResponseBody = {
+      details: [
+        {
+          field: ["datetime"],
+          message:
+            "Invalid datetime format. Format must be `YYYY-MM-DDTHH:mm:ss`",
+        },
+      ],
+    };
+
+    expect(response.status).toBe(status.HTTP_400_BAD_REQUEST);
+    expect(response.body).toEqual(expectedResponseBody);
+  });
+
   test.todo(
     "should return a 422 when creating a showtime with a datetime in the past"
   );

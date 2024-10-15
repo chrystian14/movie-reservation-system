@@ -14,6 +14,9 @@ export const showtimeCreateInputSchema = showtimeSchema
   .extend({
     datetime: z
       .string()
-      .datetime()
+      .datetime({
+        message:
+          "Invalid datetime format. Format must be `YYYY-MM-DDTHH:mm:ss`",
+      })
       .transform((str) => new Date(str)),
   });
