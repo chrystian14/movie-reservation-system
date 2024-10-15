@@ -8,4 +8,10 @@ export class SeatRepository implements ISeatRepository {
       data: seatCreateInput,
     });
   }
+
+  async countByRoomId(roomId: string): Promise<number> {
+    return await prisma.seat.count({
+      where: { roomId },
+    });
+  }
 }
