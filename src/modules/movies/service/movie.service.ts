@@ -16,7 +16,7 @@ export class MovieService implements IMovieService {
       movieCreateInput.genreId
     );
 
-    if (genreCount === 0) {
+    if (!genreCount) {
       throw new GenreNotFoundError();
     }
 
@@ -26,7 +26,7 @@ export class MovieService implements IMovieService {
   async delete(id: string): Promise<void> {
     const movieCount = await this.movieRepository.countById(id);
 
-    if (movieCount === 0) {
+    if (!movieCount) {
       throw new MovieNotFoundError();
     }
 
@@ -36,7 +36,7 @@ export class MovieService implements IMovieService {
   async update(id: string, movieUpdateInput: MovieUpdateInput): Promise<Movie> {
     const movieCount = await this.movieRepository.countById(id);
 
-    if (movieCount === 0) {
+    if (!movieCount) {
       throw new MovieNotFoundError();
     }
 
@@ -45,7 +45,7 @@ export class MovieService implements IMovieService {
         movieUpdateInput.genreId
       );
 
-      if (genreCount === 0) {
+      if (!genreCount) {
         throw new GenreNotFoundError();
       }
     }
