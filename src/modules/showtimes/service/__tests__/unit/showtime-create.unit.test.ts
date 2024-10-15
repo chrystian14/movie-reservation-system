@@ -54,4 +54,19 @@ describe("UNIT: ShowtimeService.create", () => {
 
     expect(mockedShowtimeRepository.create).not.toHaveBeenCalled();
   });
+
+  test("should throw an error if creating a showtime with non-existent movie id", async () => {
+    mockedMovieRepository.countById.mockResolvedValue(0);
+
+    await expect(showtimeService.create(showtimeCreateInput)).rejects.toThrow(
+      "Movie not found"
+    );
+
+    expect(mockedMovieRepository.countById).toHaveBeenCalledTimes(1);
+    expect(mockedMovieRepository.countById).toHaveBeenCalledWith(
+      showtimeCreateInput.movieId
+    );
+
+    expect(mockedShowtimeRepository.create).not.toHaveBeenCalled();
+  });
 });
