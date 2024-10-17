@@ -73,10 +73,12 @@ describe("INTEGRATION: ShowtimeControler.getAvailableSeats - GET /api/v1/showtim
     expect(response.body).toEqual(expectedResponseBody);
   });
 
-  test("should return a 404 when showtime id is not found", async () => {
+  test("should return a 404 when authenticated but showtime id is not found", async () => {
     const nonExistingShowtimeId = randomUUID();
     const getAvailableSeatsEndpoint = `${showtimeEndpoint}/${nonExistingShowtimeId}/available-seats`;
-    const response = await apiClient.get(getAvailableSeatsEndpoint);
+    const response = await apiClient
+      .get(getAvailableSeatsEndpoint)
+      .set("Authorization", `Bearer ${regularUserToken}`);
 
     const expectedResponseBody = {
       details: "Showtime not found",
