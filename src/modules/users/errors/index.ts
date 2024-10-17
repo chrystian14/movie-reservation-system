@@ -1,1 +1,1 @@
-export { EmailAlreadyExistsError } from "./user.errors";
+export { EmailAlreadyExistsError, UserNotFoundError } from "./user.errors";

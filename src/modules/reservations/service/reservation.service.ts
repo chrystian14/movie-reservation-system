@@ -5,6 +5,7 @@ import type { IReservationService } from "./reservation.service.interface";
 import type { ISeatRepository } from "modules/seats/repository";
 import type { IUserRepository } from "modules/users/repository";
 import { ShowtimeNotFoundError } from "modules/showtimes/errors";
+import { UserNotFoundError } from "modules/users/errors";
 
 export class ReservationService implements IReservationService {
   constructor(
@@ -23,6 +24,14 @@ export class ReservationService implements IReservationService {
 
     if (!showtimeCount) {
       throw new ShowtimeNotFoundError();
+    }
+
+    const userCount = await this.userRepository.countById(
+      reservationCreateInput.userId
+    );
+
+    if (!userCount) {
+      throw new UserNotFoundError();
     }
 
     return await this.reservationRepository.create(reservationCreateInput);
