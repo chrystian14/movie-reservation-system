@@ -72,4 +72,17 @@ describe("INTEGRATION: ShowtimeControler.getAvailableSeats - GET /api/v1/showtim
     expect(response.statusCode).toBe(status.HTTP_401_UNAUTHORIZED);
     expect(response.body).toEqual(expectedResponseBody);
   });
+
+  test("should return a 404 when showtime id is not found", async () => {
+    const nonExistingShowtimeId = randomUUID();
+    const getAvailableSeatsEndpoint = `${showtimeEndpoint}/${nonExistingShowtimeId}/available-seats`;
+    const response = await apiClient.get(getAvailableSeatsEndpoint);
+
+    const expectedResponseBody = {
+      details: "Showtime not found",
+    };
+
+    expect(response.statusCode).toBe(status.HTTP_404_NOT_FOUND);
+    expect(response.body).toEqual(expectedResponseBody);
+  });
 });
