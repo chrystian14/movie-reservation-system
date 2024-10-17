@@ -209,12 +209,7 @@ describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () =>
       .send(pastDatetimeShowtimeInput);
 
     const expectedResponseBody = {
-      details: [
-        {
-          field: ["datetime"],
-          message: "Datetime must be in the future",
-        },
-      ],
+      details: "Datetime must be in the future",
     };
 
     expect(response.status).toBe(status.HTTP_422_UNPROCESSABLE_ENTITY);
