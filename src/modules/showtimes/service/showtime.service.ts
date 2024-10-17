@@ -5,6 +5,7 @@ import type { IShowtimeService } from "./showtime.service.interface";
 import type { IMovieRepository } from "modules/movies/repository";
 import { RoomNotFoundError } from "modules/rooms/errors";
 import { MovieNotFoundError } from "modules/movies/errors";
+import { DatetimeInThePastError } from "../errors";
 
 export class ShowtimeService implements IShowtimeService {
   constructor(
@@ -28,6 +29,10 @@ export class ShowtimeService implements IShowtimeService {
 
     if (!movieCount) {
       throw new MovieNotFoundError();
+    }
+
+    if (showtimeCreateInput.datetime < new Date()) {
+      throw new DatetimeInThePastError();
     }
 
     return await this.showtimeRepository.create(showtimeCreateInput);

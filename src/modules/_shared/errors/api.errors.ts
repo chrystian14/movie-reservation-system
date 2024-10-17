@@ -54,3 +54,12 @@ export class ForbiddenError extends ApiError {
     super(message, statusCode);
   }
 }
+
+export class UnprocessableEntity extends ApiError {
+  constructor(
+    message: string,
+    readonly statusCode: number = status.HTTP_422_UNPROCESSABLE_ENTITY
+  ) {
+    super(message, statusCode);
+  }
+}
