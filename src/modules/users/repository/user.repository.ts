@@ -9,6 +9,12 @@ export class UserRepository implements IUserRepository {
     });
   }
 
+  async countById(userId: string): Promise<number> {
+    return await prisma.user.count({
+      where: { id: userId },
+    });
+  }
+
   async countByEmail(email: string): Promise<number> {
     return await prisma.user.count({
       where: { email },
