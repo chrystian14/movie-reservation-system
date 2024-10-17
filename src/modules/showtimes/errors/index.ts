@@ -1,1 +1,4 @@
-export { DatetimeInThePastError } from "./showtime.errors";
+export {
+  DatetimeInThePastError,
+  ShowtimeNotFoundError,
+} from "./showtime.errors";

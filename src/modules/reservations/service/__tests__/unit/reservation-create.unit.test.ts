@@ -46,11 +46,11 @@ describe("UNIT: ReservationService.create", () => {
   });
 
   test("should throw an error if creating a reservation with non-existing showtime id", async () => {
-    mockedShowtimeRepository.countById.mockResolvedValueOnce(1);
+    mockedShowtimeRepository.countById.mockResolvedValueOnce(0);
 
     await expect(
       reservationService.create(reservationCreateInput)
-    ).rejects.toThrow("Reservation name already exists");
+    ).rejects.toThrow("Showtime not found");
 
     expect(mockedShowtimeRepository.countById).toHaveBeenCalledTimes(1);
     expect(mockedShowtimeRepository.countById).toHaveBeenCalledWith(
