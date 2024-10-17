@@ -59,4 +59,20 @@ describe("UNIT: ReservationService.create", () => {
 
     expect(mockedReservationRepository.create).not.toHaveBeenCalled();
   });
+
+  test("should throw an error if creating a reservation with non-existing user id", async () => {
+    mockedShowtimeRepository.countById.mockResolvedValueOnce(1);
+    mockedUserRepository.countById.mockResolvedValueOnce(0);
+
+    await expect(
+      reservationService.create(reservationCreateInput)
+    ).rejects.toThrow("User not found");
+
+    expect(mockedUserRepository.countById).toHaveBeenCalledTimes(1);
+    expect(mockedUserRepository.countById).toHaveBeenCalledWith(
+      reservationCreateInput.userId
+    );
+
+    expect(mockedReservationRepository.create).not.toHaveBeenCalled();
+  });
 });
