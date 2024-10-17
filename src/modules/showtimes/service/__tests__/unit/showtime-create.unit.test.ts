@@ -13,7 +13,9 @@ import {
   MovieRepository,
   type IMovieRepository,
 } from "modules/movies/repository";
+import { SeatRepository, type ISeatRepository } from "modules/seats/repository";
 
+jest.mock("modules/seats/repository/seat.repository.ts");
 jest.mock("modules/showtimes/repository/showtime.repository.ts");
 jest.mock("modules/rooms/repository/room.repository.ts");
 jest.mock("modules/movies/repository/movie.repository.ts");
@@ -22,11 +24,13 @@ describe("UNIT: ShowtimeService.create", () => {
   let showtimeCreateInput: ShowtimeCreateInput;
   let showtimeService: IShowtimeService;
 
+  let mockedSeatRepository: jest.Mocked<ISeatRepository>;
   let mockedShowtimeRepository: jest.Mocked<IShowtimeRepository>;
   let mockedRoomRepository: jest.Mocked<IRoomRepository>;
   let mockedMovieRepository: jest.Mocked<IMovieRepository>;
 
   beforeEach(() => {
+    mockedSeatRepository = jest.mocked(new SeatRepository());
     mockedShowtimeRepository = jest.mocked(new ShowtimeRepository());
     mockedRoomRepository = jest.mocked(new RoomRepository());
     mockedMovieRepository = jest.mocked(new MovieRepository());
@@ -34,7 +38,8 @@ describe("UNIT: ShowtimeService.create", () => {
     showtimeService = new ShowtimeService(
       mockedShowtimeRepository,
       mockedRoomRepository,
-      mockedMovieRepository
+      mockedMovieRepository,
+      mockedSeatRepository
     );
 
     showtimeCreateInput = new ShowtimeBuilder().requiredForCreation();
