@@ -16,7 +16,7 @@ export const showtimeCreateInputSchema = showtimeSchema
       .string()
       .datetime({
         message:
-          "Invalid datetime format. Format must be `YYYY-MM-DDTHH:mm:ss`",
+          "Invalid datetime format. Format must be ISO8601: `YYYY-MM-DDTHH:mm:ssZ`",
       })
       .transform((str) => new Date(str)),
   });

@@ -24,7 +24,7 @@ describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () =>
 
   let showtimeRepository: IShowtimeRepository;
   let showtimeBuilder: ShowtimeBuilder;
-  let showtimeCreateInput: ShowtimeCreateInput;
+  let validShowtimeInput: ShowtimeCreateInput;
 
   let regularUserToken: string;
   let adminUserToken: string;
@@ -56,7 +56,7 @@ describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () =>
 
     showtimeRepository = new ShowtimeRepository();
     showtimeBuilder = new ShowtimeBuilder();
-    showtimeCreateInput = showtimeBuilder
+    validShowtimeInput = showtimeBuilder
       .withMovieId(createdMovie.id)
       .withRoomId(createdRoom.id)
       .requiredForCreation();
@@ -65,7 +65,7 @@ describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () =>
   test("should return a 401 when user is not authenticated", async () => {
     const response = await apiClient
       .post(showtimeEndpoint)
-      .send(showtimeCreateInput);
+      .send(validShowtimeInput);
 
     const expectedResponseBody = {
       details: "Missing authorization header with bearer token",
@@ -82,7 +82,7 @@ describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () =>
     const response = await apiClient
       .post(showtimeEndpoint)
       .set("Authorization", `Bearer ${regularUserToken}`)
-      .send(showtimeCreateInput);
+      .send(validShowtimeInput);
 
     const expectedResponseBody = {
       details: "You don't have permission to perform this action",
@@ -127,7 +127,7 @@ describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () =>
 
   test("should return a 404 when creating a showtime with non-existent room id", async () => {
     const showtimeWithInvalidRoomId = {
-      ...showtimeCreateInput,
+      ...validShowtimeInput,
       roomId: randomUUID(),
     };
 
@@ -149,7 +149,7 @@ describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () =>
 
   test("should return a 404 when creating a showtime with non-existent movie id", async () => {
     const showtimeWithInvalidMovieId = {
-      ...showtimeCreateInput,
+      ...validShowtimeInput,
       movieId: randomUUID(),
     };
 
@@ -171,7 +171,7 @@ describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () =>
 
   test("should return a 400 when creating a showtime with invalid datetime format", async () => {
     const showtimeWithInvalidDatetimeFormat = {
-      ...showtimeCreateInput,
+      ...validShowtimeInput,
       datetime: "2022-01-01",
     };
 
@@ -185,18 +185,44 @@ describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () =>
         {
           field: ["datetime"],
           message:
-            "Invalid datetime format. Format must be `YYYY-MM-DDTHH:mm:ss`",
+            "Invalid datetime format. Format must be ISO8601: `YYYY-MM-DDTHH:mm:ssZ`",
         },
       ],
     };
 
     expect(response.status).toBe(status.HTTP_400_BAD_REQUEST);
     expect(response.body).toEqual(expectedResponseBody);
+
+    const showtimeCount = await showtimeRepository.count();
+    expect(showtimeCount).toBe(0);
   });
 
-  test.todo(
-    "should return a 422 when creating a showtime with a datetime in the past"
-  );
+  test("should return a 422 when creating a showtime with a datetime in the past", async () => {
+    const pastDatetimeShowtimeInput = {
+      ...validShowtimeInput,
+      datetime: "2020-01-01T00:00:00Z",
+    };
+
+    const response = await apiClient
+      .post(showtimeEndpoint)
+      .set("Authorization", `Bearer ${adminUserToken}`)
+      .send(pastDatetimeShowtimeInput);
+
+    const expectedResponseBody = {
+      details: [
+        {
+          field: ["datetime"],
+          message: "Datetime must be in the future",
+        },
+      ],
+    };
+
+    expect(response.status).toBe(status.HTTP_422_UNPROCESSABLE_ENTITY);
+    expect(response.body).toEqual(expectedResponseBody);
+
+    const showtimeCount = await showtimeRepository.count();
+    expect(showtimeCount).toBe(0);
+  });
 
   test.todo("should create a showtime with admin user credentials");
 });
