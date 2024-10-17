@@ -12,4 +12,8 @@ export class ShowtimeRepository implements IShowtimeRepository {
   async count(): Promise<number> {
     return await prisma.showtime.count();
   }
+
+  async countById(showtimeId: string): Promise<number> {
+    return await prisma.showtime.count({ where: { id: showtimeId } });
+  }
 }

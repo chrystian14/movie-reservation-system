@@ -8,6 +8,7 @@ import { MovieNotFoundError } from "modules/movies/errors";
 import { DatetimeInThePastError } from "../errors";
 import type { Seat } from "modules/seats/types";
 import type { ISeatRepository } from "modules/seats/repository";
+import { ShowtimeNotFoundError } from "../errors/showtime.errors";
 
 export class ShowtimeService implements IShowtimeService {
   constructor(
@@ -42,6 +43,12 @@ export class ShowtimeService implements IShowtimeService {
   }
 
   async getAvailableSeats(showtimeId: string): Promise<Array<Seat>> {
+    const showtimeCount = await this.showtimeRepository.countById(showtimeId);
+
+    if (!showtimeCount) {
+      throw new ShowtimeNotFoundError();
+    }
+
     return await this.seatRepository.getAvailableSeats(showtimeId);
   }
 }
