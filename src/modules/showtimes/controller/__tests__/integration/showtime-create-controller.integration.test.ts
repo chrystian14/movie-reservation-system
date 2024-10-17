@@ -219,5 +219,23 @@ describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () =>
     expect(showtimeCount).toBe(0);
   });
 
-  test.todo("should create a showtime with admin user credentials");
+  test("should create a showtime with admin user credentials", async () => {
+    const response = await apiClient
+      .post(showtimeEndpoint)
+      .set("Authorization", `Bearer ${adminUserToken}`)
+      .send(validShowtimeInput);
+
+    const expectedResponseBody = {
+      id: expect.any(String),
+      datetime: validShowtimeInput.datetime.toISOString(),
+      movieId: validShowtimeInput.movieId,
+      roomId: validShowtimeInput.roomId,
+    };
+
+    expect(response.status).toBe(status.HTTP_201_CREATED);
+    expect(response.body).toEqual(expectedResponseBody);
+
+    const showtimeCount = await showtimeRepository.count();
+    expect(showtimeCount).toBe(1);
+  });
 });
