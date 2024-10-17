@@ -2,6 +2,7 @@ import { prisma } from "./prisma-client.config";
 
 export async function clearDatabase() {
   await prisma.user.deleteMany();
+  await prisma.showtime.deleteMany();
   await prisma.movie.deleteMany();
   await prisma.genre.deleteMany();
   await prisma.seat.deleteMany();
