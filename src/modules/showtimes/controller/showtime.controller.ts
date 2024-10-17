@@ -11,4 +11,12 @@ export class ShowtimeController {
 
     return res.status(status.HTTP_201_CREATED).json(showtime);
   };
+
+  getAvailableSeats = async (req: Request, res: AutheticatedResponse) => {
+    const availableSeats = await this.showtimeService.getAvailableSeats(
+      req.params.id
+    );
+
+    return res.status(status.HTTP_200_OK).json(availableSeats);
+  };
 }

@@ -6,12 +6,15 @@ import type { IMovieRepository } from "modules/movies/repository";
 import { RoomNotFoundError } from "modules/rooms/errors";
 import { MovieNotFoundError } from "modules/movies/errors";
 import { DatetimeInThePastError } from "../errors";
+import type { Seat } from "modules/seats/types";
+import type { ISeatRepository } from "modules/seats/repository";
 
 export class ShowtimeService implements IShowtimeService {
   constructor(
     private readonly showtimeRepository: IShowtimeRepository,
     private readonly roomRepository: IRoomRepository,
-    private readonly movieRepository: IMovieRepository
+    private readonly movieRepository: IMovieRepository,
+    private readonly seatRepository: ISeatRepository
   ) {}
 
   async create(showtimeCreateInput: ShowtimeCreateInput): Promise<Showtime> {
@@ -36,5 +39,9 @@ export class ShowtimeService implements IShowtimeService {
     }
 
     return await this.showtimeRepository.create(showtimeCreateInput);
+  }
+
+  async getAvailableSeats(showtimeId: string): Promise<Array<Seat>> {
+    return await this.seatRepository.getAvailableSeats(showtimeId);
   }
 }
