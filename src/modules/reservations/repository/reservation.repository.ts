@@ -4,6 +4,10 @@ import type { IReservationRepository } from "./reservation.repository.interface"
 import { prisma } from "configs/prisma-client.config";
 
 export class ReservationRepository implements IReservationRepository {
+  async count(): Promise<number> {
+    return await prisma.reservation.count();
+  }
+
   async create(
     reservationCreateInput: ReservationCreateInput
   ): Promise<Array<Reservation>> {
