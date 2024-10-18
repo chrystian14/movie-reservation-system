@@ -1,4 +1,5 @@
 import { clearDatabase } from "configs/jest-setup.config";
+import { randomUUID } from "crypto";
 import { apiClient } from "modules/_shared/tests";
 import { status } from "modules/_shared/utils";
 import { generateToken } from "modules/auth/jwt";
@@ -56,7 +57,7 @@ describe("INTEGRATION: ReservationControler.create - POST /api/v1/reservations",
     };
 
     expect(response.statusCode).toBe(status.HTTP_401_UNAUTHORIZED);
-    expect(response.body).toEqual(expectedResponseBody);
+    expect(response.body).toStrictEqual(expectedResponseBody);
 
     const reservationCount = await reservationRepository.count();
     expect(reservationCount).toBe(0);
@@ -86,6 +87,26 @@ describe("INTEGRATION: ReservationControler.create - POST /api/v1/reservations",
     expect(response.body.details).toIncludeSameMembers(
       expectedResponseBody.details
     );
+
+    const reservationCount = await reservationRepository.count();
+    expect(reservationCount).toBe(0);
+  });
+
+  test("should return a 404 if creating a reservation with a non-existing showtime id", async () => {
+    const reservationWithNonExistentShowtimeId: ReservationCreateInput =
+      reservationBuilder.withShowtimeId(randomUUID()).requiredForCreation();
+
+    const response = await apiClient
+      .post(reservationEndpoint)
+      .set("Authorization", `Bearer ${regularUserToken}`)
+      .send(reservationWithNonExistentShowtimeId);
+
+    const expectedResponseBody = {
+      details: "Showtime not found",
+    };
+
+    expect(response.status).toBe(status.HTTP_404_NOT_FOUND);
+    expect(response.body).toStrictEqual(expectedResponseBody);
 
     const reservationCount = await reservationRepository.count();
     expect(reservationCount).toBe(0);
