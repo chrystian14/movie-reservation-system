@@ -1,4 +1,6 @@
 import { prisma } from "./prisma-client.config";
+import * as matchers from "jest-extended";
+expect.extend(matchers);
 
 export async function clearDatabase() {
   await prisma.user.deleteMany();
