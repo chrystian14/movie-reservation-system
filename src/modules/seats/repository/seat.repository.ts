@@ -1,3 +1,4 @@
+import { ReservationStatus } from "@prisma/client";
 import type { Seat, SeatCreateInput } from "../types";
 import type { ISeatRepository } from "./seat.repository.interface";
 import { prisma } from "configs/prisma-client.config";
@@ -27,5 +28,27 @@ export class SeatRepository implements ISeatRepository {
         },
       },
     });
+  }
+
+  async scanForReservedSeatsByShowtimeId(
+    seatIdsToScan: Array<string>,
+    showtimeId: string
+  ): Promise<Array<string>> {
+    const reservedSeats = await prisma.seat.findMany({
+      where: {
+        id: { in: seatIdsToScan },
+        reservations: {
+          some: {
+            showtimeId: showtimeId,
+            status: ReservationStatus.CONFIRMED,
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return reservedSeats.map((seat) => seat.id);
   }
 }
