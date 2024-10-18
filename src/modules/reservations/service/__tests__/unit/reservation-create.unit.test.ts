@@ -14,6 +14,7 @@ import {
 } from "modules/showtimes/repository";
 import { SeatRepository, type ISeatRepository } from "modules/seats/repository";
 import { UserRepository, type IUserRepository } from "modules/users/repository";
+import { randomUUID } from "crypto";
 
 jest.mock("modules/reservations/repository/reservation.repository.ts");
 jest.mock("modules/showtimes/repository/showtime.repository.ts");
@@ -74,5 +75,23 @@ describe("UNIT: ReservationService.create", () => {
     );
 
     expect(mockedReservationRepository.create).not.toHaveBeenCalled();
+  });
+
+  test("should throw an error if creating a reservation for a seat that is already reserved", async () => {
+    mockedShowtimeRepository.countById.mockResolvedValueOnce(1);
+    mockedUserRepository.countById.mockResolvedValueOnce(1);
+
+    const seatsAlreadyReserved = 4;
+    const reservedSeatsIds = Array.from({ length: seatsAlreadyReserved }, () =>
+      randomUUID()
+    );
+
+    mockedSeatRepository.scanForReservedSeatsByShowtimeId.mockResolvedValueOnce(
+      reservedSeatsIds
+    );
+
+    await expect(
+      reservationService.create(reservationCreateInput)
+    ).rejects.toThrow("Seat(s) already reserved");
   });
 });
