@@ -4,6 +4,7 @@ import { authRouter } from "modules/auth/router";
 import { movieRouter } from "modules/movies/router";
 import { roomRouter } from "modules/rooms/router";
 import { showtimeRouter } from "modules/showtimes/router";
+import { reservationRouter } from "modules/reservations/router";
 
 export function initRoutes(app: Express) {
   const v1Router = Router();
@@ -13,6 +14,7 @@ export function initRoutes(app: Express) {
   v1Router.use("/v1/movies", movieRouter);
   v1Router.use("/v1/rooms", roomRouter);
   v1Router.use("/v1/showtimes", showtimeRouter);
+  v1Router.use("/v1/reservations", reservationRouter);
 
   app.use("/api", v1Router);
 }
