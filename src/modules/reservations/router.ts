@@ -2,9 +2,9 @@ import { Router } from "express";
 import { ReservationController } from "./controller";
 import { ReservationService } from "./service";
 import { ReservationRepository } from "./repository";
-import { isAdmin, isAuthenticated } from "modules/auth/middlewares";
+import { isAuthenticated } from "modules/auth/middlewares";
 import { validateBody } from "modules/_shared/middlewares";
-import { reservationCreateInputSchema } from "./types/schemas";
+import { reservationCreateWithoutUserSchema } from "./types/schemas";
 import { ShowtimeRepository } from "modules/showtimes/repository";
 import { SeatRepository } from "modules/seats/repository";
 import { UserRepository } from "modules/users/repository";
@@ -27,6 +27,6 @@ const reservationController = new ReservationController(reservationService);
 reservationRouter.post(
   "",
   isAuthenticated,
-  validateBody(reservationCreateInputSchema),
+  validateBody(reservationCreateWithoutUserSchema),
   reservationController.create
 );
