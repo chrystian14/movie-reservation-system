@@ -4,7 +4,8 @@ import { ZodError } from "zod";
 export class ApiError extends Error {
   constructor(
     message: string,
-    public statusCode: number = status.HTTP_500_INTERNAL_SERVER_ERROR
+    public statusCode: number = status.HTTP_500_INTERNAL_SERVER_ERROR,
+    public errors: { [field: string]: string; message: string }[] = []
   ) {
     super(message);
   }

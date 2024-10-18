@@ -6,6 +6,7 @@ import type { ISeatRepository } from "modules/seats/repository";
 import type { IUserRepository } from "modules/users/repository";
 import { ShowtimeNotFoundError } from "modules/showtimes/errors";
 import { UserNotFoundError } from "modules/users/errors";
+import { SeatAlreadyReservedError } from "modules/seats/errors";
 
 export class ReservationService implements IReservationService {
   constructor(
@@ -32,6 +33,16 @@ export class ReservationService implements IReservationService {
 
     if (!userCount) {
       throw new UserNotFoundError();
+    }
+
+    const seatsAlreadyReserved =
+      await this.seatRepository.scanForReservedSeatsByShowtimeId(
+        reservationCreateInput.seatIds,
+        reservationCreateInput.showtimeId
+      );
+
+    if (seatsAlreadyReserved.length > 0) {
+      throw new SeatAlreadyReservedError(seatsAlreadyReserved);
     }
 
     return await this.reservationRepository.create(reservationCreateInput);
