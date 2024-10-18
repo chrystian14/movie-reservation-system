@@ -2,8 +2,8 @@ import z from "zod";
 
 export const userSchema = z.object({
   id: z.string().uuid(),
-  firstName: z.string().min(3).max(50),
-  lastName: z.string().min(3).max(50),
+  firstName: z.string().min(1).max(50),
+  lastName: z.string().min(1).max(50),
   email: z.string().email(),
   password: z.string().min(6).max(64),
   isAdmin: z.boolean().default(false),
