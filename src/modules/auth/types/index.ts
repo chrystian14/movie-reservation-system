@@ -4,7 +4,7 @@ import type { Response } from "express";
 
 export type LoginInput = z.infer<typeof loginInputSchema>;
 
-export type TokenPayload = { isAdmin: boolean };
+export type TokenPayload = { isAdmin: boolean; sub: string };
 
 type AuthenticatedResLocals = {
   authenticatedUser: TokenPayload;

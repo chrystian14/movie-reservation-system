@@ -4,11 +4,10 @@ import { parsedEnv } from "configs/env.config";
 import type { User } from "modules/users/types";
 
 export function generateToken(user: User): string {
-  const tokenPayload: TokenPayload = { isAdmin: user.isAdmin };
+  const tokenPayload: TokenPayload = { isAdmin: user.isAdmin, sub: user.id };
 
   const token = jwt.sign(tokenPayload, parsedEnv.JWT_SECRET_KEY, {
     expiresIn: parsedEnv.JWT_EXPIRES_IN,
-    subject: user.id,
   });
 
   return token;
