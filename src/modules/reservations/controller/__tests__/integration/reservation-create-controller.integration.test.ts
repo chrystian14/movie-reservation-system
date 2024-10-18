@@ -61,4 +61,33 @@ describe("INTEGRATION: ReservationControler.create - POST /api/v1/reservations",
     const reservationCount = await reservationRepository.count();
     expect(reservationCount).toBe(0);
   });
+
+  test("should return a 400 when creating a reservation without required fields", async () => {
+    const response = await apiClient
+      .post(reservationEndpoint)
+      .set("Authorization", `Bearer ${regularUserToken}`)
+      .send({});
+
+    const expectedResponseBody = {
+      details: [
+        {
+          field: ["amountPaid"],
+          message: "Invalid input",
+        },
+        {
+          field: ["showtimeId"],
+          message: "Required",
+        },
+        { field: ["seatIds"], message: "Required" },
+      ],
+    };
+
+    expect(response.status).toBe(status.HTTP_400_BAD_REQUEST);
+    expect(response.body.details).toIncludeSameMembers(
+      expectedResponseBody.details
+    );
+
+    const reservationCount = await reservationRepository.count();
+    expect(reservationCount).toBe(0);
+  });
 });
