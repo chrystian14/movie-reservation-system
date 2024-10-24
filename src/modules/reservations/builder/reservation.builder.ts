@@ -1,13 +1,17 @@
 import { randomUUID } from "crypto";
 import type { IReservationRepository } from "../repository";
-import type { Reservation, ReservationCreateInput } from "../types";
+import type {
+  Reservation,
+  ReservationCreateInput,
+  ReservationCreateInputWithoutUserId,
+} from "../types";
 import { Prisma, ReservationStatus } from "@prisma/client";
 import { Chance } from "chance";
 
 export class ReservationBuilder {
   protected entity: Reservation;
   protected chance: Chance.Chance;
-  protected _seatIds: Array<string> = [];
+  protected _seatIds: [string, ...string[]];
 
   constructor() {
     this.chance = new Chance();
@@ -26,7 +30,7 @@ export class ReservationBuilder {
       seatId: randomUUID(),
     };
 
-    this._seatIds.push(this.entity.seatId);
+    this._seatIds = [this.entity.seatId];
   }
 
   build() {
@@ -40,6 +44,7 @@ export class ReservationBuilder {
       amountPaid: this.entity.amountPaid,
       seatIds: this._seatIds,
     };
+
     return await repository.create(reservationCreateInput);
   }
 
@@ -67,7 +72,7 @@ export class ReservationBuilder {
     return this;
   }
 
-  withSeatIds(seatIds: Array<string>) {
+  withSeatIds(seatIds: [string, ...string[]]) {
     this._seatIds = seatIds;
     return this;
   }
@@ -85,6 +90,14 @@ export class ReservationBuilder {
   requiredForCreation(): ReservationCreateInput {
     return {
       userId: this.entity.userId,
+      showtimeId: this.entity.showtimeId,
+      amountPaid: this.entity.amountPaid,
+      seatIds: this._seatIds,
+    };
+  }
+
+  requiredForPostBody(): ReservationCreateInputWithoutUserId {
+    return {
       showtimeId: this.entity.showtimeId,
       amountPaid: this.entity.amountPaid,
       seatIds: this._seatIds,
