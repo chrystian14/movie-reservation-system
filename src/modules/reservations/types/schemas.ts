@@ -23,7 +23,13 @@ export const reservationCreateInputSchema = reservationSchema
     status: true,
     seatId: true,
   })
-  .extend({ seatIds: z.string().uuid().array() });
+  .extend({
+    seatIds: z
+      .string()
+      .uuid()
+      .array()
+      .nonempty({ message: "At least one seatId is required" }),
+  });
 
 export const reservationCreateWithoutUserSchema =
   reservationCreateInputSchema.omit({

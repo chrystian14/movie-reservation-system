@@ -1,6 +1,6 @@
-import { NotFoundError } from "modules/_shared/errors";
+import { UnprocessableEntity } from "modules/_shared/errors";
 
-export class SeatAlreadyReservedError extends NotFoundError {
+export class SeatAlreadyReservedError extends UnprocessableEntity {
   constructor(
     reservedSeatsIds: Array<string>,
     readonly message: string = "Seat(s) already reserved"

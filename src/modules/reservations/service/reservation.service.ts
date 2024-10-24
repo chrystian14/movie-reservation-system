@@ -7,6 +7,7 @@ import type { IUserRepository } from "modules/users/repository";
 import { ShowtimeNotFoundError } from "modules/showtimes/errors";
 import { UserNotFoundError } from "modules/users/errors";
 import { SeatAlreadyReservedError } from "modules/seats/errors";
+import { UnprocessableEntity } from "modules/_shared/errors";
 
 export class ReservationService implements IReservationService {
   constructor(
@@ -33,6 +34,10 @@ export class ReservationService implements IReservationService {
 
     if (!userCount) {
       throw new UserNotFoundError();
+    }
+
+    if (reservationCreateInput.seatIds.length === 0) {
+      throw new UnprocessableEntity("Seat ids are required");
     }
 
     const seatsAlreadyReserved =
