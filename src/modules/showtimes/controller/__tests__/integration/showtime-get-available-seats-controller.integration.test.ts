@@ -10,20 +10,15 @@ import { MovieBuilder } from "modules/movies/builder";
 import { MovieRepository } from "modules/movies/repository";
 import { RoomBuilder } from "modules/rooms/builder";
 import { RoomRepository } from "modules/rooms/repository";
+import { SeatRepository, type ISeatRepository } from "modules/seats/repository";
 import { ShowtimeBuilder } from "modules/showtimes/builder";
-import {
-  ShowtimeRepository,
-  type IShowtimeRepository,
-} from "modules/showtimes/repository";
-import { type ShowtimeCreateInput } from "modules/showtimes/types";
+import { ShowtimeRepository } from "modules/showtimes/repository";
 import { UserBuilder } from "modules/users/builder";
 import { UserRepository } from "modules/users/repository";
 
 describe("INTEGRATION: ShowtimeControler.getAvailableSeats - GET /api/v1/showtimes/:id/available-seats", () => {
   const showtimeEndpoint = "/api/v1/showtimes";
 
-  let showtimeRepository: IShowtimeRepository;
-  let showtimeBuilder: ShowtimeBuilder;
   let createdShowtime: Showtime;
 
   let regularUserToken: string;
@@ -32,8 +27,12 @@ describe("INTEGRATION: ShowtimeControler.getAvailableSeats - GET /api/v1/showtim
   let createdMovie: Movie;
   let createdRoom: Room;
 
+  let seatRepository: ISeatRepository;
+
   beforeEach(async () => {
     await clearDatabase();
+
+    seatRepository = new SeatRepository();
 
     const userRepository = new UserRepository();
     const regularUser = await new UserBuilder()
@@ -54,8 +53,8 @@ describe("INTEGRATION: ShowtimeControler.getAvailableSeats - GET /api/v1/showtim
 
     createdRoom = await new RoomBuilder().save(new RoomRepository());
 
-    showtimeBuilder = new ShowtimeBuilder();
-    createdShowtime = await showtimeBuilder
+    // showtimeBuilder = new ShowtimeBuilder();
+    createdShowtime = await new ShowtimeBuilder()
       .withMovieId(createdMovie.id)
       .withRoomId(createdRoom.id)
       .save(new ShowtimeRepository());
@@ -86,5 +85,26 @@ describe("INTEGRATION: ShowtimeControler.getAvailableSeats - GET /api/v1/showtim
 
     expect(response.statusCode).toBe(status.HTTP_404_NOT_FOUND);
     expect(response.body).toEqual(expectedResponseBody);
+  });
+
+  test("should return all seats when no reservations exist for the showtime", async () => {
+    const getAvailableSeatsEndpoint = `${showtimeEndpoint}/${createdShowtime.id}/available-seats`;
+    const response = await apiClient
+      .get(getAvailableSeatsEndpoint)
+      .set("Authorization", `Bearer ${regularUserToken}`);
+
+    const showtimeSeats = await seatRepository.getAllSeatsByShowtimeId(
+      createdShowtime.id
+    );
+
+    const expectedResponseBody = showtimeSeats.map((seat) => ({
+      id: seat.id,
+      column: seat.column,
+      row: seat.row,
+      price: seat.price.toString(),
+    }));
+
+    expect(response.statusCode).toBe(status.HTTP_200_OK);
+    expect(response.body).toStrictEqual(expectedResponseBody);
   });
 });
