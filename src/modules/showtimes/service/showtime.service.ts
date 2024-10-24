@@ -42,6 +42,10 @@ export class ShowtimeService implements IShowtimeService {
     return await this.showtimeRepository.create(showtimeCreateInput);
   }
 
+  async list(): Promise<Array<Showtime>> {
+    return await this.showtimeRepository.list();
+  }
+
   async getAvailableSeats(showtimeId: string): Promise<Array<Seat>> {
     const showtimeCount = await this.showtimeRepository.countById(showtimeId);
 

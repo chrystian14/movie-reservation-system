@@ -32,6 +32,8 @@ showtimeRouter.post(
   showtimeController.create
 );
 
+showtimeRouter.get("", showtimeController.list);
+
 showtimeRouter.get(
   "/:id/available-seats",
   isAuthenticated,

@@ -9,6 +9,10 @@ export class ShowtimeRepository implements IShowtimeRepository {
     });
   }
 
+  async list(): Promise<Array<Showtime>> {
+    return await prisma.showtime.findMany();
+  }
+
   async count(): Promise<number> {
     return await prisma.showtime.count();
   }
