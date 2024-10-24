@@ -16,6 +16,19 @@ export class SeatRepository implements ISeatRepository {
     });
   }
 
+  async getAllSeatsByShowtimeId(showtimeId: string): Promise<Array<Seat>> {
+    return await prisma.seat.findMany({
+      where: {
+        reservations: {
+          none: {
+            showtimeId,
+            status: ReservationStatus.CONFIRMED,
+          },
+        },
+      },
+    });
+  }
+
   async getAvailableSeats(showtimeId: string): Promise<Array<Seat>> {
     return await prisma.seat.findMany({
       where: {
@@ -24,6 +37,12 @@ export class SeatRepository implements ISeatRepository {
             some: {
               id: showtimeId,
             },
+          },
+        },
+        reservations: {
+          none: {
+            showtimeId,
+            status: ReservationStatus.CONFIRMED,
           },
         },
       },
