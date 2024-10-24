@@ -3,6 +3,7 @@ import * as matchers from "jest-extended";
 expect.extend(matchers);
 
 export async function clearDatabase() {
+  await prisma.reservation.deleteMany();
   await prisma.user.deleteMany();
   await prisma.showtime.deleteMany();
   await prisma.movie.deleteMany();
