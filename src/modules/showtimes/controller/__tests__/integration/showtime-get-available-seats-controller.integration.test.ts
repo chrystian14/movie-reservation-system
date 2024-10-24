@@ -1,4 +1,3 @@
-import type { Movie, Room, Showtime } from "@prisma/client";
 import { clearDatabase } from "configs/jest-setup.config";
 import { randomUUID } from "crypto";
 import { apiClient } from "modules/_shared/tests";
@@ -8,19 +7,27 @@ import { GenreBuilder } from "modules/genres/builder";
 import { GenreRepository } from "modules/genres/repository";
 import { MovieBuilder } from "modules/movies/builder";
 import { MovieRepository } from "modules/movies/repository";
+import type { Movie } from "modules/movies/types";
+import { ReservationBuilder } from "modules/reservations/builder";
+import { ReservationRepository } from "modules/reservations/repository";
 import { RoomBuilder } from "modules/rooms/builder";
 import { RoomRepository } from "modules/rooms/repository";
+import type { Room } from "modules/rooms/types";
+import { SeatBuilder } from "modules/seats/builder";
 import { SeatRepository, type ISeatRepository } from "modules/seats/repository";
 import { ShowtimeBuilder } from "modules/showtimes/builder";
 import { ShowtimeRepository } from "modules/showtimes/repository";
+import type { Showtime } from "modules/showtimes/types";
 import { UserBuilder } from "modules/users/builder";
 import { UserRepository } from "modules/users/repository";
+import type { User } from "modules/users/types";
 
 describe("INTEGRATION: ShowtimeControler.getAvailableSeats - GET /api/v1/showtimes/:id/available-seats", () => {
   const showtimeEndpoint = "/api/v1/showtimes";
 
   let createdShowtime: Showtime;
 
+  let regularUser: User;
   let regularUserToken: string;
   let adminUserToken: string;
 
@@ -35,7 +42,7 @@ describe("INTEGRATION: ShowtimeControler.getAvailableSeats - GET /api/v1/showtim
     seatRepository = new SeatRepository();
 
     const userRepository = new UserRepository();
-    const regularUser = await new UserBuilder()
+    regularUser = await new UserBuilder()
       .withNonAdminRole()
       .save(userRepository);
     regularUserToken = generateToken(regularUser);
@@ -98,6 +105,51 @@ describe("INTEGRATION: ShowtimeControler.getAvailableSeats - GET /api/v1/showtim
     );
 
     const expectedResponseBody = showtimeSeats.map((seat) => ({
+      id: seat.id,
+      column: seat.column,
+      row: seat.row,
+      price: seat.price.toString(),
+    }));
+
+    expect(response.statusCode).toBe(status.HTTP_200_OK);
+    expect(response.body).toStrictEqual(expectedResponseBody);
+  });
+
+  test("should return only available seats when reservations exist for the showtime", async () => {
+    const firstSeatToReserve = await new SeatBuilder()
+      .withRoomId(createdRoom.id)
+      .save(seatRepository);
+
+    const secondSeatToReserve = await new SeatBuilder()
+      .withRoomId(createdRoom.id)
+      .save(seatRepository);
+
+    const seatIdsToReserve: [string, ...string[]] = [
+      firstSeatToReserve.id,
+      secondSeatToReserve.id,
+    ];
+
+    await new ReservationBuilder()
+      .withUserId(regularUser.id)
+      .withShowtimeId(createdShowtime.id)
+      .withAmountPaid(createdRoom.baseSeatPrice)
+      .withSeatIds(seatIdsToReserve)
+      .save(new ReservationRepository());
+
+    const showtimeSeats = await seatRepository.getAllSeatsByShowtimeId(
+      createdShowtime.id
+    );
+
+    const nonReservedSeats = showtimeSeats.filter(
+      (seat) => !seatIdsToReserve.includes(seat.id)
+    );
+
+    const getAvailableSeatsEndpoint = `${showtimeEndpoint}/${createdShowtime.id}/available-seats`;
+    const response = await apiClient
+      .get(getAvailableSeatsEndpoint)
+      .set("Authorization", `Bearer ${regularUserToken}`);
+
+    const expectedResponseBody = nonReservedSeats.map((seat) => ({
       id: seat.id,
       column: seat.column,
       row: seat.row,
