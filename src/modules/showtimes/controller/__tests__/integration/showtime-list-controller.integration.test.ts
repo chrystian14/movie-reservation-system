@@ -61,4 +61,24 @@ describe("INTEGRATION: ShowtimeControler.list - GET /api/v1/showtimes", () => {
     expect(response.statusCode).toBe(status.HTTP_401_UNAUTHORIZED);
     expect(response.body).toEqual(expectedResponseBody);
   });
+
+  test("should return a 400 when query param is not a valid date", async () => {
+    const invalidDateFormat = "01/12/2022";
+    const response = await apiClient
+      .get(showtimeEndpoint)
+      .set("Authorization", `Bearer ${regularUserToken}`)
+      .query({ date: invalidDateFormat });
+
+    const expectedResponseBody = {
+      details: [
+        {
+          message: "Invalid date. Date param must be in the format YYYY-MM-DD",
+          field: ["date"],
+        },
+      ],
+    };
+
+    expect(response.statusCode).toBe(status.HTTP_400_BAD_REQUEST);
+    expect(response.body).toStrictEqual(expectedResponseBody);
+  });
 });
