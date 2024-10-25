@@ -20,3 +20,10 @@ export const showtimeCreateInputSchema = showtimeSchema
       })
       .transform((str) => new Date(str)),
   });
+
+export const showtimeDateQueryParamSchema = z.object({
+  date: z
+    .string()
+    .date("Invalid date. Date param must be in the format YYYY-MM-DD")
+    .optional(),
+});

@@ -3,8 +3,11 @@ import { ShowtimeController } from "./controller";
 import { ShowtimeService } from "./service";
 import { ShowtimeRepository } from "./repository";
 import { isAdmin, isAuthenticated } from "modules/auth/middlewares";
-import { validateBody } from "modules/_shared/middlewares";
-import { showtimeCreateInputSchema } from "./types/schemas";
+import { validateBody, validateQueryParams } from "modules/_shared/middlewares";
+import {
+  showtimeCreateInputSchema,
+  showtimeDateQueryParamSchema,
+} from "./types/schemas";
 import { RoomRepository } from "modules/rooms/repository";
 import { MovieRepository } from "modules/movies/repository";
 import { SeatRepository } from "modules/seats/repository";
@@ -32,7 +35,12 @@ showtimeRouter.post(
   showtimeController.create
 );
 
-showtimeRouter.get("", showtimeController.list);
+showtimeRouter.get(
+  "",
+  isAuthenticated,
+  validateQueryParams(showtimeDateQueryParamSchema),
+  showtimeController.list
+);
 
 showtimeRouter.get(
   "/:id/available-seats",
