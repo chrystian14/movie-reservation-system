@@ -3,8 +3,15 @@ import type { IShowtimeRepository } from "../repository";
 import type { Showtime, ShowtimeCreateInput } from "../types";
 import { Chance } from "chance";
 
+type FixedLengthArray<
+  T,
+  N extends number,
+  R extends T[] = []
+> = R["length"] extends N ? R : FixedLengthArray<T, N, [T, ...R]>;
+
 export class ShowtimeBuilder {
   protected entity: Showtime;
+  protected entities: Showtime[] = [];
   protected chance: Chance.Chance;
 
   constructor() {
@@ -22,8 +29,43 @@ export class ShowtimeBuilder {
     return this.entity;
   }
 
-  async save(repository: IShowtimeRepository) {
+  buildMany<Length extends number>(
+    movieId: string,
+    roomId: string,
+    numberOfShowtimes: Length,
+    startDatetime: Date,
+    intervalMinutes: number
+  ): FixedLengthArray<Showtime, Length> {
+    const showtimes: Showtime[] = [];
+
+    for (let i = 0; i < numberOfShowtimes; i++) {
+      const showtime = new ShowtimeBuilder()
+        .withMovieId(movieId)
+        .withRoomId(roomId)
+        .withIsoDatetime(
+          new Date(
+            startDatetime.getTime() + i * intervalMinutes * 60000
+          ).toISOString()
+        )
+        .build();
+      this.entities.push(showtime);
+      showtimes.push(showtime);
+    }
+
+    return showtimes as FixedLengthArray<Showtime, Length>;
+  }
+
+  async save(repository: IShowtimeRepository): Promise<Showtime> {
     return await repository.create(this.entity);
+  }
+
+  async saveAll(repository: IShowtimeRepository): Promise<Showtime[]> {
+    const savedShowtimes = [];
+    for (const showtime of this.entities) {
+      const savedShowtime = await repository.create(showtime);
+      savedShowtimes.push(savedShowtime);
+    }
+    return savedShowtimes;
   }
 
   withNewUUID() {

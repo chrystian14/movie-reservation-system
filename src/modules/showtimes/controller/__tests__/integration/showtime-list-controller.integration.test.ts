@@ -1,5 +1,4 @@
 import { clearDatabase } from "configs/jest-setup.config";
-import { randomUUID } from "crypto";
 import { apiClient } from "modules/_shared/tests";
 import { status } from "modules/_shared/utils";
 import { generateToken } from "modules/auth/jwt";
@@ -13,7 +12,6 @@ import { RoomRepository } from "modules/rooms/repository";
 import type { Room } from "modules/rooms/types";
 import { ShowtimeBuilder } from "modules/showtimes/builder";
 import { ShowtimeRepository } from "modules/showtimes/repository";
-import type { Showtime } from "modules/showtimes/types";
 import { UserBuilder } from "modules/users/builder";
 import { UserRepository } from "modules/users/repository";
 import type { User } from "modules/users/types";
@@ -23,7 +21,6 @@ describe("INTEGRATION: ShowtimeControler.list - GET /api/v1/showtimes", () => {
 
   let regularUser: User;
   let regularUserToken: string;
-  let adminUserToken: string;
 
   let createdMovie: Movie;
   let createdRoom: Room;
@@ -31,16 +28,10 @@ describe("INTEGRATION: ShowtimeControler.list - GET /api/v1/showtimes", () => {
   beforeEach(async () => {
     await clearDatabase();
 
-    const userRepository = new UserRepository();
     regularUser = await new UserBuilder()
       .withNonAdminRole()
-      .save(userRepository);
+      .save(new UserRepository());
     regularUserToken = generateToken(regularUser);
-
-    const adminUser = await new UserBuilder()
-      .withAdminRole()
-      .save(userRepository);
-    adminUserToken = generateToken(adminUser);
 
     const createdGenre = await new GenreBuilder().save(new GenreRepository());
 
@@ -79,6 +70,38 @@ describe("INTEGRATION: ShowtimeControler.list - GET /api/v1/showtimes", () => {
     };
 
     expect(response.statusCode).toBe(status.HTTP_400_BAD_REQUEST);
+    expect(response.body).toStrictEqual(expectedResponseBody);
+  });
+
+  test("should list all showtimes when no query params are passed", async () => {
+    const numberOfShowtimesToCreate = 4;
+    const showtimeStartDate = new Date("03-03-1993");
+    const intervalBetweenShowtimesInMinutes = 120;
+
+    const showtimeBuilder = new ShowtimeBuilder();
+    showtimeBuilder.buildMany(
+      createdMovie.id,
+      createdRoom.id,
+      numberOfShowtimesToCreate,
+      showtimeStartDate,
+      intervalBetweenShowtimesInMinutes
+    );
+    const savedShowtimes = await showtimeBuilder.saveAll(
+      new ShowtimeRepository()
+    );
+
+    const response = await apiClient
+      .get(showtimeEndpoint)
+      .set("Authorization", `Bearer ${regularUserToken}`);
+
+    const expectedResponseBody = savedShowtimes.map((showtime) => ({
+      id: showtime.id,
+      datetime: showtime.datetime.toISOString(),
+      movieId: showtime.movieId,
+      roomId: showtime.roomId,
+    }));
+
+    expect(response.statusCode).toBe(status.HTTP_200_OK);
     expect(response.body).toStrictEqual(expectedResponseBody);
   });
 });
