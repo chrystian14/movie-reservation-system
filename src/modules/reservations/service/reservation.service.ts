@@ -7,6 +7,7 @@ import type { IUserRepository } from "modules/users/repository";
 import { ShowtimeNotFoundError } from "modules/showtimes/errors";
 import { UserNotFoundError } from "modules/users/errors";
 import { SeatAlreadyReservedError } from "modules/seats/errors";
+import { ReservationStatus } from "@prisma/client";
 
 export class ReservationService implements IReservationService {
   constructor(
@@ -15,6 +16,19 @@ export class ReservationService implements IReservationService {
     private readonly seatRepository: ISeatRepository,
     private readonly userRepository: IUserRepository
   ) {}
+
+  async listByUserId(userId: string): Promise<Array<Reservation>> {
+    const userCount = await this.userRepository.countById(userId);
+
+    if (!userCount) {
+      throw new UserNotFoundError();
+    }
+
+    return await this.reservationRepository.listByUserId(
+      userId,
+      ReservationStatus.CONFIRMED
+    );
+  }
 
   async create(
     reservationCreateInput: ReservationCreateInput

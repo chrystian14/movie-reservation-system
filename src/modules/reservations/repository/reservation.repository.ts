@@ -8,6 +8,18 @@ export class ReservationRepository implements IReservationRepository {
     return await prisma.reservation.count();
   }
 
+  async listByUserId(
+    userId: string,
+    reservationStatus: ReservationStatus
+  ): Promise<Array<Reservation>> {
+    return await prisma.reservation.findMany({
+      where: {
+        userId: userId,
+        status: reservationStatus,
+      },
+    });
+  }
+
   async create(
     reservationCreateInput: ReservationCreateInput
   ): Promise<Array<Reservation>> {
