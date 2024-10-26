@@ -104,4 +104,45 @@ describe("INTEGRATION: ShowtimeControler.list - GET /api/v1/showtimes", () => {
     expect(response.statusCode).toBe(status.HTTP_200_OK);
     expect(response.body).toStrictEqual(expectedResponseBody);
   });
+
+  test('should list only showtimes within date range when "date" query param is passed', async () => {
+    const showtimeRepository = new ShowtimeRepository();
+
+    const outOfRangeShowtimeBuilder = new ShowtimeBuilder();
+    outOfRangeShowtimeBuilder.buildMany(
+      createdMovie.id,
+      createdRoom.id,
+      5,
+      new Date("2024-03-15T00:00:00Z"),
+      120
+    );
+    await outOfRangeShowtimeBuilder.saveAll(showtimeRepository);
+
+    const inRangeShowtimeBuilder = new ShowtimeBuilder();
+    inRangeShowtimeBuilder.buildMany(
+      createdMovie.id,
+      createdRoom.id,
+      5,
+      new Date("2024-03-17T00:00:00Z"),
+      120
+    );
+    const inRangeSavedShowtimes = await inRangeShowtimeBuilder.saveAll(
+      showtimeRepository
+    );
+
+    const response = await apiClient
+      .get(showtimeEndpoint)
+      .set("Authorization", `Bearer ${regularUserToken}`)
+      .query({ date: "2024-03-17" });
+
+    const expectedResponseBody = inRangeSavedShowtimes.map((showtime) => ({
+      id: showtime.id,
+      datetime: showtime.datetime.toISOString(),
+      movieId: showtime.movieId,
+      roomId: showtime.roomId,
+    }));
+
+    expect(response.statusCode).toBe(status.HTTP_200_OK);
+    expect(response.body).toStrictEqual(expectedResponseBody);
+  });
 });
