@@ -42,7 +42,19 @@ export class ShowtimeService implements IShowtimeService {
     return await this.showtimeRepository.create(showtimeCreateInput);
   }
 
-  async list(): Promise<Array<Showtime>> {
+  async list(dateFilter?: string): Promise<Array<Showtime>> {
+    if (dateFilter) {
+      const startDate = new Date(dateFilter);
+      const oneDayAfterStartDate = new Date(
+        startDate.getTime() + 1 * 24 * 60 * 60 * 1000
+      );
+
+      return await this.showtimeRepository.listByDate(
+        startDate,
+        oneDayAfterStartDate
+      );
+    }
+
     return await this.showtimeRepository.list();
   }
 

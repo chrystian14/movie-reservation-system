@@ -13,6 +13,17 @@ export class ShowtimeRepository implements IShowtimeRepository {
     return await prisma.showtime.findMany();
   }
 
+  async listByDate(startDate: Date, endDate: Date): Promise<Array<Showtime>> {
+    return await prisma.showtime.findMany({
+      where: {
+        datetime: {
+          gte: startDate,
+          lt: endDate,
+        },
+      },
+    });
+  }
+
   async count(): Promise<number> {
     return await prisma.showtime.count();
   }
