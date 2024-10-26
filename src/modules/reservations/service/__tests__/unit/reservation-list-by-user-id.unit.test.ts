@@ -19,7 +19,7 @@ jest.mock("modules/showtimes/repository/showtime.repository.ts");
 jest.mock("modules/seats/repository/seat.repository.ts");
 jest.mock("modules/users/repository/user.repository.ts");
 
-describe("UNIT: ReservationService.listConfirmedReservationsByUserId", () => {
+describe("UNIT: ReservationService.listByUserId", () => {
   let reservationService: IReservationService;
 
   let mockedReservationRepository: jest.Mocked<IReservationRepository>;
