@@ -10,6 +10,7 @@ import { SeatAlreadyReservedError } from "modules/seats/errors";
 import { ReservationStatus } from "@prisma/client";
 import { ReservationNotFoundError } from "../errors";
 import { ForbiddenError } from "modules/_shared/errors";
+import { ShowtimeInThePastError } from "modules/showtimes/errors/showtime.errors";
 
 export class ReservationService implements IReservationService {
   constructor(
@@ -36,6 +37,18 @@ export class ReservationService implements IReservationService {
 
     if (reservation.userId !== userId) {
       throw new ForbiddenError();
+    }
+
+    const showtime = await this.showtimeRepository.findById(
+      reservation.showtimeId
+    );
+
+    if (!showtime) {
+      throw new ShowtimeNotFoundError();
+    }
+
+    if (showtime.datetime < new Date()) {
+      throw new ShowtimeInThePastError();
     }
 
     await this.reservationRepository.cancel(reservationId);

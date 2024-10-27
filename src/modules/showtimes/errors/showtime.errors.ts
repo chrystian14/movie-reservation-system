@@ -11,3 +11,11 @@ export class ShowtimeNotFoundError extends NotFoundError {
     super(message);
   }
 }
+
+export class ShowtimeInThePastError extends UnprocessableEntity {
+  constructor(
+    readonly message: string = "Cannot cancel a reservation from a past showtime"
+  ) {
+    super(message);
+  }
+}

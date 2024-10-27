@@ -6,4 +6,5 @@ export interface IShowtimeRepository {
   listByDate(startDate: Date, endDate: Date): Promise<Array<Showtime>>;
   count(): Promise<number>;
   countById(showtimeId: string): Promise<number>;
+  findById(showtimeId: string): Promise<Showtime | null>;
 }
