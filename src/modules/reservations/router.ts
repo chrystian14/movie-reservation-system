@@ -32,3 +32,4 @@ reservationRouter.post(
 );
 
 reservationRouter.get("", isAuthenticated, reservationController.list);
+reservationRouter.delete("/:id", isAuthenticated, reservationController.cancel);

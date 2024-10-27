@@ -29,4 +29,14 @@ export class ReservationController {
 
     return res.status(status.HTTP_201_CREATED).json(reservation);
   };
+
+  cancel = async (req: Request, res: AutheticatedResponse) => {
+    const { sub } = res.locals.authenticatedUser;
+
+    const reservationId = req.params.id;
+
+    await this.reservationService.cancel(reservationId, sub);
+
+    return res.status(status.HTTP_204_NO_CONTENT).json();
+  };
 }
