@@ -13,6 +13,7 @@ import {
 import { SeatRepository, type ISeatRepository } from "modules/seats/repository";
 import { UserRepository, type IUserRepository } from "modules/users/repository";
 import { randomUUID } from "crypto";
+import { ReservationBuilder } from "modules/reservations/builder";
 
 jest.mock("modules/reservations/repository/reservation.repository.ts");
 jest.mock("modules/showtimes/repository/showtime.repository.ts");
@@ -53,6 +54,31 @@ describe("UNIT: ReservationService.cancel", () => {
     expect(mockedReservationRepository.findById).toHaveBeenCalledTimes(1);
     expect(mockedReservationRepository.findById).toHaveBeenCalledWith(
       mockedReservationId
+    );
+
+    expect(mockedReservationRepository.cancel).not.toHaveBeenCalled();
+  });
+
+  test("should throw an error if canceling a reservation with non-existing user id", async () => {
+    const mockedReservation = new ReservationBuilder().build();
+    mockedReservationRepository.findById.mockResolvedValueOnce(
+      mockedReservation
+    );
+
+    mockedUserRepository.countById.mockResolvedValueOnce(0);
+
+    await expect(
+      reservationService.cancel(mockedReservation.id, mockedReservation.userId)
+    ).rejects.toThrow("User not found");
+
+    expect(mockedReservationRepository.findById).toHaveBeenCalledTimes(1);
+    expect(mockedReservationRepository.findById).toHaveBeenCalledWith(
+      mockedReservation.id
+    );
+
+    expect(mockedUserRepository.countById).toHaveBeenCalledTimes(1);
+    expect(mockedUserRepository.countById).toHaveBeenCalledWith(
+      mockedReservation.userId
     );
 
     expect(mockedReservationRepository.cancel).not.toHaveBeenCalled();
