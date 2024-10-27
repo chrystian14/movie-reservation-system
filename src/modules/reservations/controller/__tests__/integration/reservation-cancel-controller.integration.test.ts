@@ -1,4 +1,4 @@
-import { type Room, type Showtime } from "@prisma/client";
+import { type Movie, type Room, type Showtime } from "@prisma/client";
 import { clearDatabase } from "configs/jest-setup.config";
 import { randomUUID } from "crypto";
 import { apiClient } from "modules/_shared/tests";
@@ -34,6 +34,8 @@ describe("INTEGRATION: ReservationControler.cancel - DEL /api/v1/reservations/:i
 
   let savedShowtimeOne: Showtime;
 
+  let createdMovie: Movie;
+
   beforeEach(async () => {
     await clearDatabase();
 
@@ -47,7 +49,7 @@ describe("INTEGRATION: ReservationControler.cancel - DEL /api/v1/reservations/:i
     regularUserTwoToken = generateToken(regularUserTwo);
 
     const createdGenre = await new GenreBuilder().save(new GenreRepository());
-    const createdMovie = await new MovieBuilder()
+    createdMovie = await new MovieBuilder()
       .withGenreId(createdGenre.id)
       .save(new MovieRepository());
 
@@ -112,6 +114,38 @@ describe("INTEGRATION: ReservationControler.cancel - DEL /api/v1/reservations/:i
     };
 
     expect(response.statusCode).toBe(status.HTTP_403_FORBIDDEN);
+    expect(response.body).toStrictEqual(expectedResponseBody);
+  });
+
+  test("should return a 422 when user is the owner of the reservation but the reservation is from past", async () => {
+    const mockedPastDate = new Date(
+      Date.now() - 1 * 24 * 60 * 60 * 1000
+    ).toISOString();
+
+    const savedShowtimeFromPast = await new ShowtimeBuilder()
+      .withMovieId(createdMovie.id)
+      .withRoomId(savedRoomOne.id)
+      .withIsoDatetime(mockedPastDate)
+      .save(new ShowtimeRepository());
+
+    const [userOneSeatOne, ..._restSeats] = savedSeatsForRoomOne;
+    const [userOneReservationOne] = await new ReservationBuilder()
+      .withUserId(regularUserOne.id)
+      .withSeatIds([userOneSeatOne.id])
+      .withShowtimeId(savedShowtimeFromPast.id)
+      .save(new ReservationRepository());
+
+    const reservationCancelEndpoint =
+      reservationEndpoint + "/" + userOneReservationOne.id;
+    const response = await apiClient
+      .delete(reservationCancelEndpoint)
+      .set("Authorization", `Bearer ${regularUserOneToken}`);
+
+    const expectedResponseBody = {
+      details: "Cannot cancel a reservation from a past showtime",
+    };
+
+    expect(response.statusCode).toBe(status.HTTP_422_UNPROCESSABLE_ENTITY);
     expect(response.body).toStrictEqual(expectedResponseBody);
   });
 });
