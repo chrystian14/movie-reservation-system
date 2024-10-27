@@ -8,6 +8,7 @@ import { ShowtimeNotFoundError } from "modules/showtimes/errors";
 import { UserNotFoundError } from "modules/users/errors";
 import { SeatAlreadyReservedError } from "modules/seats/errors";
 import { ReservationStatus } from "@prisma/client";
+import { ReservationNotFoundError } from "../errors";
 
 export class ReservationService implements IReservationService {
   constructor(
@@ -16,6 +17,18 @@ export class ReservationService implements IReservationService {
     private readonly seatRepository: ISeatRepository,
     private readonly userRepository: IUserRepository
   ) {}
+
+  async cancel(reservationId: string, userId: string): Promise<void> {
+    const reservation = await this.reservationRepository.findById(
+      reservationId
+    );
+
+    if (!reservation) {
+      throw new ReservationNotFoundError();
+    }
+
+    await this.reservationRepository.cancel(reservationId);
+  }
 
   async listByUserId(userId: string): Promise<Array<Reservation>> {
     const userCount = await this.userRepository.countById(userId);
