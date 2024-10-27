@@ -14,6 +14,7 @@ import { SeatRepository, type ISeatRepository } from "modules/seats/repository";
 import { UserRepository, type IUserRepository } from "modules/users/repository";
 import { randomUUID } from "crypto";
 import { ReservationBuilder } from "modules/reservations/builder";
+import { ShowtimeBuilder } from "modules/showtimes/builder";
 
 jest.mock("modules/reservations/repository/reservation.repository.ts");
 jest.mock("modules/showtimes/repository/showtime.repository.ts");
@@ -105,6 +106,44 @@ describe("UNIT: ReservationService.cancel", () => {
     expect(mockedUserRepository.countById).toHaveBeenCalledTimes(1);
     expect(mockedUserRepository.countById).toHaveBeenCalledWith(
       mockedDifferentUserId
+    );
+
+    expect(mockedReservationRepository.cancel).not.toHaveBeenCalled();
+  });
+
+  test("should throw an error if user is the owner of the reservation but the reservation is from past", async () => {
+    const mockedReservation = new ReservationBuilder().build();
+    mockedReservationRepository.findById.mockResolvedValueOnce(
+      mockedReservation
+    );
+
+    mockedUserRepository.countById.mockResolvedValueOnce(1);
+
+    const mockedPastDate = new Date(
+      Date.now() - 1 * 24 * 60 * 60 * 1000
+    ).toISOString();
+    const mockedShowtime = new ShowtimeBuilder()
+      .withIsoDatetime(mockedPastDate)
+      .build();
+    mockedShowtimeRepository.findById.mockResolvedValueOnce(mockedShowtime);
+
+    await expect(
+      reservationService.cancel(mockedReservation.id, mockedReservation.userId)
+    ).rejects.toThrow("Cannot cancel a reservation from a past showtime");
+
+    expect(mockedReservationRepository.findById).toHaveBeenCalledTimes(1);
+    expect(mockedReservationRepository.findById).toHaveBeenCalledWith(
+      mockedReservation.id
+    );
+
+    expect(mockedUserRepository.countById).toHaveBeenCalledTimes(1);
+    expect(mockedUserRepository.countById).toHaveBeenCalledWith(
+      mockedReservation.userId
+    );
+
+    expect(mockedShowtimeRepository.findById).toHaveBeenCalledTimes(1);
+    expect(mockedShowtimeRepository.findById).toHaveBeenCalledWith(
+      mockedReservation.showtimeId
     );
 
     expect(mockedReservationRepository.cancel).not.toHaveBeenCalled();
