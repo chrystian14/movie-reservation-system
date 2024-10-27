@@ -10,6 +10,7 @@ import { MovieBuilder } from "modules/movies/builder";
 import { MovieRepository } from "modules/movies/repository";
 import { RoomBuilder } from "modules/rooms/builder";
 import { RoomRepository } from "modules/rooms/repository";
+import { SeatRepository } from "modules/seats/repository";
 import { ShowtimeBuilder } from "modules/showtimes/builder";
 import {
   ShowtimeRepository,
@@ -52,7 +53,10 @@ describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () =>
       .withGenreId(createdGenre.id)
       .save(new MovieRepository());
 
-    createdRoom = await new RoomBuilder().save(new RoomRepository());
+    ({ room: createdRoom } = await new RoomBuilder().save(
+      new RoomRepository(),
+      new SeatRepository()
+    ));
 
     showtimeRepository = new ShowtimeRepository();
     showtimeBuilder = new ShowtimeBuilder();

@@ -1,9 +1,4 @@
-import {
-  ReservationStatus,
-  type Room,
-  type Seat,
-  type Showtime,
-} from "@prisma/client";
+import { ReservationStatus, type Room, type Showtime } from "@prisma/client";
 import { clearDatabase } from "configs/jest-setup.config";
 import { randomUUID } from "crypto";
 import { apiClient } from "modules/_shared/tests";
@@ -62,7 +57,10 @@ describe("INTEGRATION: ReservationControler.create - POST /api/v1/reservations",
       .withGenreId(createdGenre.id)
       .save(new MovieRepository());
 
-    createdRoom = await new RoomBuilder().save(new RoomRepository());
+    ({ room: createdRoom } = await new RoomBuilder().save(
+      new RoomRepository(),
+      new SeatRepository()
+    ));
 
     createdShowtime = await new ShowtimeBuilder()
       .withMovieId(createdMovie.id)

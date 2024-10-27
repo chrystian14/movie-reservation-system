@@ -1,12 +1,15 @@
 import { randomUUID } from "crypto";
 import type { IRoomRepository } from "../repository";
-import type { Room, RoomCreateInput } from "../types";
+import type { Room, RoomAndSeats, RoomCreateInput } from "../types";
 import { Chance } from "chance";
 import { Prisma } from "@prisma/client";
+import type { Seat } from "modules/seats/types";
+import type { ISeatRepository } from "modules/seats/repository";
 
 export class RoomBuilder {
   protected entity: Room;
   protected chance: Chance.Chance;
+  protected seats: Seat[] = [];
 
   constructor() {
     this.chance = new Chance();
@@ -30,8 +33,21 @@ export class RoomBuilder {
     return this.entity;
   }
 
-  async save(repository: IRoomRepository) {
-    return await repository.create(this.entity);
+  async save(
+    roomRepository: IRoomRepository,
+    seatRepository: ISeatRepository
+  ): Promise<RoomAndSeats> {
+    const savedRoom = await roomRepository.create(this.entity);
+    const savedSeats: Seat[] = [];
+    for (const seat of this.seats) {
+      const savedSeat = await seatRepository.create(seat);
+      savedSeats.push(savedSeat);
+    }
+
+    return {
+      room: savedRoom,
+      seats: savedSeats,
+    };
   }
 
   withNewUUID() {
@@ -61,5 +77,21 @@ export class RoomBuilder {
       rows: this.entity.rows,
       baseSeatPrice: this.entity.baseSeatPrice,
     };
+  }
+
+  generateSeats() {
+    for (let i = 0; i < this.entity.columns; i++) {
+      for (let j = 0; j < this.entity.rows; j++) {
+        this.seats.push({
+          id: randomUUID(),
+          column: String.fromCharCode(i + 97),
+          row: j + 1,
+          price: this.entity.baseSeatPrice,
+          roomId: this.entity.id,
+        });
+      }
+    }
+
+    return this;
   }
 }

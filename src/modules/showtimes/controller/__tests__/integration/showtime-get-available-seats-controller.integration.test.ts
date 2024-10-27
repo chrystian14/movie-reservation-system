@@ -58,7 +58,10 @@ describe("INTEGRATION: ShowtimeControler.getAvailableSeats - GET /api/v1/showtim
       .withGenreId(createdGenre.id)
       .save(new MovieRepository());
 
-    createdRoom = await new RoomBuilder().save(new RoomRepository());
+    ({ room: createdRoom } = await new RoomBuilder().save(
+      new RoomRepository(),
+      new SeatRepository()
+    ));
 
     // showtimeBuilder = new ShowtimeBuilder();
     createdShowtime = await new ShowtimeBuilder()

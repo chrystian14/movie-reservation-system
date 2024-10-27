@@ -10,6 +10,7 @@ import type { Movie } from "modules/movies/types";
 import { RoomBuilder } from "modules/rooms/builder";
 import { RoomRepository } from "modules/rooms/repository";
 import type { Room } from "modules/rooms/types";
+import { SeatRepository } from "modules/seats/repository";
 import { ShowtimeBuilder } from "modules/showtimes/builder";
 import { ShowtimeRepository } from "modules/showtimes/repository";
 import { UserBuilder } from "modules/users/builder";
@@ -39,7 +40,10 @@ describe("INTEGRATION: ShowtimeControler.list - GET /api/v1/showtimes", () => {
       .withGenreId(createdGenre.id)
       .save(new MovieRepository());
 
-    createdRoom = await new RoomBuilder().save(new RoomRepository());
+    ({ room: createdRoom } = await new RoomBuilder().save(
+      new RoomRepository(),
+      new SeatRepository()
+    ));
   });
 
   test("should return a 401 when user is not authenticated", async () => {
