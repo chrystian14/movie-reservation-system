@@ -81,7 +81,7 @@ describe("INTEGRATION: ReservationControler.list - GET /api/v1/reservations", ()
       userOneSeatTwo,
       userTwoSeatOne,
       userTwoSeatTwo,
-      ...seatsRest
+      ..._seatsRest
     ] = savedSeatsForRoomOne;
 
     reservationRepository = new ReservationRepository();

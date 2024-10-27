@@ -29,7 +29,6 @@ describe("INTEGRATION: ShowtimeControler.getAvailableSeats - GET /api/v1/showtim
 
   let regularUser: User;
   let regularUserToken: string;
-  let adminUserToken: string;
 
   let createdMovie: Movie;
   let createdRoom: Room;
@@ -46,11 +45,6 @@ describe("INTEGRATION: ShowtimeControler.getAvailableSeats - GET /api/v1/showtim
       .withNonAdminRole()
       .save(userRepository);
     regularUserToken = generateToken(regularUser);
-
-    const adminUser = await new UserBuilder()
-      .withAdminRole()
-      .save(userRepository);
-    adminUserToken = generateToken(adminUser);
 
     const createdGenre = await new GenreBuilder().save(new GenreRepository());
 

@@ -32,7 +32,6 @@ describe("INTEGRATION: ReservationControler.create - POST /api/v1/reservations",
 
   let regularUserToken: string;
   let regularUser: User;
-  let adminUserToken: string;
 
   let createdRoom: Room;
   let createdShowtime: Showtime;
@@ -47,10 +46,6 @@ describe("INTEGRATION: ReservationControler.create - POST /api/v1/reservations",
     const regularUserBuilder = new UserBuilder().withNonAdminRole();
     regularUser = await regularUserBuilder.save(userRepository);
     regularUserToken = generateToken(regularUser);
-
-    const adminUserBuilder = new UserBuilder().withAdminRole();
-    const adminUser = await adminUserBuilder.save(userRepository);
-    adminUserToken = generateToken(adminUser);
 
     const createdGenre = await new GenreBuilder().save(new GenreRepository());
     const createdMovie = await new MovieBuilder()
