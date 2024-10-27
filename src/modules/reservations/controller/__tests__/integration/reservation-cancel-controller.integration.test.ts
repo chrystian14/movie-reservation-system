@@ -1,4 +1,9 @@
-import { type Movie, type Room, type Showtime } from "@prisma/client";
+import {
+  ReservationStatus,
+  type Movie,
+  type Room,
+  type Showtime,
+} from "@prisma/client";
 import { clearDatabase } from "configs/jest-setup.config";
 import { randomUUID } from "crypto";
 import { apiClient } from "modules/_shared/tests";
@@ -9,7 +14,10 @@ import { GenreRepository } from "modules/genres/repository";
 import { MovieBuilder } from "modules/movies/builder";
 import { MovieRepository } from "modules/movies/repository";
 import { ReservationBuilder } from "modules/reservations/builder";
-import { ReservationRepository } from "modules/reservations/repository";
+import {
+  ReservationRepository,
+  type IReservationRepository,
+} from "modules/reservations/repository";
 import { RoomBuilder } from "modules/rooms/builder";
 import { RoomRepository } from "modules/rooms/repository";
 import { SeatRepository } from "modules/seats/repository";
@@ -35,6 +43,8 @@ describe("INTEGRATION: ReservationControler.cancel - DEL /api/v1/reservations/:i
   let savedShowtimeOne: Showtime;
 
   let createdMovie: Movie;
+
+  let reservationRepository: IReservationRepository;
 
   beforeEach(async () => {
     await clearDatabase();
@@ -62,6 +72,8 @@ describe("INTEGRATION: ReservationControler.cancel - DEL /api/v1/reservations/:i
       .withMovieId(createdMovie.id)
       .withRoomId(savedRoomOne.id)
       .save(new ShowtimeRepository());
+
+    reservationRepository = new ReservationRepository();
   });
 
   test("should return a 401 when user is not authenticated", async () => {
@@ -82,6 +94,7 @@ describe("INTEGRATION: ReservationControler.cancel - DEL /api/v1/reservations/:i
     const unexistentReservationId = randomUUID();
     const reservationCancelEndpoint =
       reservationEndpoint + "/" + unexistentReservationId;
+
     const response = await apiClient
       .delete(reservationCancelEndpoint)
       .set("Authorization", `Bearer ${regularUserOneToken}`);
@@ -101,7 +114,7 @@ describe("INTEGRATION: ReservationControler.cancel - DEL /api/v1/reservations/:i
       .withUserId(regularUserOne.id)
       .withSeatIds([userOneSeatOne.id])
       .withShowtimeId(savedShowtimeOne.id)
-      .save(new ReservationRepository());
+      .save(reservationRepository);
 
     const reservationCancelEndpoint =
       reservationEndpoint + "/" + userOneReservationOne.id;
@@ -115,6 +128,11 @@ describe("INTEGRATION: ReservationControler.cancel - DEL /api/v1/reservations/:i
 
     expect(response.statusCode).toBe(status.HTTP_403_FORBIDDEN);
     expect(response.body).toStrictEqual(expectedResponseBody);
+
+    const reservation = await reservationRepository.findById(
+      userOneReservationOne.id
+    );
+    expect(reservation?.status).toBe(ReservationStatus.CONFIRMED);
   });
 
   test("should return a 422 when user is the owner of the reservation but the reservation is from past", async () => {
@@ -129,14 +147,16 @@ describe("INTEGRATION: ReservationControler.cancel - DEL /api/v1/reservations/:i
       .save(new ShowtimeRepository());
 
     const [userOneSeatOne, ..._restSeats] = savedSeatsForRoomOne;
+    const reservationRepository = new ReservationRepository();
     const [userOneReservationOne] = await new ReservationBuilder()
       .withUserId(regularUserOne.id)
       .withSeatIds([userOneSeatOne.id])
       .withShowtimeId(savedShowtimeFromPast.id)
-      .save(new ReservationRepository());
+      .save(reservationRepository);
 
     const reservationCancelEndpoint =
       reservationEndpoint + "/" + userOneReservationOne.id;
+
     const response = await apiClient
       .delete(reservationCancelEndpoint)
       .set("Authorization", `Bearer ${regularUserOneToken}`);
@@ -147,5 +167,33 @@ describe("INTEGRATION: ReservationControler.cancel - DEL /api/v1/reservations/:i
 
     expect(response.statusCode).toBe(status.HTTP_422_UNPROCESSABLE_ENTITY);
     expect(response.body).toStrictEqual(expectedResponseBody);
+
+    const reservation = await reservationRepository.findById(
+      userOneReservationOne.id
+    );
+    expect(reservation?.status).toBe(ReservationStatus.CONFIRMED);
+  });
+
+  test("should return a 204 and update reservation status to cancelled", async () => {
+    const [userOneSeatOne, ..._restSeats] = savedSeatsForRoomOne;
+
+    const [userOneReservationOne] = await new ReservationBuilder()
+      .withUserId(regularUserOne.id)
+      .withSeatIds([userOneSeatOne.id])
+      .withShowtimeId(savedShowtimeOne.id)
+      .save(reservationRepository);
+
+    const reservationCancelEndpoint =
+      reservationEndpoint + "/" + userOneReservationOne.id;
+    const response = await apiClient
+      .delete(reservationCancelEndpoint)
+      .set("Authorization", `Bearer ${regularUserOneToken}`);
+
+    expect(response.statusCode).toBe(status.HTTP_204_NO_CONTENT);
+
+    const updatedReservation = await reservationRepository.findById(
+      userOneReservationOne.id
+    );
+    expect(updatedReservation?.status).toBe(ReservationStatus.CANCELLED);
   });
 });
