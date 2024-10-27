@@ -30,3 +30,5 @@ reservationRouter.post(
   validateBody(reservationCreateWithoutUserSchema),
   reservationController.create
 );
+
+reservationRouter.get("", isAuthenticated, reservationController.list);

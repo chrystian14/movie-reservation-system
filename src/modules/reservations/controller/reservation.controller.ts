@@ -7,6 +7,14 @@ import type { ReservationCreateInput } from "../types";
 export class ReservationController {
   constructor(private readonly reservationService: IReservationService) {}
 
+  list = async (req: Request, res: AutheticatedResponse) => {
+    const { sub } = res.locals.authenticatedUser;
+
+    const reservations = await this.reservationService.listByUserId(sub);
+
+    return res.status(status.HTTP_200_OK).json(reservations);
+  };
+
   create = async (req: Request, res: AutheticatedResponse) => {
     const { sub } = res.locals.authenticatedUser;
 
