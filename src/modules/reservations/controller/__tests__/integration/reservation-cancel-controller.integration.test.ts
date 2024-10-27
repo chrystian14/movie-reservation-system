@@ -1,5 +1,6 @@
 import { type Room, type Showtime } from "@prisma/client";
 import { clearDatabase } from "configs/jest-setup.config";
+import { randomUUID } from "crypto";
 import { apiClient } from "modules/_shared/tests";
 import { status } from "modules/_shared/utils";
 import { generateToken } from "modules/auth/jwt";
@@ -65,13 +66,32 @@ describe("INTEGRATION: ReservationControler.cancel - DEL /api/v1/reservations", 
   });
 
   test("should return a 401 when user is not authenticated", async () => {
-    const response = await apiClient.delete(reservationEndpoint);
+    const unexistentReservationId = randomUUID();
+    const reservationCancelEndpoint =
+      reservationEndpoint + "/" + unexistentReservationId;
+    const response = await apiClient.delete(reservationCancelEndpoint);
 
     const expectedResponseBody = {
       details: "Missing authorization header with bearer token",
     };
 
     expect(response.statusCode).toBe(status.HTTP_401_UNAUTHORIZED);
+    expect(response.body).toStrictEqual(expectedResponseBody);
+  });
+
+  test("should return a 404 when reservation does not exist", async () => {
+    const unexistentReservationId = randomUUID();
+    const reservationCancelEndpoint =
+      reservationEndpoint + "/" + unexistentReservationId;
+    const response = await apiClient
+      .delete(reservationCancelEndpoint)
+      .set("Authorization", `Bearer ${regularUserOneToken}`);
+
+    const expectedResponseBody = {
+      details: "Reservation not found",
+    };
+
+    expect(response.statusCode).toBe(status.HTTP_404_NOT_FOUND);
     expect(response.body).toStrictEqual(expectedResponseBody);
   });
 });
