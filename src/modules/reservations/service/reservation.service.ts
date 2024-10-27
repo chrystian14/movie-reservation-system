@@ -9,6 +9,7 @@ import { UserNotFoundError } from "modules/users/errors";
 import { SeatAlreadyReservedError } from "modules/seats/errors";
 import { ReservationStatus } from "@prisma/client";
 import { ReservationNotFoundError } from "../errors";
+import { ForbiddenError } from "modules/_shared/errors";
 
 export class ReservationService implements IReservationService {
   constructor(
@@ -31,6 +32,10 @@ export class ReservationService implements IReservationService {
 
     if (!userCount) {
       throw new UserNotFoundError();
+    }
+
+    if (reservation.userId !== userId) {
+      throw new ForbiddenError();
     }
 
     await this.reservationRepository.cancel(reservationId);
