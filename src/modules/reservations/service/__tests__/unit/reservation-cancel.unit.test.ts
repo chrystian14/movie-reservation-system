@@ -111,38 +111,6 @@ describe("UNIT: ReservationService.cancel", () => {
     expect(mockedReservationRepository.cancel).not.toHaveBeenCalled();
   });
 
-  test("should throw an error if canceling a reservation with non-existing showtime id", async () => {
-    const mockedReservation = new ReservationBuilder().build();
-    mockedReservationRepository.findById.mockResolvedValueOnce(
-      mockedReservation
-    );
-
-    mockedUserRepository.countById.mockResolvedValueOnce(1);
-
-    mockedShowtimeRepository.findById.mockResolvedValueOnce(null);
-
-    await expect(
-      reservationService.cancel(mockedReservation.id, mockedReservation.userId)
-    ).rejects.toThrow("Showtime not found");
-
-    expect(mockedReservationRepository.findById).toHaveBeenCalledTimes(1);
-    expect(mockedReservationRepository.findById).toHaveBeenCalledWith(
-      mockedReservation.id
-    );
-
-    expect(mockedUserRepository.countById).toHaveBeenCalledTimes(1);
-    expect(mockedUserRepository.countById).toHaveBeenCalledWith(
-      mockedReservation.userId
-    );
-
-    expect(mockedShowtimeRepository.findById).toHaveBeenCalledTimes(1);
-    expect(mockedShowtimeRepository.findById).toHaveBeenCalledWith(
-      mockedReservation.showtimeId
-    );
-
-    expect(mockedReservationRepository.cancel).not.toHaveBeenCalled();
-  });
-
   test("should throw an error if user is the owner of the reservation but the reservation is from past", async () => {
     const mockedReservation = new ReservationBuilder().build();
     mockedReservationRepository.findById.mockResolvedValueOnce(

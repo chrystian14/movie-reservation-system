@@ -43,11 +43,7 @@ export class ReservationService implements IReservationService {
       reservation.showtimeId
     );
 
-    if (!showtime) {
-      throw new ShowtimeNotFoundError();
-    }
-
-    if (showtime.datetime < new Date()) {
+    if (showtime && showtime.datetime < new Date()) {
       throw new ShowtimeInThePastError();
     }
 
