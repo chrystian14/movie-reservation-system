@@ -27,6 +27,12 @@ export class ReservationService implements IReservationService {
       throw new ReservationNotFoundError();
     }
 
+    const userCount = await this.userRepository.countById(userId);
+
+    if (!userCount) {
+      throw new UserNotFoundError();
+    }
+
     await this.reservationRepository.cancel(reservationId);
   }
 
