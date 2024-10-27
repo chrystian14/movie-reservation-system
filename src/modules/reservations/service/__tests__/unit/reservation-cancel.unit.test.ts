@@ -83,4 +83,30 @@ describe("UNIT: ReservationService.cancel", () => {
 
     expect(mockedReservationRepository.cancel).not.toHaveBeenCalled();
   });
+
+  test("should throw an error if user is not the owner of the reservation", async () => {
+    const mockedReservation = new ReservationBuilder().build();
+    mockedReservationRepository.findById.mockResolvedValueOnce(
+      mockedReservation
+    );
+
+    mockedUserRepository.countById.mockResolvedValueOnce(1);
+
+    const mockedDifferentUserId = randomUUID();
+    await expect(
+      reservationService.cancel(mockedReservation.id, mockedDifferentUserId)
+    ).rejects.toThrow("You don't have permission to perform this action");
+
+    expect(mockedReservationRepository.findById).toHaveBeenCalledTimes(1);
+    expect(mockedReservationRepository.findById).toHaveBeenCalledWith(
+      mockedReservation.id
+    );
+
+    expect(mockedUserRepository.countById).toHaveBeenCalledTimes(1);
+    expect(mockedUserRepository.countById).toHaveBeenCalledWith(
+      mockedDifferentUserId
+    );
+
+    expect(mockedReservationRepository.cancel).not.toHaveBeenCalled();
+  });
 });
