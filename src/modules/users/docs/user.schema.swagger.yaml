@@ -32,9 +32,11 @@ components:
           minLength: 1
           maxLength: 255
           description: Required. 255 characters or fewer.
-          example: matrix@matrix.com
+          example: john-doe@mail.com
         password:
+          writeOnly: true
           type: string
+          format: password
           minLength: 1
           maxLength: 255
           description: Required. 255 characters or fewer.
