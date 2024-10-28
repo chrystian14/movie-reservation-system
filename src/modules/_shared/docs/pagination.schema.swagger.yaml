@@ -1,0 +1,16 @@
+components:
+  schemas:
+    PaginationResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 100
+        previousPage:
+          type: url
+          example: null
+          nullable: true
+        nextPage:
+          type: url
+          example: "http://localhost:3000/api/endpoint?page=2&perPage=10"
+          nullable: true

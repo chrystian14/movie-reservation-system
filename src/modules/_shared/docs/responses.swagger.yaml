@@ -1,0 +1,45 @@
+components:
+  responses:
+    BadRequest:
+      description: BAD REQUEST
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ZodError"
+    Unauthorized:
+      description: UNAUTHORIZED
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              details:
+                type: string
+                example: Missing authorization header with bearer token.
+    NotFound:
+      description: NOT FOUND
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              details:
+                type: string
+                example: Not found.
+  schemas:
+    ZodError:
+      type: object
+      properties:
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: array
+                items:
+                  type: string
+                  example: field_name_path
+              message:
+                type: string
+                example: Required
