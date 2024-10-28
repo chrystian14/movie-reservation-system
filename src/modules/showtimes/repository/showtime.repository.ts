@@ -9,17 +9,33 @@ export class ShowtimeRepository implements IShowtimeRepository {
     });
   }
 
-  async list(): Promise<Array<Showtime>> {
-    return await prisma.showtime.findMany();
+  async list(page: number, perPage: number): Promise<Array<Showtime>> {
+    return await prisma.showtime.findMany({
+      skip: (page - 1) * perPage,
+      take: perPage,
+      orderBy: {
+        datetime: "desc",
+      },
+    });
   }
 
-  async listByDate(startDate: Date, endDate: Date): Promise<Array<Showtime>> {
+  async listByDate(
+    startDate: Date,
+    endDate: Date,
+    page: number,
+    perPage: number
+  ): Promise<Array<Showtime>> {
     return await prisma.showtime.findMany({
       where: {
         datetime: {
           gte: startDate,
           lt: endDate,
         },
+      },
+      skip: (page - 1) * perPage,
+      take: perPage,
+      orderBy: {
+        datetime: "desc",
       },
     });
   }

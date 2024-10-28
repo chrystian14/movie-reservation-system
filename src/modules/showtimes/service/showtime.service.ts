@@ -9,6 +9,7 @@ import { DatetimeInThePastError } from "../errors";
 import type { Seat } from "modules/seats/types";
 import type { ISeatRepository } from "modules/seats/repository";
 import { ShowtimeNotFoundError } from "../errors/showtime.errors";
+import { MAX_PER_PAGE_NUMBER } from "modules/_shared/pagination/pagination.middleware";
 
 export class ShowtimeService implements IShowtimeService {
   constructor(
@@ -42,7 +43,11 @@ export class ShowtimeService implements IShowtimeService {
     return await this.showtimeRepository.create(showtimeCreateInput);
   }
 
-  async list(dateFilter?: string): Promise<Array<Showtime>> {
+  async list(
+    dateFilter?: string,
+    page: number = 1,
+    perPage: number = MAX_PER_PAGE_NUMBER
+  ): Promise<Array<Showtime>> {
     if (dateFilter) {
       const startDate = new Date(dateFilter);
       const oneDayAfterStartDate = new Date(
@@ -51,11 +56,13 @@ export class ShowtimeService implements IShowtimeService {
 
       return await this.showtimeRepository.listByDate(
         startDate,
-        oneDayAfterStartDate
+        oneDayAfterStartDate,
+        page,
+        perPage
       );
     }
 
-    return await this.showtimeRepository.list();
+    return await this.showtimeRepository.list(page, perPage);
   }
 
   async getAvailableSeats(showtimeId: string): Promise<Array<Seat>> {
