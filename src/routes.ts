@@ -5,9 +5,12 @@ import { movieRouter } from "modules/movies/router";
 import { roomRouter } from "modules/rooms/router";
 import { showtimeRouter } from "modules/showtimes/router";
 import { reservationRouter } from "modules/reservations/router";
+import { swaggerRouter } from "configs/swagger.config";
 
 export function initRoutes(app: Express) {
   const v1Router = Router();
+
+  v1Router.use("/docs", swaggerRouter);
 
   v1Router.use("/v1/users", userRouter);
   v1Router.use("/v1/login", authRouter);
