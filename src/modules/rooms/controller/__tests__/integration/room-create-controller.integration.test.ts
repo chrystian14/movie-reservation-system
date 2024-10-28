@@ -105,6 +105,96 @@ describe("INTEGRATION: RoomControler.create - POST /api/v1/rooms", () => {
     expect(roomCount).toBe(0);
   });
 
+  test("should return a 400 when rows is a negative number", async () => {
+    const negativeRowsRoomCreateInput = { ...roomCreateInput, rows: -1 };
+
+    const response = await apiClient
+      .post(roomEndpoint)
+      .set("Authorization", `Bearer ${adminUserToken}`)
+      .send(negativeRowsRoomCreateInput);
+
+    const expectedResponseBody = {
+      details: [
+        {
+          field: ["rows"],
+          message: "Number must be greater than or equal to 0",
+        },
+      ],
+    };
+
+    expect(response.status).toBe(status.HTTP_400_BAD_REQUEST);
+    expect(response.body).toStrictEqual(expectedResponseBody);
+  });
+
+  test("should return a 400 when columns is a negative number", async () => {
+    const negativeColumnsRoomCreateInput = { ...roomCreateInput, columns: -1 };
+
+    const response = await apiClient
+      .post(roomEndpoint)
+      .set("Authorization", `Bearer ${adminUserToken}`)
+      .send(negativeColumnsRoomCreateInput);
+
+    const expectedResponseBody = {
+      details: [
+        {
+          field: ["columns"],
+          message: "Number must be greater than or equal to 0",
+        },
+      ],
+    };
+
+    expect(response.status).toBe(status.HTTP_400_BAD_REQUEST);
+    expect(response.body).toStrictEqual(expectedResponseBody);
+  });
+
+  test("should return a 400 when rows is a number greater than the maximum allowed (500)", async () => {
+    const negativeColumnsRoomCreateInput = {
+      ...roomCreateInput,
+      rows: 65536,
+    };
+
+    const response = await apiClient
+      .post(roomEndpoint)
+      .set("Authorization", `Bearer ${adminUserToken}`)
+      .send(negativeColumnsRoomCreateInput);
+
+    const expectedResponseBody = {
+      details: [
+        {
+          field: ["rows"],
+          message: "Number must be less than or equal to 500",
+        },
+      ],
+    };
+
+    expect(response.status).toBe(status.HTTP_400_BAD_REQUEST);
+    expect(response.body).toStrictEqual(expectedResponseBody);
+  });
+
+  test("should return a 400 when columns is a number greater than the maximum allowed (500)", async () => {
+    const negativeColumnsRoomCreateInput = {
+      ...roomCreateInput,
+      columns: 65536,
+    };
+
+    const response = await apiClient
+      .post(roomEndpoint)
+      .set("Authorization", `Bearer ${adminUserToken}`)
+      .send(negativeColumnsRoomCreateInput);
+
+    const expectedResponseBody = {
+      details: [
+        {
+          field: ["columns"],
+          message: "Number must be less than or equal to 500",
+        },
+      ],
+    };
+
+    expect(response.status).toBe(status.HTTP_400_BAD_REQUEST);
+    expect(response.body).toStrictEqual(expectedResponseBody);
+  });
+
   test("should create a room with correct amount of seats if user is admin", async () => {
     const response = await apiClient
       .post(roomEndpoint)
