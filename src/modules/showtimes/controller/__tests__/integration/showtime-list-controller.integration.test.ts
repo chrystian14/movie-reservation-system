@@ -77,7 +77,7 @@ describe("INTEGRATION: ShowtimeControler.list - GET /api/v1/showtimes", () => {
     expect(response.body).toStrictEqual(expectedResponseBody);
   });
 
-  test("should list all showtimes when no query params are passed", async () => {
+  test("should list all showtimes from page 1 in desc order when no date query param is passed", async () => {
     const numberOfShowtimesToCreate = 4;
     const showtimeStartDate = new Date("03-03-1993");
     const intervalBetweenShowtimesInMinutes = 120;
@@ -93,12 +93,14 @@ describe("INTEGRATION: ShowtimeControler.list - GET /api/v1/showtimes", () => {
     const savedShowtimes = await showtimeBuilder.saveAll(
       new ShowtimeRepository()
     );
-
+    const orderedDescSavedShowtimes = savedShowtimes.sort(
+      (a, b) => b.datetime.getTime() - a.datetime.getTime()
+    );
     const response = await apiClient
       .get(showtimeEndpoint)
       .set("Authorization", `Bearer ${regularUserToken}`);
 
-    const expectedResponseBody = savedShowtimes.map((showtime) => ({
+    const expectedResponseBody = orderedDescSavedShowtimes.map((showtime) => ({
       id: showtime.id,
       datetime: showtime.datetime.toISOString(),
       movieId: showtime.movieId,
@@ -109,7 +111,7 @@ describe("INTEGRATION: ShowtimeControler.list - GET /api/v1/showtimes", () => {
     expect(response.body).toStrictEqual(expectedResponseBody);
   });
 
-  test('should list only showtimes within date range when "date" query param is passed', async () => {
+  test('should list only showtimes within date range and in desc order when "date" query param is passed', async () => {
     const showtimeRepository = new ShowtimeRepository();
 
     const outOfRangeShowtimeBuilder = new ShowtimeBuilder();
@@ -133,18 +135,22 @@ describe("INTEGRATION: ShowtimeControler.list - GET /api/v1/showtimes", () => {
     const inRangeSavedShowtimes = await inRangeShowtimeBuilder.saveAll(
       showtimeRepository
     );
-
+    const orderedDescinRangeSavedShowtimes = inRangeSavedShowtimes.sort(
+      (a, b) => b.datetime.getTime() - a.datetime.getTime()
+    );
     const response = await apiClient
       .get(showtimeEndpoint)
       .set("Authorization", `Bearer ${regularUserToken}`)
       .query({ date: "2024-03-17" });
 
-    const expectedResponseBody = inRangeSavedShowtimes.map((showtime) => ({
-      id: showtime.id,
-      datetime: showtime.datetime.toISOString(),
-      movieId: showtime.movieId,
-      roomId: showtime.roomId,
-    }));
+    const expectedResponseBody = orderedDescinRangeSavedShowtimes.map(
+      (showtime) => ({
+        id: showtime.id,
+        datetime: showtime.datetime.toISOString(),
+        movieId: showtime.movieId,
+        roomId: showtime.roomId,
+      })
+    );
 
     expect(response.statusCode).toBe(status.HTTP_200_OK);
     expect(response.body).toStrictEqual(expectedResponseBody);
