@@ -1,0 +1,22 @@
+paths:
+  /api/v1/users:
+    post:
+      tags:
+        - Users
+      summary: Create user
+      description: Create and return a new user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        201:
+          description: CREATED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        400:
+          $ref: "#/components/responses/BadRequest"

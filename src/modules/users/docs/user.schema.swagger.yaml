@@ -1,0 +1,58 @@
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - password
+      properties:
+        id:
+          readOnly: true
+          type: string
+          format: uuid
+          description: Unique identifier (uuidv4).
+          example: "5096104f-68c4-4a07-983a-2a1e47e32f79"
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: Required. 50 characters or fewer.
+          example: John
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: Required. 50 characters or fewer.
+          example: Doe
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 255
+          description: Required. 255 characters or fewer.
+          example: matrix@matrix.com
+        password:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Required. 255 characters or fewer.
+          example: matrix
+        isAdmin:
+          readOnly: true
+          type: boolean
+          default: false
+          description: Default to false.
+        createdAt:
+          readOnly: true
+          type: string
+          format: date-time
+          description: Date of creation.
+          example: "2023-03-21T12:00:00.000Z"
+        updatedAt:
+          readOnly: true
+          type: string
+          format: date-time
+          description: Date of last update.
+          example: "2023-03-21T12:00:00.000Z"
