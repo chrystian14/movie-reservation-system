@@ -4,8 +4,8 @@ import z from "zod";
 export const roomSchema = z.object({
   id: z.string().uuid(),
   name: z.string().max(50),
-  rows: z.number(),
-  columns: z.number(),
+  rows: z.number().int().nonnegative().max(500),
+  columns: z.number().int().nonnegative().max(500),
   baseSeatPrice: z
     .custom<Prisma.Decimal.Value>(
       (v) =>
