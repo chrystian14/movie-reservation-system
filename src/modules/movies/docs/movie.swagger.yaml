@@ -1,0 +1,101 @@
+paths:
+  /api/v1/movies:
+    get:
+      tags:
+        - Movies
+      summary: List movies
+      description: List all movies.
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Movie"
+    post:
+      tags:
+        - Movies
+      summary: Create movie
+      description: Create and return a new movie.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Movie"
+      responses:
+        201:
+          description: CREATED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Movie"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        400:
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/movies/{id}:
+    patch:
+      tags:
+        - Movies
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Unique identifier (uuidv4).
+          example: "5096104f-68c4-4a07-983a-2a1e47e32f79"
+      summary: Update movie
+      description: Update a movie by id.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Movie"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Movie"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        404:
+          $ref: "#/components/responses/NotFound"
+        400:
+          $ref: "#/components/responses/BadRequest"
+    delete:
+      tags:
+        - Movies
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Unique identifier (uuidv4).
+          example: "5096104f-68c4-4a07-983a-2a1e47e32f79"
+      summary: Delete movie
+      description: Delete a movie by id.
+      security:
+        - bearerAuth: []
+      responses:
+        204:
+          description: NO CONTENT
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        404:
+          $ref: "#/components/responses/NotFound"
+        400:
+          $ref: "#/components/responses/BadRequest"
