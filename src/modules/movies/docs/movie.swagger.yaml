@@ -3,7 +3,6 @@ paths:
     get:
       tags:
         - Movies
-      summary: List movies
       description: List all movies.
       responses:
         200:
@@ -17,7 +16,7 @@ paths:
     post:
       tags:
         - Movies
-      summary: Create movie
+      summary: Admin only
       description: Create and return a new movie.
       security:
         - bearerAuth: []
@@ -51,7 +50,7 @@ paths:
             format: uuid
           description: Unique identifier (uuidv4).
           example: "5096104f-68c4-4a07-983a-2a1e47e32f79"
-      summary: Update movie
+      summary: Admin only
       description: Update a movie by id.
       security:
         - bearerAuth: []
@@ -86,7 +85,7 @@ paths:
             format: uuid
           description: Unique identifier (uuidv4).
           example: "5096104f-68c4-4a07-983a-2a1e47e32f79"
-      summary: Delete movie
+      summary: Admin only
       description: Delete a movie by id.
       security:
         - bearerAuth: []

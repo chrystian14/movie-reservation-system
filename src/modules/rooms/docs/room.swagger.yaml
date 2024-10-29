@@ -3,7 +3,7 @@ paths:
     post:
       tags:
         - Rooms
-      summary: Create room
+      summary: Admin only
       description: Create and return a new room.
       security:
         - bearerAuth: []

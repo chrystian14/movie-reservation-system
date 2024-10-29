@@ -3,7 +3,6 @@ paths:
     post:
       tags:
         - Users
-      summary: Create user
       description: Create and return a new user.
       requestBody:
         required: true
