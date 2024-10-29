@@ -7,7 +7,14 @@ import type {
 } from "../types";
 import { Prisma, ReservationStatus } from "@prisma/client";
 import { Chance } from "chance";
+import type { Override } from "modules/_shared/utils/types.util";
 
+export type ReservationPostBody = Override<
+  ReservationCreateInputWithoutUserId,
+  {
+    amountPaid: number;
+  }
+>;
 export class ReservationBuilder {
   protected entity: Reservation;
   protected chance: Chance.Chance;
@@ -96,10 +103,10 @@ export class ReservationBuilder {
     };
   }
 
-  requiredForPostBody(): ReservationCreateInputWithoutUserId {
+  requiredForPostBody(): ReservationPostBody {
     return {
       showtimeId: this.entity.showtimeId,
-      amountPaid: this.entity.amountPaid,
+      amountPaid: this.entity.amountPaid.toNumber(),
       seatIds: this._seatIds,
     };
   }

@@ -1,17 +1,15 @@
 import z from "zod";
-import { Prisma, ReservationStatus } from "@prisma/client";
+import { ReservationStatus } from "@prisma/client";
+import { toDecimal } from "modules/_shared/utils";
 
 export const reservationSchema = z.object({
   id: z.string().uuid(),
   status: z.nativeEnum(ReservationStatus).default(ReservationStatus.CONFIRMED),
   amountPaid: z
-    .custom<Prisma.Decimal.Value>(
-      (v) =>
-        typeof v === "string" ||
-        typeof v === "number" ||
-        Prisma.Decimal.isDecimal(v)
-    )
-    .transform((v) => new Prisma.Decimal(v)),
+    .number()
+    .nonnegative()
+    .multipleOf(0.01)
+    .transform((value) => toDecimal(value)),
   userId: z.string().uuid(),
   showtimeId: z.string().uuid(),
   seatId: z.string().uuid(),
