@@ -1,19 +1,16 @@
 import { clearDatabase } from "configs/jest-setup.config";
 import { apiClient } from "modules/_shared/tests";
-import { status } from "modules/_shared/utils";
+import { status, toDecimal } from "modules/_shared/utils";
 import { generateToken } from "modules/auth/jwt";
 import { RoomBuilder } from "modules/rooms/builder";
 import { RoomRepository, type IRoomRepository } from "modules/rooms/repository";
-import { type Room, type RoomCreateInput } from "modules/rooms/types";
+import { type Room } from "modules/rooms/types";
 import { SeatRepository, type ISeatRepository } from "modules/seats/repository";
 import { UserBuilder } from "modules/users/builder";
 import { UserRepository } from "modules/users/repository";
 
 describe("INTEGRATION: RoomControler.create - POST /api/v1/rooms", () => {
   const roomEndpoint = "/api/v1/rooms";
-
-  let roomBuilder: RoomBuilder;
-  let roomCreateInput: RoomCreateInput;
 
   let regularUserToken: string;
   let adminUserToken: string;
@@ -27,9 +24,6 @@ describe("INTEGRATION: RoomControler.create - POST /api/v1/rooms", () => {
     seatRepository = new SeatRepository();
     roomRepository = new RoomRepository();
 
-    roomBuilder = new RoomBuilder();
-    roomCreateInput = roomBuilder.requiredForCreation();
-
     const userRepository = new UserRepository();
     const regularUserBuilder = new UserBuilder().withNonAdminRole();
     const regularUser = await regularUserBuilder.save(userRepository);
@@ -41,7 +35,11 @@ describe("INTEGRATION: RoomControler.create - POST /api/v1/rooms", () => {
   });
 
   test("should return a 401 when user is not authenticated", async () => {
-    const response = await apiClient.post(roomEndpoint).send(roomCreateInput);
+    const roomCreatePostBody = new RoomBuilder().requiredForPostBody();
+
+    const response = await apiClient
+      .post(roomEndpoint)
+      .send(roomCreatePostBody);
 
     const expectedResponseBody = {
       details: "Missing authorization header with bearer token",
@@ -55,10 +53,12 @@ describe("INTEGRATION: RoomControler.create - POST /api/v1/rooms", () => {
   });
 
   test("should return a 403 when user is authenticated but not an admin", async () => {
+    const roomCreatePostBody = new RoomBuilder().requiredForPostBody();
+
     const response = await apiClient
       .post(roomEndpoint)
       .set("Authorization", `Bearer ${regularUserToken}`)
-      .send(roomCreateInput);
+      .send(roomCreatePostBody);
 
     const expectedResponseBody = {
       details: "You don't have permission to perform this action",
@@ -93,7 +93,7 @@ describe("INTEGRATION: RoomControler.create - POST /api/v1/rooms", () => {
         },
         {
           field: ["baseSeatPrice"],
-          message: "Invalid input",
+          message: "Required",
         },
       ],
     };
@@ -106,7 +106,9 @@ describe("INTEGRATION: RoomControler.create - POST /api/v1/rooms", () => {
   });
 
   test("should return a 400 when rows is a negative number", async () => {
-    const negativeRowsRoomCreateInput = { ...roomCreateInput, rows: -1 };
+    const negativeRowsRoomCreateInput = new RoomBuilder()
+      .withRows(-1)
+      .requiredForPostBody();
 
     const response = await apiClient
       .post(roomEndpoint)
@@ -127,7 +129,9 @@ describe("INTEGRATION: RoomControler.create - POST /api/v1/rooms", () => {
   });
 
   test("should return a 400 when columns is a negative number", async () => {
-    const negativeColumnsRoomCreateInput = { ...roomCreateInput, columns: -1 };
+    const negativeColumnsRoomCreateInput = new RoomBuilder()
+      .withColumns(-1)
+      .requiredForPostBody();
 
     const response = await apiClient
       .post(roomEndpoint)
@@ -148,10 +152,9 @@ describe("INTEGRATION: RoomControler.create - POST /api/v1/rooms", () => {
   });
 
   test("should return a 400 when rows is a number greater than the maximum allowed (500)", async () => {
-    const outOfRangeRowsRoomCreateInput = {
-      ...roomCreateInput,
-      rows: 65536,
-    };
+    const outOfRangeRowsRoomCreateInput = new RoomBuilder()
+      .withRows(65536)
+      .requiredForPostBody();
 
     const response = await apiClient
       .post(roomEndpoint)
@@ -172,10 +175,9 @@ describe("INTEGRATION: RoomControler.create - POST /api/v1/rooms", () => {
   });
 
   test("should return a 400 when columns is a number greater than the maximum allowed (500)", async () => {
-    const outOfRangeColumnsRoomCreateInput = {
-      ...roomCreateInput,
-      columns: 65536,
-    };
+    const outOfRangeColumnsRoomCreateInput = new RoomBuilder()
+      .withColumns(65536)
+      .requiredForPostBody();
 
     const response = await apiClient
       .post(roomEndpoint)
@@ -195,11 +197,33 @@ describe("INTEGRATION: RoomControler.create - POST /api/v1/rooms", () => {
     expect(response.body).toStrictEqual(expectedResponseBody);
   });
 
-  test("should return a 400 when baseSeatPrice is a decimal with more than 2 decimal places ", async () => {
-    const invalidBaseSeatPriceRoomCreateInput = {
-      ...roomCreateInput,
-      baseSeatPrice: 10.1222,
+  test("should return a 400 when baseSeatPrice is a negative decimal", async () => {
+    const negativeBaseSeatPriceRoomCreateInput = new RoomBuilder()
+      .withPrice(-10.1)
+      .requiredForPostBody();
+
+    const response = await apiClient
+      .post(roomEndpoint)
+      .set("Authorization", `Bearer ${adminUserToken}`)
+      .send(negativeBaseSeatPriceRoomCreateInput);
+
+    const expectedResponseBody = {
+      details: [
+        {
+          field: ["baseSeatPrice"],
+          message: "Number must be greater than or equal to 0",
+        },
+      ],
     };
+
+    expect(response.status).toBe(status.HTTP_400_BAD_REQUEST);
+    expect(response.body).toStrictEqual(expectedResponseBody);
+  });
+
+  test("should return a 400 when baseSeatPrice is a decimal with more than 2 decimal places", async () => {
+    const invalidBaseSeatPriceRoomCreateInput = new RoomBuilder()
+      .withPrice(10.1222)
+      .requiredForPostBody();
 
     const response = await apiClient
       .post(roomEndpoint)
@@ -220,19 +244,21 @@ describe("INTEGRATION: RoomControler.create - POST /api/v1/rooms", () => {
   });
 
   test("should create a room with correct amount of seats if user is admin", async () => {
+    const roomCreatePostBody = new RoomBuilder().requiredForPostBody();
+
     const response = await apiClient
       .post(roomEndpoint)
       .set("Authorization", `Bearer ${adminUserToken}`)
-      .send(roomCreateInput);
+      .send(roomCreatePostBody);
 
     expect(response.status).toBe(status.HTTP_201_CREATED);
 
     const expectedResponseBody: Room = {
       id: expect.any(String),
-      name: roomCreateInput.name,
-      rows: roomCreateInput.rows,
-      columns: roomCreateInput.columns,
-      baseSeatPrice: roomCreateInput.baseSeatPrice,
+      name: roomCreatePostBody.name,
+      rows: roomCreatePostBody.rows,
+      columns: roomCreatePostBody.columns,
+      baseSeatPrice: toDecimal(roomCreatePostBody.baseSeatPrice),
     };
 
     expect(response.body).toStrictEqual({
@@ -244,7 +270,8 @@ describe("INTEGRATION: RoomControler.create - POST /api/v1/rooms", () => {
     expect(roomCount).toBe(1);
 
     const seatCount = await seatRepository.countByRoomId(response.body.id);
-    const expectedSeatCount = roomCreateInput.rows * roomCreateInput.columns;
+    const expectedSeatCount =
+      roomCreatePostBody.rows * roomCreatePostBody.columns;
     expect(seatCount).toBe(expectedSeatCount);
   });
 });

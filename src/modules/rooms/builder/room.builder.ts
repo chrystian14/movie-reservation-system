@@ -79,6 +79,15 @@ export class RoomBuilder {
     };
   }
 
+  requiredForPostBody() {
+    return {
+      name: this.entity.name,
+      columns: this.entity.columns,
+      rows: this.entity.rows,
+      baseSeatPrice: this.entity.baseSeatPrice.toNumber(),
+    };
+  }
+
   generateSeats() {
     for (let i = 0; i < this.entity.columns; i++) {
       for (let j = 0; j < this.entity.rows; j++) {
