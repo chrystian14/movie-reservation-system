@@ -1,0 +1,29 @@
+components:
+  schemas:
+    Login:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          writeOnly: true
+          type: string
+          format: email
+          maxLength: 255
+          description: Required. 255 characters or fewer.
+          example: john-doe@mail.com
+        password:
+          writeOnly: true
+          type: string
+          format: password
+          minLength: 6
+          maxLength: 64
+          description: Required. Minimum 6 characters, maximum 64 characters.
+          example: someStrongPassword!!!
+        token:
+          readOnly: true
+          type: string
+          format: jwt
+          description: JWT token.
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"

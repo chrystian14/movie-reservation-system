@@ -1,0 +1,22 @@
+paths:
+  /api/v1/login:
+    post:
+      tags:
+        - Login
+      summary: login into the system
+      description: login into the system
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Login"
+      responses:
+        201:
+          description: CREATED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Login"
+        400:
+          $ref: "#/components/responses/BadRequest"
