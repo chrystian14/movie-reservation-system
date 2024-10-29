@@ -24,7 +24,7 @@ components:
           multipleOf: 0.01
           minimum: 0
           description: Required. Amount paid in BRL, with 2 decimals.
-          example: 10.53
+          example: 100.14
         userId:
           readOnly: true
           type: string
@@ -49,7 +49,11 @@ components:
                 type: string
                 format: uuid
               description: Unique identifier (uuidv4) of the seat.
-              example: "5096104f-68c4-4a07-983a-2a1e47e32f79"
+              example:
+                [
+                  "5096104f-68c4-4a07-983a-2a1e47e32f79",
+                  "3c481fb8-7580-4ff3-b516-ead7cef30bf5",
+                ]
               minItems: 1
     Reservation:
       allOf:

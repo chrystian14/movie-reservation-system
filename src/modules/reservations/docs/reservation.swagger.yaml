@@ -3,7 +3,9 @@ paths:
     get:
       tags:
         - Reservations
-      description: List reservations by desc datetime.
+      description: List user reservations by desc datetime. If user is admin, list all reservations.
+      security:
+        - bearerAuth: []
       responses:
         200:
           description: OK
@@ -18,7 +20,6 @@ paths:
     post:
       tags:
         - Reservations
-      summary: Admin only
       description: Create and return a new reservation.
       security:
         - bearerAuth: []
@@ -37,14 +38,16 @@ paths:
                 $ref: "#/components/schemas/Reservation"
         401:
           $ref: "#/components/responses/Unauthorized"
-        403:
-          $ref: "#/components/responses/Forbidden"
         400:
           $ref: "#/components/responses/BadRequest"
-  /api/v1/reservations/{id}/available-seats:
-    get:
+
+  /api/v1/reservations/{id}:
+    delete:
       tags:
         - Reservations
+      description: Delete a reservation.
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: id
@@ -52,18 +55,12 @@ paths:
           schema:
             type: string
             format: uuid
-          description: Unique identifier (uuidv4).
-          example: "5096104f-68c4-4a07-983a-2a1e47e32f79"
       responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Seat"
+        204:
+          description: NO CONTENT
         401:
           $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
         404:
           $ref: "#/components/responses/NotFound"
