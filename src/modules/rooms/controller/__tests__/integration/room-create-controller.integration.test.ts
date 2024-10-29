@@ -148,7 +148,7 @@ describe("INTEGRATION: RoomControler.create - POST /api/v1/rooms", () => {
   });
 
   test("should return a 400 when rows is a number greater than the maximum allowed (500)", async () => {
-    const negativeColumnsRoomCreateInput = {
+    const outOfRangeRowsRoomCreateInput = {
       ...roomCreateInput,
       rows: 65536,
     };
@@ -156,7 +156,7 @@ describe("INTEGRATION: RoomControler.create - POST /api/v1/rooms", () => {
     const response = await apiClient
       .post(roomEndpoint)
       .set("Authorization", `Bearer ${adminUserToken}`)
-      .send(negativeColumnsRoomCreateInput);
+      .send(outOfRangeRowsRoomCreateInput);
 
     const expectedResponseBody = {
       details: [
@@ -172,7 +172,7 @@ describe("INTEGRATION: RoomControler.create - POST /api/v1/rooms", () => {
   });
 
   test("should return a 400 when columns is a number greater than the maximum allowed (500)", async () => {
-    const negativeColumnsRoomCreateInput = {
+    const outOfRangeColumnsRoomCreateInput = {
       ...roomCreateInput,
       columns: 65536,
     };
@@ -180,13 +180,37 @@ describe("INTEGRATION: RoomControler.create - POST /api/v1/rooms", () => {
     const response = await apiClient
       .post(roomEndpoint)
       .set("Authorization", `Bearer ${adminUserToken}`)
-      .send(negativeColumnsRoomCreateInput);
+      .send(outOfRangeColumnsRoomCreateInput);
 
     const expectedResponseBody = {
       details: [
         {
           field: ["columns"],
           message: "Number must be less than or equal to 500",
+        },
+      ],
+    };
+
+    expect(response.status).toBe(status.HTTP_400_BAD_REQUEST);
+    expect(response.body).toStrictEqual(expectedResponseBody);
+  });
+
+  test("should return a 400 when baseSeatPrice is a decimal with more than 2 decimal places ", async () => {
+    const invalidBaseSeatPriceRoomCreateInput = {
+      ...roomCreateInput,
+      baseSeatPrice: 10.1222,
+    };
+
+    const response = await apiClient
+      .post(roomEndpoint)
+      .set("Authorization", `Bearer ${adminUserToken}`)
+      .send(invalidBaseSeatPriceRoomCreateInput);
+
+    const expectedResponseBody = {
+      details: [
+        {
+          field: ["baseSeatPrice"],
+          message: "Must be in decimal format with 2 decimal places",
         },
       ],
     };
