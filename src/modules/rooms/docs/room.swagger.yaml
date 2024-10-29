@@ -1,0 +1,28 @@
+paths:
+  /api/v1/rooms:
+    post:
+      tags:
+        - Rooms
+      summary: Create room
+      description: Create and return a new room.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Room"
+      responses:
+        201:
+          description: CREATED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Room"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        400:
+          $ref: "#/components/responses/BadRequest"

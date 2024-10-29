@@ -26,6 +26,16 @@ components:
               details:
                 type: string
                 example: Not found.
+    Forbidden:
+      description: FORBIDDEN
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              details:
+                type: string
+                example: You don't have permission to perform this action.
   schemas:
     ZodError:
       type: object
