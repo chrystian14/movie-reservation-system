@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { toDecimal } from "modules/_shared/utils";
 import z from "zod";
 
 export const roomSchema = z.object({
@@ -7,13 +7,11 @@ export const roomSchema = z.object({
   rows: z.number().int().nonnegative().max(500),
   columns: z.number().int().nonnegative().max(500),
   baseSeatPrice: z
-    .custom<Prisma.Decimal.Value>(
-      (v) =>
-        typeof v === "string" ||
-        typeof v === "number" ||
-        Prisma.Decimal.isDecimal(v)
-    )
-    .transform((v) => new Prisma.Decimal(v)),
+    .number()
+    .multipleOf(0.01, {
+      message: "Must be in decimal format with 2 decimal places",
+    })
+    .transform((value) => toDecimal(value)),
 });
 
 export const roomCreateInputSchema = roomSchema.omit({
