@@ -1,0 +1,78 @@
+paths:
+  /api/v1/showtimes:
+    get:
+      tags:
+        - Showtimes
+      description: List showtimes by desc datetime.
+      parameters:
+        - in: query
+          name: date
+          required: false
+          schema:
+            type: string
+            format: date
+          description: Optional. Date in ISO8601 format.
+          example: "2022-01-01"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Showtime"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      tags:
+        - Showtimes
+      summary: Admin only
+      description: Create and return a new showtime.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Showtime"
+      responses:
+        201:
+          description: CREATED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Showtime"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        400:
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/showtimes/{id}/available-seats:
+    get:
+      tags:
+        - Showtimes
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Unique identifier (uuidv4).
+          example: "5096104f-68c4-4a07-983a-2a1e47e32f79"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Seat"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        404:
+          $ref: "#/components/responses/NotFound"

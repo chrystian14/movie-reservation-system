@@ -1,0 +1,30 @@
+components:
+  schemas:
+    Showtime:
+      type: object
+      required:
+        - datetime
+        - movieId
+        - roomId
+      properties:
+        id:
+          readOnly: true
+          type: string
+          format: uuid
+          description: Unique identifier (uuidv4).
+          example: "5096104f-68c4-4a07-983a-2a1e47e32f79"
+        datetime:
+          type: string
+          format: date-time
+          description: Required. Date and time of showtime in ISO8601 format.
+          example: "2022-01-01T00:00:00Z"
+        movieId:
+          type: string
+          format: uuid
+          description: Required. Unique identifier (uuidv4) of the movie.
+          example: "5096104f-68c4-4a07-983a-2a1e47e32f79"
+        roomId:
+          type: string
+          format: uuid
+          description: Required. Unique identifier (uuidv4) of the room.
+          example: "5096104f-68c4-4a07-983a-2a1e47e32f79"
