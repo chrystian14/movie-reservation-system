@@ -29,7 +29,6 @@ components:
         email:
           type: string
           format: email
-          minLength: 1
           maxLength: 255
           description: Required. 255 characters or fewer.
           example: john-doe@mail.com
@@ -37,10 +36,10 @@ components:
           writeOnly: true
           type: string
           format: password
-          minLength: 1
-          maxLength: 255
-          description: Required. 255 characters or fewer.
-          example: matrix
+          minLength: 6
+          maxLength: 64
+          description: Required. Minimum 6 characters, maximum 64 characters.
+          example: someStrongPassword!!
         isAdmin:
           readOnly: true
           type: boolean
