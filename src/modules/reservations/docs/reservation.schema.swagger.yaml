@@ -1,0 +1,63 @@
+components:
+  schemas:
+    BaseReservation:
+      type: object
+      required:
+        - datetime
+        - amountPaid
+      properties:
+        id:
+          readOnly: true
+          type: string
+          format: uuid
+          description: Unique identifier (uuidv4).
+          example: "5096104f-68c4-4a07-983a-2a1e47e32f79"
+        status:
+          readOnly: true
+          type: string
+          enum:
+            - CONFIRMED
+            - CANCELED
+        amountPaid:
+          type: number
+          format: double
+          multipleOf: 0.01
+          minimum: 0
+          description: Required. Amount paid in BRL, with 2 decimals.
+          example: 10.53
+        userId:
+          readOnly: true
+          type: string
+          format: uuid
+          description: Unique identifier (uuidv4) of the user.
+          example: "5096104f-68c4-4a07-983a-2a1e47e32f79"
+        showtimeId:
+          type: string
+          format: uuid
+          description: Unique identifier (uuidv4) of the showtime.
+          example: "5096104f-68c4-4a07-983a-2a1e47e32f79"
+    PostBodyReservation:
+      allOf:
+        - $ref: "#/components/schemas/BaseReservation"
+        - type: object
+          required:
+            - seatIds
+          properties:
+            seatIds:
+              type: array
+              items:
+                type: string
+                format: uuid
+              description: Unique identifier (uuidv4) of the seat.
+              example: "5096104f-68c4-4a07-983a-2a1e47e32f79"
+              minItems: 1
+    Reservation:
+      allOf:
+        - $ref: "#/components/schemas/BaseReservation"
+        - type: object
+          properties:
+            seatId:
+              type: string
+              format: uuid
+              description: Unique identifier (uuidv4) of the seat.
+              example: "5096104f-68c4-4a07-983a-2a1e47e32f79"
