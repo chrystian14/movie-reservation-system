@@ -1,0 +1,19 @@
+components:
+  schemas:
+    Genre:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          readOnly: true
+          type: string
+          format: uuid
+          description: Unique identifier (uuidv4).
+          example: "5096104f-68c4-4a07-983a-2a1e47e32f79"
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: Required. 50 characters or fewer.
+          example: Action

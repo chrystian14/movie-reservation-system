@@ -1,0 +1,53 @@
+paths:
+  /api/v1/genres:
+    post:
+      tags:
+        - Genres
+      summary: Admin only
+      description: Create and return a new genre.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Genre"
+      responses:
+        201:
+          description: CREATED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Genre"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        400:
+          $ref: "#/components/responses/BadRequest"
+  /api/v1/genres/{id}:
+    delete:
+      tags:
+        - Genres
+      summary: Admin only
+      description: Delete a genre.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "5096104f-68c4-4a07-983a-2a1e47e32f79"
+      responses:
+        204:
+          description: NO CONTENT
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          $ref: "#/components/responses/NotFound"
