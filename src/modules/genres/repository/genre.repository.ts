@@ -9,6 +9,14 @@ export class GenreRepository implements IGenreRepository {
     });
   }
 
+  async delete(id: string): Promise<void> {
+    await prisma.genre.delete({
+      where: {
+        id,
+      },
+    });
+  }
+
   async countByName(name: string): Promise<number> {
     return await prisma.genre.count({
       where: {
