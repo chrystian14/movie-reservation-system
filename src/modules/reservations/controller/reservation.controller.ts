@@ -8,11 +8,17 @@ export class ReservationController {
   constructor(private readonly reservationService: IReservationService) {}
 
   list = async (req: Request, res: AutheticatedResponse) => {
-    const { sub } = res.locals.authenticatedUser;
+    const { sub, isAdmin } = res.locals.authenticatedUser;
 
-    const reservations = await this.reservationService.listByUserId(sub);
+    if (isAdmin) {
+      return res
+        .status(status.HTTP_200_OK)
+        .json(await this.reservationService.list());
+    }
 
-    return res.status(status.HTTP_200_OK).json(reservations);
+    return res
+      .status(status.HTTP_200_OK)
+      .json(await this.reservationService.listByUserId(sub));
   };
 
   create = async (req: Request, res: AutheticatedResponse) => {

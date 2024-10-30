@@ -6,6 +6,7 @@ export interface IReservationRepository {
   create(
     reservationCreateInput: ReservationCreateInput
   ): Promise<Array<Reservation>>;
+  list(): Promise<Array<Reservation>>;
   listByUserId(
     userId: string,
     reservationStatus: ReservationStatus

@@ -50,6 +50,10 @@ export class ReservationService implements IReservationService {
     await this.reservationRepository.cancel(reservationId);
   }
 
+  async list(): Promise<Array<Reservation>> {
+    return await this.reservationRepository.list();
+  }
+
   async listByUserId(userId: string): Promise<Array<Reservation>> {
     const userCount = await this.userRepository.countById(userId);
 
