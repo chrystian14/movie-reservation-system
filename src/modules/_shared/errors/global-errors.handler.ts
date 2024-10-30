@@ -1,12 +1,13 @@
 import type { Request, Response, NextFunction } from "express";
 import { ApiError, BodyValidationError } from "./api.errors";
 import { status } from "modules/_shared/utils";
+import { Logger } from "configs/loggers";
 
 export function handleGlobalErrors(
   error: Error,
-  req: Request,
+  _req: Request,
   res: Response,
-  _: NextFunction
+  _next: NextFunction
 ) {
   if (error instanceof ApiError) {
     return res.status(error.statusCode).json({
@@ -23,7 +24,7 @@ export function handleGlobalErrors(
     });
   }
 
-  console.error(error.message);
+  Logger.error(error.message);
 
   return res.status(status.HTTP_500_INTERNAL_SERVER_ERROR).json({
     details: "Internal Server Error",

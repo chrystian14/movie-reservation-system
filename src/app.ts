@@ -1,22 +1,26 @@
+import { customMorganLogger } from "configs/loggers";
 import express from "express";
 import "express-async-errors";
 import { handleGlobalErrors } from "modules/_shared/errors";
-
-import morgan from "morgan";
 import { initRoutes } from "routes";
 
-export const app = express();
+function createApp() {
+  const app = express();
+  app.use(express.json());
 
-app.use(express.json());
+  if (process.env.NODE_ENV !== "test") {
+    app.use(customMorganLogger);
+  }
 
-if (process.env.NODE_ENV !== "test") {
-  app.use(morgan("dev"));
+  initRoutes(app);
+
+  app.get("/health-check", (req, res) => {
+    return res.json({ status: "healthy" });
+  });
+
+  app.use(handleGlobalErrors);
+
+  return app;
 }
 
-initRoutes(app);
-
-app.get("/health-check", (req, res) => {
-  return res.json({ status: "healthy" });
-});
-
-app.use(handleGlobalErrors);
+export const app = createApp();
