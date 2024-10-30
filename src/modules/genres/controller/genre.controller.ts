@@ -11,4 +11,9 @@ export class GenreController {
 
     return res.status(status.HTTP_201_CREATED).json(genre);
   };
+
+  delete = async (req: Request, res: AutheticatedResponse) => {
+    await this.genreService.delete(req.params.id);
+    return res.status(status.HTTP_204_NO_CONTENT).end();
+  };
 }

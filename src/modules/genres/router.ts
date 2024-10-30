@@ -19,3 +19,5 @@ genreRouter.post(
   validateBody(genreCreateInputSchema),
   genreController.create
 );
+
+genreRouter.delete("/:id", isAuthenticated, isAdmin, genreController.delete);
