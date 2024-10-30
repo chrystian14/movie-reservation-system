@@ -114,4 +114,51 @@ describe("INTEGRATION: ReservationControler.list - GET /api/v1/reservations", ()
     expect(response.statusCode).toBe(status.HTTP_200_OK);
     expect(response.body).toStrictEqual(expectedResponseBody);
   });
+
+  test("should return all reservations when user is admin", async () => {
+    const adminUser = await new UserBuilder()
+      .withAdminRole()
+      .save(new UserRepository());
+    const adminToken = generateToken(adminUser);
+
+    const [
+      userOneSeatOne,
+      userOneSeatTwo,
+      userTwoSeatOne,
+      userTwoSeatTwo,
+      ..._seatsRest
+    ] = savedSeatsForRoomOne;
+
+    reservationRepository = new ReservationRepository();
+
+    const userOneReservations = await new ReservationBuilder()
+      .withUserId(regularUserOne.id)
+      .withSeatIds([userOneSeatOne.id, userOneSeatTwo.id])
+      .withShowtimeId(savedShowtimeOne.id)
+      .save(reservationRepository);
+
+    const userTwoReservations = await new ReservationBuilder()
+      .withUserId(regularUserTwo.id)
+      .withSeatIds([userTwoSeatOne.id, userTwoSeatTwo.id])
+      .withShowtimeId(savedShowtimeOne.id)
+      .save(reservationRepository);
+
+    const response = await apiClient
+      .get(reservationEndpoint)
+      .set("Authorization", `Bearer ${adminToken}`);
+
+    const allReservations = userOneReservations.concat(userTwoReservations);
+
+    const expectedResponseBody = allReservations.map((reservation) => ({
+      id: reservation.id,
+      userId: reservation.userId,
+      status: reservation.status,
+      amountPaid: reservation.amountPaid.toString(),
+      showtimeId: reservation.showtimeId,
+      seatId: reservation.seatId,
+    }));
+
+    expect(response.statusCode).toBe(status.HTTP_200_OK);
+    expect(response.body).toStrictEqual(expectedResponseBody);
+  });
 });
