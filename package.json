@@ -9,10 +9,12 @@
     "start:docker": "npm run build && npm run migrate:dev && npm run start",
     "watch": "watchy --no-init-spawn --debounce 1 -w src -- docker compose restart dev",
     "migrate:dev": "prisma migrate dev",
-    "migrate:docker": "docker compose run dev npm run migrate:dev",
     "dev": "tsnd --cls --rs --respawn -r tsconfig-paths/register src/server.ts",
     "lint": "eslint 'src/**/*.ts'",
     "test": "jest --runInBand --verbose --expand"
+  },
+  "prisma": {
+    "seed": "tsnd -r tsconfig-paths/register prisma/seeds/seed.ts"
   },
   "keywords": [],
   "author": "",

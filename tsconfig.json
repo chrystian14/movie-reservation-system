@@ -12,6 +12,6 @@
     "resolveJsonModule": true
   },
 
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "prisma/seeds/*.ts", "prisma/seeds/**/*.ts"],
   "exclude": ["**/node_modules", "**/.*/**"]
 }
