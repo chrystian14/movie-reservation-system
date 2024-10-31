@@ -23,7 +23,7 @@ describe("UNIT: ShowtimeService.list", () => {
       .save(new MovieRepository());
 
     const { room: savedRoom, seats: _savedSeats } = await new RoomBuilder()
-      .generateSeats()
+      .generateSeats(5, 5)
       .save(new RoomRepository(), new SeatRepository());
 
     const showtimeBuilder = new ShowtimeBuilder();

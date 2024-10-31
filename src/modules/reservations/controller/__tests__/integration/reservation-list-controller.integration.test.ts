@@ -55,7 +55,7 @@ describe("INTEGRATION: ReservationControler.list - GET /api/v1/reservations", ()
 
     ({ room: savedRoomOne, seats: savedSeatsForRoomOne } =
       await new RoomBuilder()
-        .generateSeats()
+        .generateSeats(5, 5)
         .save(new RoomRepository(), new SeatRepository()));
 
     savedShowtimeOne = await new ShowtimeBuilder()

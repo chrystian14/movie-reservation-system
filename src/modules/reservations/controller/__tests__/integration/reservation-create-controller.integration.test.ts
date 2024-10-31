@@ -203,7 +203,6 @@ describe("INTEGRATION: ReservationControler.create - POST /api/v1/reservations",
     const validReservationCreateInput: ReservationPostBody =
       new ReservationBuilder()
         .withShowtimeId(createdShowtime.id)
-        .withAmountPaid(createdRoom.baseSeatPrice)
         .withSeatIds([firstSeatToReserve.id])
         .requiredForPostBody();
 
@@ -217,7 +216,7 @@ describe("INTEGRATION: ReservationControler.create - POST /api/v1/reservations",
         id: expect.any(String),
         userId: regularUser.id,
         status: ReservationStatus.CONFIRMED,
-        amountPaid: createdRoom.baseSeatPrice.toString(),
+        amountPaid: validReservationCreateInput.amountPaid.toString(),
         showtimeId: createdShowtime.id,
         seatId: firstSeatToReserve.id,
       },
@@ -247,7 +246,6 @@ describe("INTEGRATION: ReservationControler.create - POST /api/v1/reservations",
     const multipleValidSeatIdsReservationCreateInput: ReservationPostBody =
       new ReservationBuilder()
         .withShowtimeId(createdShowtime.id)
-        .withAmountPaid(createdRoom.baseSeatPrice)
         .withSeatIds(seatIdsToReserve)
         .requiredForPostBody();
 
@@ -260,7 +258,8 @@ describe("INTEGRATION: ReservationControler.create - POST /api/v1/reservations",
       id: expect.any(String),
       userId: regularUser.id,
       status: ReservationStatus.CONFIRMED,
-      amountPaid: createdRoom.baseSeatPrice.toString(),
+      amountPaid:
+        multipleValidSeatIdsReservationCreateInput.amountPaid.toString(),
       showtimeId: createdShowtime.id,
       seatId,
     }));

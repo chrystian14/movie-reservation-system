@@ -65,7 +65,7 @@ describe("INTEGRATION: ReservationControler.cancel - DEL /api/v1/reservations/:i
 
     ({ room: savedRoomOne, seats: savedSeatsForRoomOne } =
       await new RoomBuilder()
-        .generateSeats()
+        .generateSeats(5, 5)
         .save(new RoomRepository(), new SeatRepository()));
 
     savedShowtimeOne = await new ShowtimeBuilder()

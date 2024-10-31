@@ -129,7 +129,6 @@ describe("INTEGRATION: ShowtimeControler.getAvailableSeats - GET /api/v1/showtim
     await new ReservationBuilder()
       .withUserId(regularUser.id)
       .withShowtimeId(createdShowtime.id)
-      .withAmountPaid(createdRoom.baseSeatPrice)
       .withSeatIds(seatIdsToReserve)
       .save(new ReservationRepository());
 
