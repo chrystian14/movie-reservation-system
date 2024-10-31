@@ -4,6 +4,7 @@ import { InvalidCredentialsError } from "../errors";
 import type { IAuthService } from "./auth.service.interface";
 import { comparePassword } from "modules/users/utils";
 import { generateToken } from "../jwt/jwt.handlers";
+import { Logger } from "configs/loggers";
 
 export class AuthService implements IAuthService {
   constructor(private userRepository: IUserRepository) {}
@@ -18,6 +19,7 @@ export class AuthService implements IAuthService {
     const passwordMatch = await comparePassword(password, user.password);
 
     if (!passwordMatch) {
+      Logger.warn(`Login attempt failed for user id: ${user.id}`);
       throw new InvalidCredentialsError();
     }
 

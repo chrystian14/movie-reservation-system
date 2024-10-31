@@ -4,6 +4,7 @@ import type { IUserService } from "./user.service.interface";
 import { EmailAlreadyExistsError } from "../errors";
 import { userWithoutPasswordSchema } from "../types/schemas";
 import { hashPassword } from "../utils";
+import { Logger } from "configs/loggers";
 
 export class UserService implements IUserService {
   constructor(private userRepository: IUserRepository) {}
@@ -20,6 +21,8 @@ export class UserService implements IUserService {
     userCreateInput.password = await hashPassword(userCreateInput.password);
 
     const user = await this.userRepository.create(userCreateInput);
+
+    Logger.info(`User created with id: ${user.id}`);
 
     return userWithoutPasswordSchema.parse(user);
   }
