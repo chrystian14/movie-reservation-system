@@ -1,5 +1,5 @@
 import { Router, type Express } from "express";
-import { userRouter } from "./modules/users/router";
+import { userRouter } from "modules/users/router";
 import { authRouter } from "modules/auth/router";
 import { movieRouter } from "modules/movies/router";
 import { roomRouter } from "modules/rooms/router";
