@@ -1,10 +1,17 @@
 import z from "zod";
 
+export enum NodeEnv {
+  dev = "dev",
+  prod = "prod",
+  test = "test",
+}
+
 const envSchema = z.object({
   DATABASE_URL: z.string(),
   JWT_SECRET_KEY: z.string().min(1),
   JWT_EXPIRES_IN: z.string().min(1),
   PORT: z.coerce.number().default(3000),
+  NODE_ENV: z.nativeEnum(NodeEnv).default(NodeEnv.dev),
 });
 
 function validateEnvVars() {

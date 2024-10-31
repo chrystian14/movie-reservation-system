@@ -1,6 +1,7 @@
 import morgan from "morgan";
 import { Logger } from "./winston.logger";
 import type { Request, Response } from "express";
+import { parsedEnv } from "configs/env.config";
 
 export const customMorganLogger = morgan("combined", {
   stream: {
