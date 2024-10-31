@@ -40,8 +40,8 @@ export class GenreBuilder {
     return await repository.create(this.entity);
   }
 
-  withNewUUID() {
-    this.entity.id = randomUUID();
+  withUUID(newUUID: string) {
+    this.entity.id = newUUID;
     return this;
   }
 

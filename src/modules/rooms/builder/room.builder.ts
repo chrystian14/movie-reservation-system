@@ -5,27 +5,23 @@ import { Chance } from "chance";
 import { Prisma } from "@prisma/client";
 import type { Seat } from "modules/seats/types";
 import type { ISeatRepository } from "modules/seats/repository";
+import type { FixedLengthArray } from "modules/_shared/utils/types.util";
+import { number } from "zod";
+import { SeatBuilder } from "modules/seats/builder";
 
 export class RoomBuilder {
   protected entity: Room;
+  protected entities: Room[] = [];
   protected chance: Chance.Chance;
   protected seats: Seat[] = [];
 
   constructor() {
     this.chance = new Chance();
 
-    const randomPriceString = this.chance.floating({
-      min: 1,
-      max: 100,
-      fixed: 2,
-    });
-
     this.entity = {
       id: randomUUID(),
       name: this.chance.word({ length: 10 }),
-      columns: this.chance.integer({ min: 3, max: 10 }),
-      rows: this.chance.integer({ min: 3, max: 10 }),
-      baseSeatPrice: new Prisma.Decimal(randomPriceString),
+      number: this.chance.integer({ min: 1, max: 100 }),
     };
   }
 
@@ -50,54 +46,31 @@ export class RoomBuilder {
     };
   }
 
-  withNewUUID() {
-    this.entity.id = randomUUID();
-    return this;
-  }
-
-  withColumns(columnsCount: number) {
-    this.entity.columns = columnsCount;
-    return this;
-  }
-
-  withRows(rowsCount: number) {
-    this.entity.rows = rowsCount;
-    return this;
-  }
-
-  withPrice(price: number) {
-    this.entity.baseSeatPrice = new Prisma.Decimal(price);
+  withUUID(newUUID: string) {
+    this.entity.id = newUUID;
     return this;
   }
 
   requiredForCreation(): RoomCreateInput {
     return {
       name: this.entity.name,
-      columns: this.entity.columns,
-      rows: this.entity.rows,
-      baseSeatPrice: this.entity.baseSeatPrice,
+      number: this.entity.number,
     };
   }
 
-  requiredForPostBody() {
-    return {
-      name: this.entity.name,
-      columns: this.entity.columns,
-      rows: this.entity.rows,
-      baseSeatPrice: this.entity.baseSeatPrice.toNumber(),
-    };
-  }
-
-  generateSeats() {
-    for (let i = 0; i < this.entity.columns; i++) {
-      for (let j = 0; j < this.entity.rows; j++) {
-        this.seats.push({
-          id: randomUUID(),
-          column: String.fromCharCode(i + 97),
-          row: j + 1,
-          price: this.entity.baseSeatPrice,
-          roomId: this.entity.id,
-        });
+  generateSeats(columns: number, rows: number, seatPrice?: number) {
+    for (let i = 0; i < columns; i++) {
+      for (let j = 0; j < rows; j++) {
+        this.seats.push(
+          new SeatBuilder()
+            .withRow(j + 1)
+            .withColumn(String.fromCharCode(i + 97))
+            .withPrice(
+              seatPrice ?? this.chance.integer({ min: 100, max: 1000 })
+            )
+            .withRoomId(this.entity.id)
+            .build()
+        );
       }
     }
 

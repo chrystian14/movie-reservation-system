@@ -3,10 +3,12 @@ import type { User, UserCreateInput } from "../types";
 import type { IUserRepository } from "../repository";
 import { hashPassword } from "../utils";
 import { Chance } from "chance";
+import type { FixedLengthArray } from "modules/_shared/utils/types.util";
 
 export class UserBuilder {
   protected entity: User;
   protected chance: Chance.Chance;
+  protected entities: User[] = [];
 
   constructor() {
     this.chance = new Chance();
@@ -28,6 +30,19 @@ export class UserBuilder {
     return this.entity;
   }
 
+  buildMany<Length extends number>(
+    numberOfUsers: Length,
+    isAdmin: boolean
+  ): User[] {
+    this.entities = Array.from({ length: numberOfUsers }, () => {
+      const user = new UserBuilder().build();
+      user.isAdmin = isAdmin;
+      return user;
+    });
+
+    return this.entities as FixedLengthArray<User, Length>;
+  }
+
   async save(repository: IUserRepository) {
     const hashedPassword = await hashPassword(this.entity.password);
 
@@ -35,6 +50,19 @@ export class UserBuilder {
       ...this.entity,
       password: hashedPassword,
     });
+  }
+
+  async saveAll(repository: IUserRepository) {
+    const savedUsers = [];
+    for (const user of this.entities) {
+      const hashedPassword = await hashPassword(user.password);
+      const savedUser = await repository.create({
+        ...user,
+        password: hashedPassword,
+      });
+      savedUsers.push(savedUser);
+    }
+    return savedUsers;
   }
 
   withNewUUID() {
@@ -49,6 +77,16 @@ export class UserBuilder {
 
   withAdminRole() {
     this.entity.isAdmin = true;
+    return this;
+  }
+
+  withEmail(email: string) {
+    this.entity.email = email;
+    return this;
+  }
+
+  withPassword(password: string) {
+    this.entity.password = password;
     return this;
   }
 

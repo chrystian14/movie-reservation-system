@@ -1,9 +1,12 @@
 import { randomUUID } from "crypto";
 import type { IMovieRepository } from "../repository";
 import type { Movie, MovieCreateInput } from "../types";
+import type { FixedLengthArray } from "modules/_shared/utils/types.util";
+import type { IGenreRepository } from "modules/genres/repository";
 
 export class MovieBuilder {
   protected entity: Movie;
+  protected entities: Movie[] = [];
 
   constructor() {
     this.entity = {
@@ -21,12 +24,48 @@ export class MovieBuilder {
     return this.entity;
   }
 
+  buildMany<Length extends number>(
+    numberOfMovies: Length,
+    genreId: string
+  ): Movie[] {
+    this.entities = Array.from({ length: numberOfMovies }, () => {
+      const movie = new MovieBuilder().withGenreId(genreId).build();
+      return movie;
+    });
+
+    return this.entities as FixedLengthArray<Movie, Length>;
+  }
+
   async save(repository: IMovieRepository) {
     return await repository.create(this.entity);
   }
 
-  withNewUUID() {
-    this.entity.id = randomUUID();
+  async saveAll(repository: IMovieRepository) {
+    const savedMovies = [];
+    for (const movie of this.entities) {
+      const savedMovie = await repository.create(movie);
+      savedMovies.push(savedMovie);
+    }
+    return savedMovies;
+  }
+
+  withUUID(newUUID: string) {
+    this.entity.id = newUUID;
+    return this;
+  }
+
+  withTitle(title: string) {
+    this.entity.title = title;
+    return this;
+  }
+
+  withDescription(description: string) {
+    this.entity.description = description;
+    return this;
+  }
+
+  withPosterUrl(posterUrl: string) {
+    this.entity.posterUrl = posterUrl;
     return this;
   }
 

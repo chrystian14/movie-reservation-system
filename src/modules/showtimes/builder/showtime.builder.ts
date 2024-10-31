@@ -2,12 +2,7 @@ import { randomUUID } from "crypto";
 import type { IShowtimeRepository } from "../repository";
 import type { Showtime, ShowtimeCreateInput } from "../types";
 import { Chance } from "chance";
-
-type FixedLengthArray<
-  T,
-  N extends number,
-  R extends T[] = []
-> = R["length"] extends N ? R : FixedLengthArray<T, N, [T, ...R]>;
+import type { FixedLengthArray } from "modules/_shared/utils/types.util";
 
 export class ShowtimeBuilder {
   protected entity: Showtime;
