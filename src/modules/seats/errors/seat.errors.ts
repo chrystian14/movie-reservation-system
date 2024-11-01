@@ -9,3 +9,13 @@ export class SeatAlreadyReservedError extends UnprocessableEntity {
     this.errors = reservedSeatsIds.map((seatId) => ({ seatId, message }));
   }
 }
+
+export class SeatNotInShowtimeError extends UnprocessableEntity {
+  constructor(
+    seatsNotFound: Array<string>,
+    readonly message: string = "Seat(s) not found in showtime room"
+  ) {
+    super(message);
+    this.errors = seatsNotFound.map((seatId) => ({ seatId, message }));
+  }
+}

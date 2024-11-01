@@ -1,1 +1,4 @@
-export { SeatAlreadyReservedError } from "./seat.errors";
+export {
+  SeatAlreadyReservedError,
+  SeatNotInShowtimeError,
+} from "./seat.errors";

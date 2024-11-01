@@ -6,7 +6,10 @@ import type { ISeatRepository } from "modules/seats/repository";
 import type { IUserRepository } from "modules/users/repository";
 import { ShowtimeNotFoundError } from "modules/showtimes/errors";
 import { UserNotFoundError } from "modules/users/errors";
-import { SeatAlreadyReservedError } from "modules/seats/errors";
+import {
+  SeatAlreadyReservedError,
+  SeatNotInShowtimeError,
+} from "modules/seats/errors";
 import { ReservationStatus } from "@prisma/client";
 import { ReservationNotFoundError } from "../errors";
 import { ForbiddenError } from "modules/_shared/errors";
@@ -70,11 +73,14 @@ export class ReservationService implements IReservationService {
   async create(
     reservationCreateInput: ReservationCreateInput
   ): Promise<Array<Reservation>> {
-    const showtimeCount = await this.showtimeRepository.countById(
+    // const showtimeCount = await this.showtimeRepository.countById(
+    //   reservationCreateInput.showtimeId
+    // );
+    const showtime = await this.showtimeRepository.findById(
       reservationCreateInput.showtimeId
     );
 
-    if (!showtimeCount) {
+    if (!showtime) {
       throw new ShowtimeNotFoundError();
     }
 
@@ -84,6 +90,18 @@ export class ReservationService implements IReservationService {
 
     if (!userCount) {
       throw new UserNotFoundError();
+    }
+
+    const seatsInShowtimeRoom = await this.seatRepository.scanForSeatsInRoom(
+      showtime.roomId,
+      reservationCreateInput.seatIds
+    );
+
+    if (seatsInShowtimeRoom.length !== reservationCreateInput.seatIds.length) {
+      const seatsNotFound = reservationCreateInput.seatIds.filter(
+        (seatId) => !seatsInShowtimeRoom.some((seat) => seat.id === seatId)
+      );
+      throw new SeatNotInShowtimeError(seatsNotFound);
     }
 
     const seatsAlreadyReserved =

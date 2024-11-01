@@ -16,6 +16,17 @@ export class SeatRepository implements ISeatRepository {
     });
   }
 
+  async scanForSeatsInRoom(
+    roomId: string,
+    seatIds: Array<string>
+  ): Promise<Seat[]> {
+    const seats = await prisma.seat.findMany({
+      where: { id: { in: seatIds }, roomId: roomId },
+    });
+
+    return seats;
+  }
+
   async getAllSeatsByShowtimeId(showtimeId: string): Promise<Array<Seat>> {
     return await prisma.seat.findMany({
       where: {
