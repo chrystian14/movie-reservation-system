@@ -167,6 +167,29 @@ describe("INTEGRATION: ReservationControler.create - POST /api/v1/reservations",
     expect(reservationCount).toBe(1);
   });
 
+  test("should return a 422 when creating a reservation with seatIds that are not in the showtime", async () => {
+    const reservationWithNonExistentSeatIds: ReservationPostBody =
+      new ReservationBuilder()
+        .withSeatIds([randomUUID()])
+        .withShowtimeId(createdShowtime.id)
+        .requiredForPostBody();
+
+    const response = await apiClient
+      .post(reservationEndpoint)
+      .set("Authorization", `Bearer ${regularUserToken}`)
+      .send(reservationWithNonExistentSeatIds);
+
+    const expectedResponseBody = {
+      details: "Seat(s) not found in showtime room",
+    };
+
+    expect(response.status).toBe(status.HTTP_422_UNPROCESSABLE_ENTITY);
+    expect(response.body).toStrictEqual(expectedResponseBody);
+
+    const reservationCount = await reservationRepository.count();
+    expect(reservationCount).toBe(0);
+  });
+
   test("should return a 400 when seatIds is empty", async () => {
     const reservationInput: ReservationPostBody = new ReservationBuilder()
       .withShowtimeId(createdShowtime.id)
