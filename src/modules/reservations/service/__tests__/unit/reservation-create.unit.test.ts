@@ -14,7 +14,8 @@ import {
 } from "modules/showtimes/repository";
 import { SeatRepository, type ISeatRepository } from "modules/seats/repository";
 import { UserRepository, type IUserRepository } from "modules/users/repository";
-import { randomUUID } from "crypto";
+import { ShowtimeBuilder } from "modules/showtimes/builder";
+import { SeatBuilder } from "modules/seats/builder";
 
 jest.mock("modules/reservations/repository/reservation.repository.ts");
 jest.mock("modules/showtimes/repository/showtime.repository.ts");
@@ -47,14 +48,14 @@ describe("UNIT: ReservationService.create", () => {
   });
 
   test("should throw an error if creating a reservation with non-existing showtime id", async () => {
-    mockedShowtimeRepository.countById.mockResolvedValueOnce(0);
+    mockedShowtimeRepository.findById.mockResolvedValueOnce(null);
 
     await expect(
       reservationService.create(reservationCreateInput)
     ).rejects.toThrow("Showtime not found");
 
-    expect(mockedShowtimeRepository.countById).toHaveBeenCalledTimes(1);
-    expect(mockedShowtimeRepository.countById).toHaveBeenCalledWith(
+    expect(mockedShowtimeRepository.findById).toHaveBeenCalledTimes(1);
+    expect(mockedShowtimeRepository.findById).toHaveBeenCalledWith(
       reservationCreateInput.showtimeId
     );
 
@@ -62,7 +63,9 @@ describe("UNIT: ReservationService.create", () => {
   });
 
   test("should throw an error if creating a reservation with non-existing user id", async () => {
-    mockedShowtimeRepository.countById.mockResolvedValueOnce(1);
+    mockedShowtimeRepository.findById.mockResolvedValueOnce(
+      new ShowtimeBuilder().build()
+    );
     mockedUserRepository.countById.mockResolvedValueOnce(0);
 
     await expect(
@@ -77,21 +80,49 @@ describe("UNIT: ReservationService.create", () => {
     expect(mockedReservationRepository.create).not.toHaveBeenCalled();
   });
 
+  test("should throw an error if creating a reservation with seatIds that are not in the showtime", async () => {
+    mockedShowtimeRepository.findById.mockResolvedValueOnce(
+      new ShowtimeBuilder().build()
+    );
+    mockedUserRepository.countById.mockResolvedValueOnce(1);
+    mockedSeatRepository.scanForSeatsInRoom.mockResolvedValueOnce([]);
+
+    await expect(
+      reservationService.create(reservationCreateInput)
+    ).rejects.toThrow("Seat(s) not found in showtime room");
+  });
+
   test("should throw an error if creating a reservation for a seat that is already reserved", async () => {
-    mockedShowtimeRepository.countById.mockResolvedValueOnce(1);
+    mockedShowtimeRepository.findById.mockResolvedValueOnce(
+      new ShowtimeBuilder().build()
+    );
     mockedUserRepository.countById.mockResolvedValueOnce(1);
 
-    const seatsAlreadyReserved = 4;
-    const reservedSeatsIds = Array.from({ length: seatsAlreadyReserved }, () =>
-      randomUUID()
-    );
+    const [resevedSeatOne, reservedSeatTwo] = [
+      new SeatBuilder().build(),
+      new SeatBuilder().build(),
+    ];
 
+    const reservedSeatsIds: [string, ...string[]] = [
+      resevedSeatOne.id,
+      reservedSeatTwo.id,
+    ];
+
+    const reservationCreateInputAlreadyReservedSeats: ReservationCreateInput =
+      new ReservationBuilder()
+        .withSeatIds(reservedSeatsIds)
+        .requiredForCreation();
+
+    mockedSeatRepository.scanForSeatsInRoom.mockResolvedValueOnce([
+      resevedSeatOne,
+      reservedSeatTwo,
+    ]);
     mockedSeatRepository.scanForReservedSeatsByShowtimeId.mockResolvedValueOnce(
       reservedSeatsIds
     );
 
     await expect(
-      reservationService.create(reservationCreateInput)
+      reservationService.create(reservationCreateInputAlreadyReservedSeats)
     ).rejects.toThrow("Seat(s) already reserved");
   });
 });
