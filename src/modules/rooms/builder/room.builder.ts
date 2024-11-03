@@ -2,11 +2,8 @@ import { randomUUID } from "crypto";
 import type { IRoomRepository } from "../repository";
 import type { Room, RoomAndSeats, RoomCreateInput } from "../types";
 import { Chance } from "chance";
-import { Prisma } from "@prisma/client";
 import type { Seat } from "modules/seats/types";
 import type { ISeatRepository } from "modules/seats/repository";
-import type { FixedLengthArray } from "modules/_shared/utils/types.util";
-import { number } from "zod";
 import { SeatBuilder } from "modules/seats/builder";
 
 export class RoomBuilder {
@@ -48,6 +45,16 @@ export class RoomBuilder {
 
   withUUID(newUUID: string) {
     this.entity.id = newUUID;
+    return this;
+  }
+
+  withNumber(newNumber: number) {
+    this.entity.number = newNumber;
+    return this;
+  }
+
+  withName(newName: string) {
+    this.entity.name = newName;
     return this;
   }
 
