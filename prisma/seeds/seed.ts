@@ -9,6 +9,12 @@ import { UserRepository } from "modules/users/repository";
 import { genreMap, genreSeeds } from "./seed-data/genre.seed";
 import { movieSeeds } from "./seed-data/movie.seed";
 import { RoomBuilder } from "modules/rooms/builder";
+import { SeatRepository } from "modules/seats/repository";
+import { RoomRepository } from "modules/rooms/repository";
+import { ShowtimeBuilder } from "modules/showtimes/builder";
+import { ShowtimeRepository } from "modules/showtimes/repository";
+import { ReservationBuilder } from "modules/reservations/builder";
+import { ReservationRepository } from "modules/reservations/repository";
 
 export async function clearDatabase() {
   await prisma.reservation.deleteMany();
@@ -70,10 +76,79 @@ async function main() {
   );
   Logger.info(`🎬 saved ${savedMovies.length} movies`);
 
-  // Rooms
-  const NUMBER_OF_ROOMS_TO_SAVE = 10;
+  // Rooms and Seats
+  const NUMBER_OF_ROOMS_TO_SAVE = movieSeeds.length;
+  const roomRepository = new RoomRepository();
+  const seatRepository = new SeatRepository();
 
-  const roomBuilder = new RoomBuilder();
+  const savedRoomsWithSeats = await Promise.all(
+    Array.from({ length: NUMBER_OF_ROOMS_TO_SAVE }).map((_value, index) =>
+      new RoomBuilder()
+        .withNumber(index + 1)
+        .withName(`Room ${index + 1}`)
+        .generateSeats(2, 2)
+        .save(roomRepository, seatRepository)
+    )
+  );
+
+  const savedRooms = savedRoomsWithSeats.map(
+    (roomWithSeats) => roomWithSeats.room
+  );
+
+  const savedSeats = savedRoomsWithSeats
+    .map((roomWithSeats) => roomWithSeats.seats)
+    .flat();
+
+  Logger.info(`🏠 saved ${savedRooms.length} rooms`);
+  Logger.info(`🎒 saved ${savedSeats.length} seats`);
+
+  // Showtimes
+  const NUMBER_OF_SHOWTIMES_PER_MOVIE_TO_SAVE = 5;
+  const savedShowtimesArr = [];
+  for (let i = 0; i < savedMovies.length; i++) {
+    const showtimeBuilder = new ShowtimeBuilder();
+    showtimeBuilder.buildMany(
+      movieSeeds[i].id,
+      savedRooms[i].id,
+      NUMBER_OF_SHOWTIMES_PER_MOVIE_TO_SAVE,
+      new Date(),
+      120
+    );
+    const savedShowtimes = await showtimeBuilder.saveAll(
+      new ShowtimeRepository()
+    );
+    savedShowtimesArr.push(savedShowtimes);
+  }
+
+  Logger.info(`🎬 saved ${savedShowtimesArr.flat().length} showtimes`);
+
+  const reservationRepository = new ReservationRepository();
+  const savedReservationsShowtime1 = await new ReservationBuilder()
+    .withSeatIds([savedSeats[0].id, savedSeats[1].id])
+    .withUserId(savedRegularUsers[0].id)
+    .withShowtimeId(savedShowtimesArr.flat()[0].id)
+    .withAmountPaid(100)
+    .save(reservationRepository);
+
+  const savedReservationsShowtime2 = await new ReservationBuilder()
+    .withSeatIds([savedSeats[4].id, savedSeats[5].id])
+    .withUserId(savedRegularUsers[1].id)
+    .withShowtimeId(savedShowtimesArr.flat()[1].id)
+    .withAmountPaid(120)
+    .save(reservationRepository);
+
+  const savedReservationsShowtime3 = await new ReservationBuilder()
+    .withSeatIds([savedSeats[8].id, savedSeats[9].id])
+    .withUserId(savedRegularUsers[2].id)
+    .withShowtimeId(savedShowtimesArr.flat()[2].id)
+    .withAmountPaid(120)
+    .save(reservationRepository);
+
+  const savedReservations = savedReservationsShowtime1.concat(
+    savedReservationsShowtime2,
+    savedReservationsShowtime3
+  );
+  Logger.info(`🎫 saved ${savedReservations.length} reservations`);
 }
 
 const initialTimer = new Date().getTime();
