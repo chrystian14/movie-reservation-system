@@ -1,4 +1,4 @@
-import { clearDatabase } from "configs/jest-setup.config";
+import { clearDatabase } from "modules/_shared/tests/clear-database";
 import { apiClient } from "modules/_shared/tests";
 import { status, toDecimal } from "modules/_shared/utils";
 import { generateToken } from "modules/auth/jwt";

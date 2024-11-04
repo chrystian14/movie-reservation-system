@@ -9,7 +9,7 @@ import { SeatRepository } from "modules/seats/repository";
 import { ShowtimeBuilder } from "modules/showtimes/builder";
 import { ShowtimeService } from "../../showtime.service";
 import { ShowtimeRepository } from "modules/showtimes/repository";
-import { clearDatabase } from "configs/jest-setup.config";
+import { clearDatabase } from "modules/_shared/tests/clear-database";
 
 describe("UNIT: ShowtimeService.list", () => {
   beforeEach(async () => {

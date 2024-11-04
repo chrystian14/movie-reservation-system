@@ -15,16 +15,7 @@ import { ShowtimeBuilder } from "modules/showtimes/builder";
 import { ShowtimeRepository } from "modules/showtimes/repository";
 import { ReservationBuilder } from "modules/reservations/builder";
 import { ReservationRepository } from "modules/reservations/repository";
-
-export async function clearDatabase() {
-  await prisma.reservation.deleteMany();
-  await prisma.user.deleteMany();
-  await prisma.showtime.deleteMany();
-  await prisma.movie.deleteMany();
-  await prisma.genre.deleteMany();
-  await prisma.seat.deleteMany();
-  await prisma.room.deleteMany();
-}
+import { clearDatabase } from "modules/_shared/tests/clear-database";
 
 async function main() {
   await clearDatabase();

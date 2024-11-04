@@ -1,5 +1,5 @@
 import { prisma } from "configs/prisma-client.config";
-import { clearDatabase } from "configs/jest-setup.config";
+import { clearDatabase } from "modules/_shared/tests/clear-database";
 import { type UserCreateInput } from "modules/users/types";
 import { UserService, type IUserService } from "modules/users/service";
 import { UserRepository, type IUserRepository } from "modules/users/repository";

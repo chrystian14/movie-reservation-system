@@ -1,5 +1,5 @@
 import { ReservationStatus, type Room, type Showtime } from "@prisma/client";
-import { clearDatabase } from "configs/jest-setup.config";
+import { clearDatabase } from "modules/_shared/tests/clear-database";
 import { randomUUID } from "crypto";
 import { apiClient } from "modules/_shared/tests";
 import { status } from "modules/_shared/utils";

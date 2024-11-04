@@ -1,5 +1,5 @@
-import { clearDatabase } from "configs/jest-setup.config";
 import { apiClient } from "modules/_shared/tests";
+import { clearDatabase } from "modules/_shared/tests/clear-database";
 import { status } from "modules/_shared/utils";
 import type { LoginInput } from "modules/auth/types";
 import { UserBuilder } from "modules/users/builder";
