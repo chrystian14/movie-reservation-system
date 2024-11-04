@@ -3,7 +3,7 @@ paths:
     post:
       tags:
         - Users
-      description: Create and return a new user.
+      description: Create and return a new non admin user.
       requestBody:
         required: true
         content:

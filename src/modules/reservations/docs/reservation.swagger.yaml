@@ -45,7 +45,7 @@ paths:
     delete:
       tags:
         - Reservations
-      description: Delete a reservation.
+      description: Cancels a reservation.
       security:
         - bearerAuth: []
       parameters:
