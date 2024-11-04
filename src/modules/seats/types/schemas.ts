@@ -4,7 +4,7 @@ import z from "zod";
 export const seatSchema = z.object({
   id: z.string().uuid(),
   column: z.string().length(1),
-  row: z.number(),
+  row: z.number().positive().int(),
   price: z
     .number()
     .nonnegative()
