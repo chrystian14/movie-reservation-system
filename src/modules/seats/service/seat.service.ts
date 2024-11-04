@@ -13,7 +13,7 @@ export class SeatService implements ISeatService {
   async create(seatCreateInput: SeatCreateInput): Promise<Seat> {
     const roomCount = await this.roomDao.countById(seatCreateInput.roomId);
 
-    if (roomCount === 0) {
+    if (!roomCount) {
       throw new RoomNotFoundError();
     }
 
