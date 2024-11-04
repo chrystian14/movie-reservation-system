@@ -26,3 +26,39 @@ paths:
           $ref: "#/components/responses/Forbidden"
         400:
           $ref: "#/components/responses/BadRequest"
+  /api/v1/rooms/{roomId}/seats:
+    post:
+      tags:
+        - Seats
+      summary: Admin only
+      description: Create and return a new seat.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: roomId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Unique identifier (uuidv4).
+          example: "5096104f-68c4-4a07-983a-2a1e47e32f79"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Seat"
+      responses:
+        201:
+          description: CREATED
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Seat"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          $ref: "#/components/responses/NotFound"

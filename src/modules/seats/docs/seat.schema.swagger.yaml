@@ -1,0 +1,34 @@
+components:
+  schemas:
+    Seat:
+      type: object
+      required:
+        - column
+        - row
+        - price
+      properties:
+        id:
+          readOnly: true
+          type: string
+          format: uuid
+          description: Unique identifier (uuidv4).
+          example: "5096104f-68c4-4a07-983a-2a1e47e32f79"
+        column:
+          type: string
+          minLength: 1
+          maxLength: 1
+          description: Required.
+          example: A
+        row:
+          type: number
+          minimum: 1
+          maximum: 10
+          description: Required.
+          example: 1
+        price:
+          type: number
+          format: double
+          multipleOf: 0.01
+          description: Required.
+          minimum: 0
+          example: 23.50

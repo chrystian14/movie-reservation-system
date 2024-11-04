@@ -20,22 +20,9 @@ components:
           maxLength: 50
           description: Required. 50 characters or fewer.
           example: Sala 1
-        rows:
+        number:
           type: integer
-          description: Required. Number of rows.
-          minimum: 0
+          description: Required. Room number.
+          minimum: 1
           maximum: 500
           example: 5
-        columns:
-          type: integer
-          description: Required. Number of columns.
-          minimum: 0
-          maximum: 500
-          example: 3
-        baseSeatPrice:
-          type: number
-          format: double
-          multipleOf: 0.01
-          description: Required. Base seat price.
-          minimum: 0
-          example: 10.53
