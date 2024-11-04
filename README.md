@@ -45,6 +45,14 @@ docker-compose up dev -d
 
 Acesse a aplicação em http://localhost:3000.
 
+## Seeding
+
+Caso deseje fazer seeding de dados, execute o comando abaixo:
+
+```bash
+docker-compose exec dev npx db seed
+```
+
 ## Modelos do Prisma
 
 O projeto utiliza Prisma para gerenciar a comunicação com o banco de dados. Os modelos definidos incluem User, Movie, Genre, Room, Seat, Showtime e Reservation.
