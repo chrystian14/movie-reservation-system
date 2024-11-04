@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { toDecimal } from "modules/_shared/utils";
 import z from "zod";
 
 export const seatSchema = z.object({
@@ -6,13 +6,10 @@ export const seatSchema = z.object({
   column: z.string().length(1),
   row: z.number(),
   price: z
-    .custom<Prisma.Decimal.Value>(
-      (v) =>
-        typeof v === "string" ||
-        typeof v === "number" ||
-        Prisma.Decimal.isDecimal(v)
-    )
-    .transform((v) => new Prisma.Decimal(v)),
+    .number()
+    .nonnegative()
+    .multipleOf(0.01)
+    .transform((value) => toDecimal(value)),
   roomId: z.string().uuid(),
 });
 

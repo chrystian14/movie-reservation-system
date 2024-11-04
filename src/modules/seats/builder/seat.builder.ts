@@ -1,9 +1,16 @@
 import { randomUUID } from "crypto";
 import type { ISeatDao } from "../dao";
-import type { Seat, SeatCreateInput } from "../types";
+import type { Seat, SeatCreateInput, SeatWithoutRoomId } from "../types";
 import { Chance } from "chance";
 import { Prisma } from "@prisma/client";
+import type { Override } from "modules/_shared/utils/types.util";
 
+export type SeatPostBody = Override<
+  SeatWithoutRoomId,
+  {
+    price: number;
+  }
+>;
 export class SeatBuilder {
   protected entity: Seat;
   protected chance: Chance.Chance;
@@ -67,6 +74,14 @@ export class SeatBuilder {
       row: this.entity.row,
       price: this.entity.price,
       roomId: this.entity.roomId,
+    };
+  }
+
+  requiredForPostBody(): SeatPostBody {
+    return {
+      column: this.entity.column,
+      row: this.entity.row,
+      price: this.entity.price.toNumber(),
     };
   }
 }

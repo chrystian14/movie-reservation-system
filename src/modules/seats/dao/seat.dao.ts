@@ -16,6 +16,10 @@ export class SeatDao implements ISeatDao {
     });
   }
 
+  async count(): Promise<number> {
+    return await prisma.seat.count();
+  }
+
   async scanForSeatsInRoom(
     roomId: string,
     seatIds: Array<string>
