@@ -51,6 +51,7 @@
     "watchy": "^0.10.2"
   },
   "dependencies": {
+    "@dotenvx/dotenvx": "^1.21.1",
     "@prisma/client": "^5.20.0",
     "bcryptjs": "^2.4.3",
     "express": "^4.21.0",

@@ -1,4 +1,5 @@
 import z from "zod";
+import dotenv from "dotenv";
 
 export enum NodeEnv {
   dev = "dev",
@@ -34,4 +35,5 @@ function formatEnvVarErrors(error: z.ZodError) {
   return errorMessage;
 }
 
+dotenv.config({ path: ".env" });
 export const parsedEnv = validateEnvVars();
