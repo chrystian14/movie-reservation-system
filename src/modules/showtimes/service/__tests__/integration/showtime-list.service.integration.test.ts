@@ -1,14 +1,14 @@
 import { MAX_PER_PAGE_NUMBER } from "modules/_shared/pagination/pagination.middleware";
 import { GenreBuilder } from "modules/genres/builder";
-import { GenreRepository } from "modules/genres/repository";
+import { GenreDao } from "modules/genres/dao";
 import { MovieBuilder } from "modules/movies/builder";
-import { MovieRepository } from "modules/movies/repository";
+import { MovieDao } from "modules/movies/dao";
 import { RoomBuilder } from "modules/rooms/builder";
-import { RoomRepository } from "modules/rooms/repository";
-import { SeatRepository } from "modules/seats/repository";
+import { RoomDao } from "modules/rooms/dao";
+import { SeatDao } from "modules/seats/dao";
 import { ShowtimeBuilder } from "modules/showtimes/builder";
 import { ShowtimeService } from "../../showtime.service";
-import { ShowtimeRepository } from "modules/showtimes/repository";
+import { ShowtimeDao } from "modules/showtimes/dao";
 import { clearDatabase } from "modules/_shared/tests/clear-database";
 
 describe("UNIT: ShowtimeService.list", () => {
@@ -17,14 +17,14 @@ describe("UNIT: ShowtimeService.list", () => {
   });
 
   test("should return only the refered paginated showtimes ordered by datetime desc", async () => {
-    const savedGenre = await new GenreBuilder().save(new GenreRepository());
+    const savedGenre = await new GenreBuilder().save(new GenreDao());
     const savedMovie = await new MovieBuilder()
       .withGenreId(savedGenre.id)
-      .save(new MovieRepository());
+      .save(new MovieDao());
 
     const { room: savedRoom, seats: _savedSeats } = await new RoomBuilder()
       .generateSeats(5, 5)
-      .save(new RoomRepository(), new SeatRepository());
+      .save(new RoomDao(), new SeatDao());
 
     const showtimeBuilder = new ShowtimeBuilder();
     showtimeBuilder.buildMany(
@@ -34,15 +34,13 @@ describe("UNIT: ShowtimeService.list", () => {
       new Date(),
       60
     );
-    const savedShowtimes = await showtimeBuilder.saveAll(
-      new ShowtimeRepository()
-    );
+    const savedShowtimes = await showtimeBuilder.saveAll(new ShowtimeDao());
 
     const showtimeService = new ShowtimeService(
-      new ShowtimeRepository(),
-      new RoomRepository(),
-      new MovieRepository(),
-      new SeatRepository()
+      new ShowtimeDao(),
+      new RoomDao(),
+      new MovieDao(),
+      new SeatDao()
     );
 
     const resultedList = await showtimeService.list(

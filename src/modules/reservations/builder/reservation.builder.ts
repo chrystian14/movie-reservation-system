@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import type { IReservationRepository } from "../repository";
+import type { IReservationDao } from "../dao";
 import type {
   Reservation,
   ReservationCreateInput,
@@ -44,7 +44,7 @@ export class ReservationBuilder {
     return this.entity;
   }
 
-  async save(repository: IReservationRepository) {
+  async save(dao: IReservationDao) {
     const reservationCreateInput: ReservationCreateInput = {
       userId: this.entity.userId,
       showtimeId: this.entity.showtimeId,
@@ -52,7 +52,7 @@ export class ReservationBuilder {
       seatIds: this._seatIds,
     };
 
-    return await repository.create(reservationCreateInput);
+    return await dao.create(reservationCreateInput);
   }
 
   withNewUUID() {

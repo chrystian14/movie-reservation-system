@@ -5,25 +5,22 @@ import { apiClient } from "modules/_shared/tests";
 import { status } from "modules/_shared/utils";
 import { generateToken } from "modules/auth/jwt";
 import { GenreBuilder } from "modules/genres/builder";
-import { GenreRepository } from "modules/genres/repository";
+import { GenreDao } from "modules/genres/dao";
 import { MovieBuilder } from "modules/movies/builder";
-import { MovieRepository } from "modules/movies/repository";
+import { MovieDao } from "modules/movies/dao";
 import { RoomBuilder } from "modules/rooms/builder";
-import { RoomRepository } from "modules/rooms/repository";
-import { SeatRepository } from "modules/seats/repository";
+import { RoomDao } from "modules/rooms/dao";
+import { SeatDao } from "modules/seats/dao";
 import { ShowtimeBuilder } from "modules/showtimes/builder";
-import {
-  ShowtimeRepository,
-  type IShowtimeRepository,
-} from "modules/showtimes/repository";
+import { ShowtimeDao, type IShowtimeDao } from "modules/showtimes/dao";
 import { type ShowtimeCreateInput } from "modules/showtimes/types";
 import { UserBuilder } from "modules/users/builder";
-import { UserRepository } from "modules/users/repository";
+import { UserDao } from "modules/users/dao";
 
 describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () => {
   const showtimeEndpoint = "/api/v1/showtimes";
 
-  let showtimeRepository: IShowtimeRepository;
+  let showtimeDao: IShowtimeDao;
   let showtimeBuilder: ShowtimeBuilder;
   let validShowtimeInput: ShowtimeCreateInput;
 
@@ -36,29 +33,27 @@ describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () =>
   beforeEach(async () => {
     await clearDatabase();
 
-    const userRepository = new UserRepository();
+    const userDao = new UserDao();
     const regularUser = await new UserBuilder()
       .withNonAdminRole()
-      .save(userRepository);
+      .save(userDao);
     regularUserToken = generateToken(regularUser);
 
-    const adminUser = await new UserBuilder()
-      .withAdminRole()
-      .save(userRepository);
+    const adminUser = await new UserBuilder().withAdminRole().save(userDao);
     adminUserToken = generateToken(adminUser);
 
-    const createdGenre = await new GenreBuilder().save(new GenreRepository());
+    const createdGenre = await new GenreBuilder().save(new GenreDao());
 
     createdMovie = await new MovieBuilder()
       .withGenreId(createdGenre.id)
-      .save(new MovieRepository());
+      .save(new MovieDao());
 
     ({ room: createdRoom } = await new RoomBuilder().save(
-      new RoomRepository(),
-      new SeatRepository()
+      new RoomDao(),
+      new SeatDao()
     ));
 
-    showtimeRepository = new ShowtimeRepository();
+    showtimeDao = new ShowtimeDao();
     showtimeBuilder = new ShowtimeBuilder();
     validShowtimeInput = showtimeBuilder
       .withMovieId(createdMovie.id)
@@ -78,7 +73,7 @@ describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () =>
     expect(response.statusCode).toBe(status.HTTP_401_UNAUTHORIZED);
     expect(response.body).toEqual(expectedResponseBody);
 
-    const showtimeCount = await showtimeRepository.count();
+    const showtimeCount = await showtimeDao.count();
     expect(showtimeCount).toBe(0);
   });
 
@@ -95,7 +90,7 @@ describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () =>
     expect(response.statusCode).toBe(status.HTTP_403_FORBIDDEN);
     expect(response.body).toEqual(expectedResponseBody);
 
-    const showtimeCount = await showtimeRepository.count();
+    const showtimeCount = await showtimeDao.count();
     expect(showtimeCount).toBe(0);
   });
 
@@ -125,7 +120,7 @@ describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () =>
     expect(response.status).toBe(status.HTTP_400_BAD_REQUEST);
     expect(response.body).toEqual(expectedResponseBody);
 
-    const showtimeCount = await showtimeRepository.count();
+    const showtimeCount = await showtimeDao.count();
     expect(showtimeCount).toBe(0);
   });
 
@@ -147,7 +142,7 @@ describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () =>
     expect(response.status).toBe(status.HTTP_404_NOT_FOUND);
     expect(response.body).toEqual(expectedResponseBody);
 
-    const showtimeCount = await showtimeRepository.count();
+    const showtimeCount = await showtimeDao.count();
     expect(showtimeCount).toBe(0);
   });
 
@@ -169,7 +164,7 @@ describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () =>
     expect(response.status).toBe(status.HTTP_404_NOT_FOUND);
     expect(response.body).toEqual(expectedResponseBody);
 
-    const showtimeCount = await showtimeRepository.count();
+    const showtimeCount = await showtimeDao.count();
     expect(showtimeCount).toBe(0);
   });
 
@@ -197,7 +192,7 @@ describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () =>
     expect(response.status).toBe(status.HTTP_400_BAD_REQUEST);
     expect(response.body).toEqual(expectedResponseBody);
 
-    const showtimeCount = await showtimeRepository.count();
+    const showtimeCount = await showtimeDao.count();
     expect(showtimeCount).toBe(0);
   });
 
@@ -219,7 +214,7 @@ describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () =>
     expect(response.status).toBe(status.HTTP_422_UNPROCESSABLE_ENTITY);
     expect(response.body).toEqual(expectedResponseBody);
 
-    const showtimeCount = await showtimeRepository.count();
+    const showtimeCount = await showtimeDao.count();
     expect(showtimeCount).toBe(0);
   });
 
@@ -239,7 +234,7 @@ describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () =>
     expect(response.status).toBe(status.HTTP_201_CREATED);
     expect(response.body).toEqual(expectedResponseBody);
 
-    const showtimeCount = await showtimeRepository.count();
+    const showtimeCount = await showtimeDao.count();
     expect(showtimeCount).toBe(1);
   });
 });

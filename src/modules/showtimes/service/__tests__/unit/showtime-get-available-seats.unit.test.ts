@@ -1,59 +1,53 @@
-import {
-  ShowtimeRepository,
-  type IShowtimeRepository,
-} from "modules/showtimes/repository";
+import { ShowtimeDao, type IShowtimeDao } from "modules/showtimes/dao";
 import {
   ShowtimeService,
   type IShowtimeService,
 } from "modules/showtimes/service";
-import { RoomRepository, type IRoomRepository } from "modules/rooms/repository";
-import {
-  MovieRepository,
-  type IMovieRepository,
-} from "modules/movies/repository";
-import { SeatRepository, type ISeatRepository } from "modules/seats/repository";
+import { RoomDao, type IRoomDao } from "modules/rooms/dao";
+import { MovieDao, type IMovieDao } from "modules/movies/dao";
+import { SeatDao, type ISeatDao } from "modules/seats/dao";
 import { randomUUID } from "crypto";
 
-jest.mock("modules/seats/repository/seat.repository.ts");
-jest.mock("modules/showtimes/repository/showtime.repository.ts");
-jest.mock("modules/rooms/repository/room.repository.ts");
-jest.mock("modules/movies/repository/movie.repository.ts");
+jest.mock("modules/seats/dao/seat.dao.ts");
+jest.mock("modules/showtimes/dao/showtime.dao.ts");
+jest.mock("modules/rooms/dao/room.dao.ts");
+jest.mock("modules/movies/dao/movie.dao.ts");
 
 describe("UNIT: ShowtimeService.getAvailableSeats", () => {
   let showtimeService: IShowtimeService;
 
-  let mockedSeatRepository: jest.Mocked<ISeatRepository>;
-  let mockedShowtimeRepository: jest.Mocked<IShowtimeRepository>;
-  let mockedRoomRepository: jest.Mocked<IRoomRepository>;
-  let mockedMovieRepository: jest.Mocked<IMovieRepository>;
+  let mockedSeatDao: jest.Mocked<ISeatDao>;
+  let mockedShowtimeDao: jest.Mocked<IShowtimeDao>;
+  let mockedRoomDao: jest.Mocked<IRoomDao>;
+  let mockedMovieDao: jest.Mocked<IMovieDao>;
 
   beforeEach(() => {
-    mockedSeatRepository = jest.mocked(new SeatRepository());
-    mockedShowtimeRepository = jest.mocked(new ShowtimeRepository());
-    mockedRoomRepository = jest.mocked(new RoomRepository());
-    mockedMovieRepository = jest.mocked(new MovieRepository());
+    mockedSeatDao = jest.mocked(new SeatDao());
+    mockedShowtimeDao = jest.mocked(new ShowtimeDao());
+    mockedRoomDao = jest.mocked(new RoomDao());
+    mockedMovieDao = jest.mocked(new MovieDao());
 
     showtimeService = new ShowtimeService(
-      mockedShowtimeRepository,
-      mockedRoomRepository,
-      mockedMovieRepository,
-      mockedSeatRepository
+      mockedShowtimeDao,
+      mockedRoomDao,
+      mockedMovieDao,
+      mockedSeatDao
     );
   });
 
   test("should throw an error when getting available seats from a non existing showtime id", async () => {
-    mockedShowtimeRepository.countById.mockResolvedValueOnce(0);
+    mockedShowtimeDao.countById.mockResolvedValueOnce(0);
 
     const nonExistingShowtimeId = randomUUID();
     await expect(
       showtimeService.getAvailableSeats(nonExistingShowtimeId)
     ).rejects.toThrow("Showtime not found");
 
-    expect(mockedShowtimeRepository.countById).toHaveBeenCalledTimes(1);
-    expect(mockedShowtimeRepository.countById).toHaveBeenCalledWith(
+    expect(mockedShowtimeDao.countById).toHaveBeenCalledTimes(1);
+    expect(mockedShowtimeDao.countById).toHaveBeenCalledWith(
       nonExistingShowtimeId
     );
 
-    expect(mockedSeatRepository.getAvailableSeats).not.toHaveBeenCalled();
+    expect(mockedSeatDao.getAvailableSeats).not.toHaveBeenCalled();
   });
 });

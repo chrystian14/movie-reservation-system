@@ -1,91 +1,85 @@
-import {
-  ReservationRepository,
-  type IReservationRepository,
-} from "modules/reservations/repository";
+import { ReservationDao, type IReservationDao } from "modules/reservations/dao";
 import type { ReservationCreateInput } from "modules/reservations/types";
 import {
   ReservationService,
   type IReservationService,
 } from "modules/reservations/service";
 import { ReservationBuilder } from "modules/reservations/builder";
-import {
-  ShowtimeRepository,
-  type IShowtimeRepository,
-} from "modules/showtimes/repository";
-import { SeatRepository, type ISeatRepository } from "modules/seats/repository";
-import { UserRepository, type IUserRepository } from "modules/users/repository";
+import { ShowtimeDao, type IShowtimeDao } from "modules/showtimes/dao";
+import { SeatDao, type ISeatDao } from "modules/seats/dao";
+import { UserDao, type IUserDao } from "modules/users/dao";
 import { ShowtimeBuilder } from "modules/showtimes/builder";
 import { SeatBuilder } from "modules/seats/builder";
 
-jest.mock("modules/reservations/repository/reservation.repository.ts");
-jest.mock("modules/showtimes/repository/showtime.repository.ts");
-jest.mock("modules/seats/repository/seat.repository.ts");
-jest.mock("modules/users/repository/user.repository.ts");
+jest.mock("modules/reservations/dao/reservation.dao.ts");
+jest.mock("modules/showtimes/dao/showtime.dao.ts");
+jest.mock("modules/seats/dao/seat.dao.ts");
+jest.mock("modules/users/dao/user.dao.ts");
 
 describe("UNIT: ReservationService.create", () => {
   let reservationCreateInput: ReservationCreateInput;
   let reservationService: IReservationService;
 
-  let mockedReservationRepository: jest.Mocked<IReservationRepository>;
-  let mockedShowtimeRepository: jest.Mocked<IShowtimeRepository>;
-  let mockedSeatRepository: jest.Mocked<ISeatRepository>;
-  let mockedUserRepository: jest.Mocked<IUserRepository>;
+  let mockedReservationDao: jest.Mocked<IReservationDao>;
+  let mockedShowtimeDao: jest.Mocked<IShowtimeDao>;
+  let mockedSeatDao: jest.Mocked<ISeatDao>;
+  let mockedUserDao: jest.Mocked<IUserDao>;
 
   beforeEach(() => {
-    mockedReservationRepository = jest.mocked(new ReservationRepository());
-    mockedShowtimeRepository = jest.mocked(new ShowtimeRepository());
-    mockedSeatRepository = jest.mocked(new SeatRepository());
-    mockedUserRepository = jest.mocked(new UserRepository());
+    mockedReservationDao = jest.mocked(new ReservationDao());
+    mockedShowtimeDao = jest.mocked(new ShowtimeDao());
+    mockedSeatDao = jest.mocked(new SeatDao());
+    mockedUserDao = jest.mocked(new UserDao());
 
     reservationService = new ReservationService(
-      mockedReservationRepository,
-      mockedShowtimeRepository,
-      mockedSeatRepository,
-      mockedUserRepository
+      mockedReservationDao,
+      mockedShowtimeDao,
+      mockedSeatDao,
+      mockedUserDao
     );
 
     reservationCreateInput = new ReservationBuilder().requiredForCreation();
   });
 
   test("should throw an error if creating a reservation with non-existing showtime id", async () => {
-    mockedShowtimeRepository.findById.mockResolvedValueOnce(null);
+    mockedShowtimeDao.findById.mockResolvedValueOnce(null);
 
     await expect(
       reservationService.create(reservationCreateInput)
     ).rejects.toThrow("Showtime not found");
 
-    expect(mockedShowtimeRepository.findById).toHaveBeenCalledTimes(1);
-    expect(mockedShowtimeRepository.findById).toHaveBeenCalledWith(
+    expect(mockedShowtimeDao.findById).toHaveBeenCalledTimes(1);
+    expect(mockedShowtimeDao.findById).toHaveBeenCalledWith(
       reservationCreateInput.showtimeId
     );
 
-    expect(mockedReservationRepository.create).not.toHaveBeenCalled();
+    expect(mockedReservationDao.create).not.toHaveBeenCalled();
   });
 
   test("should throw an error if creating a reservation with non-existing user id", async () => {
-    mockedShowtimeRepository.findById.mockResolvedValueOnce(
+    mockedShowtimeDao.findById.mockResolvedValueOnce(
       new ShowtimeBuilder().build()
     );
-    mockedUserRepository.countById.mockResolvedValueOnce(0);
+    mockedUserDao.countById.mockResolvedValueOnce(0);
 
     await expect(
       reservationService.create(reservationCreateInput)
     ).rejects.toThrow("User not found");
 
-    expect(mockedUserRepository.countById).toHaveBeenCalledTimes(1);
-    expect(mockedUserRepository.countById).toHaveBeenCalledWith(
+    expect(mockedUserDao.countById).toHaveBeenCalledTimes(1);
+    expect(mockedUserDao.countById).toHaveBeenCalledWith(
       reservationCreateInput.userId
     );
 
-    expect(mockedReservationRepository.create).not.toHaveBeenCalled();
+    expect(mockedReservationDao.create).not.toHaveBeenCalled();
   });
 
   test("should throw an error if creating a reservation with seatIds that are not in the showtime", async () => {
-    mockedShowtimeRepository.findById.mockResolvedValueOnce(
+    mockedShowtimeDao.findById.mockResolvedValueOnce(
       new ShowtimeBuilder().build()
     );
-    mockedUserRepository.countById.mockResolvedValueOnce(1);
-    mockedSeatRepository.scanForSeatsInRoom.mockResolvedValueOnce([]);
+    mockedUserDao.countById.mockResolvedValueOnce(1);
+    mockedSeatDao.scanForSeatsInRoom.mockResolvedValueOnce([]);
 
     await expect(
       reservationService.create(reservationCreateInput)
@@ -93,10 +87,10 @@ describe("UNIT: ReservationService.create", () => {
   });
 
   test("should throw an error if creating a reservation for a seat that is already reserved", async () => {
-    mockedShowtimeRepository.findById.mockResolvedValueOnce(
+    mockedShowtimeDao.findById.mockResolvedValueOnce(
       new ShowtimeBuilder().build()
     );
-    mockedUserRepository.countById.mockResolvedValueOnce(1);
+    mockedUserDao.countById.mockResolvedValueOnce(1);
 
     const [resevedSeatOne, reservedSeatTwo] = [
       new SeatBuilder().build(),
@@ -113,11 +107,11 @@ describe("UNIT: ReservationService.create", () => {
         .withSeatIds(reservedSeatsIds)
         .requiredForCreation();
 
-    mockedSeatRepository.scanForSeatsInRoom.mockResolvedValueOnce([
+    mockedSeatDao.scanForSeatsInRoom.mockResolvedValueOnce([
       resevedSeatOne,
       reservedSeatTwo,
     ]);
-    mockedSeatRepository.scanForReservedSeatsByShowtimeId.mockResolvedValueOnce(
+    mockedSeatDao.scanForReservedSeatsByShowtimeId.mockResolvedValueOnce(
       reservedSeatsIds
     );
 

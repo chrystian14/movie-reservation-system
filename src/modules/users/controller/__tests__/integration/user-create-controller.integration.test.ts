@@ -3,14 +3,14 @@ import { prisma } from "configs/prisma-client.config";
 import { apiClient } from "modules/_shared/tests";
 import { status } from "modules/_shared/utils";
 import { UserBuilder } from "modules/users/builder";
-import { UserRepository, type IUserRepository } from "modules/users/repository";
+import { UserDao, type IUserDao } from "modules/users/dao";
 import { type UserCreateInput } from "modules/users/types";
 
 describe("INTEGRATION: UserControler.create", () => {
   const userEndpoint = "/api/v1/users";
 
   let userBuilder: UserBuilder;
-  let userRepository: IUserRepository;
+  let userDao: IUserDao;
 
   let userCreateInput: UserCreateInput;
 
@@ -18,7 +18,7 @@ describe("INTEGRATION: UserControler.create", () => {
     await clearDatabase();
 
     userBuilder = new UserBuilder();
-    userRepository = new UserRepository();
+    userDao = new UserDao();
 
     userCreateInput = userBuilder.requiredForCreation();
   });
@@ -50,7 +50,7 @@ describe("INTEGRATION: UserControler.create", () => {
   });
 
   test("should return an 409 if email already exists", async () => {
-    await userBuilder.save(userRepository);
+    await userBuilder.save(userDao);
     const response = await apiClient.post(userEndpoint).send(userCreateInput);
 
     const expectedResponseBody = {

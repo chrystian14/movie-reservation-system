@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import type { ISeatRepository } from "../repository";
+import type { ISeatDao } from "../dao";
 import type { Seat, SeatCreateInput } from "../types";
 import { Chance } from "chance";
 import { Prisma } from "@prisma/client";
@@ -30,8 +30,8 @@ export class SeatBuilder {
     return this.entity;
   }
 
-  async save(repository: ISeatRepository) {
-    return await repository.create(this.entity);
+  async save(dao: ISeatDao) {
+    return await dao.create(this.entity);
   }
 
   withNewUUID() {

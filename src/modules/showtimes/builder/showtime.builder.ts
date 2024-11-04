@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import type { IShowtimeRepository } from "../repository";
+import type { IShowtimeDao } from "../dao";
 import type { Showtime, ShowtimeCreateInput } from "../types";
 import { Chance } from "chance";
 import type { FixedLengthArray } from "modules/_shared/utils/types.util";
@@ -50,14 +50,14 @@ export class ShowtimeBuilder {
     return showtimes as FixedLengthArray<Showtime, Length>;
   }
 
-  async save(repository: IShowtimeRepository): Promise<Showtime> {
-    return await repository.create(this.entity);
+  async save(dao: IShowtimeDao): Promise<Showtime> {
+    return await dao.create(this.entity);
   }
 
-  async saveAll(repository: IShowtimeRepository): Promise<Showtime[]> {
+  async saveAll(dao: IShowtimeDao): Promise<Showtime[]> {
     const savedShowtimes = [];
     for (const showtime of this.entities) {
-      const savedShowtime = await repository.create(showtime);
+      const savedShowtime = await dao.create(showtime);
       savedShowtimes.push(savedShowtime);
     }
     return savedShowtimes;

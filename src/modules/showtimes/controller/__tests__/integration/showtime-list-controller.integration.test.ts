@@ -3,18 +3,18 @@ import { apiClient } from "modules/_shared/tests";
 import { status } from "modules/_shared/utils";
 import { generateToken } from "modules/auth/jwt";
 import { GenreBuilder } from "modules/genres/builder";
-import { GenreRepository } from "modules/genres/repository";
+import { GenreDao } from "modules/genres/dao";
 import { MovieBuilder } from "modules/movies/builder";
-import { MovieRepository } from "modules/movies/repository";
+import { MovieDao } from "modules/movies/dao";
 import type { Movie } from "modules/movies/types";
 import { RoomBuilder } from "modules/rooms/builder";
-import { RoomRepository } from "modules/rooms/repository";
+import { RoomDao } from "modules/rooms/dao";
 import type { Room } from "modules/rooms/types";
-import { SeatRepository } from "modules/seats/repository";
+import { SeatDao } from "modules/seats/dao";
 import { ShowtimeBuilder } from "modules/showtimes/builder";
-import { ShowtimeRepository } from "modules/showtimes/repository";
+import { ShowtimeDao } from "modules/showtimes/dao";
 import { UserBuilder } from "modules/users/builder";
-import { UserRepository } from "modules/users/repository";
+import { UserDao } from "modules/users/dao";
 import type { User } from "modules/users/types";
 
 describe("INTEGRATION: ShowtimeControler.list - GET /api/v1/showtimes", () => {
@@ -31,18 +31,18 @@ describe("INTEGRATION: ShowtimeControler.list - GET /api/v1/showtimes", () => {
 
     regularUser = await new UserBuilder()
       .withNonAdminRole()
-      .save(new UserRepository());
+      .save(new UserDao());
     regularUserToken = generateToken(regularUser);
 
-    const createdGenre = await new GenreBuilder().save(new GenreRepository());
+    const createdGenre = await new GenreBuilder().save(new GenreDao());
 
     createdMovie = await new MovieBuilder()
       .withGenreId(createdGenre.id)
-      .save(new MovieRepository());
+      .save(new MovieDao());
 
     ({ room: createdRoom } = await new RoomBuilder().save(
-      new RoomRepository(),
-      new SeatRepository()
+      new RoomDao(),
+      new SeatDao()
     ));
   });
 
@@ -90,9 +90,7 @@ describe("INTEGRATION: ShowtimeControler.list - GET /api/v1/showtimes", () => {
       showtimeStartDate,
       intervalBetweenShowtimesInMinutes
     );
-    const savedShowtimes = await showtimeBuilder.saveAll(
-      new ShowtimeRepository()
-    );
+    const savedShowtimes = await showtimeBuilder.saveAll(new ShowtimeDao());
     const orderedDescSavedShowtimes = savedShowtimes.sort(
       (a, b) => b.datetime.getTime() - a.datetime.getTime()
     );
@@ -112,7 +110,7 @@ describe("INTEGRATION: ShowtimeControler.list - GET /api/v1/showtimes", () => {
   });
 
   test('should list only showtimes within date range and in desc order when "date" query param is passed', async () => {
-    const showtimeRepository = new ShowtimeRepository();
+    const showtimeDao = new ShowtimeDao();
 
     const outOfRangeShowtimeBuilder = new ShowtimeBuilder();
     outOfRangeShowtimeBuilder.buildMany(
@@ -122,7 +120,7 @@ describe("INTEGRATION: ShowtimeControler.list - GET /api/v1/showtimes", () => {
       new Date("2024-03-15T00:00:00Z"),
       120
     );
-    await outOfRangeShowtimeBuilder.saveAll(showtimeRepository);
+    await outOfRangeShowtimeBuilder.saveAll(showtimeDao);
 
     const inRangeShowtimeBuilder = new ShowtimeBuilder();
     inRangeShowtimeBuilder.buildMany(
@@ -133,7 +131,7 @@ describe("INTEGRATION: ShowtimeControler.list - GET /api/v1/showtimes", () => {
       120
     );
     const inRangeSavedShowtimes = await inRangeShowtimeBuilder.saveAll(
-      showtimeRepository
+      showtimeDao
     );
     const orderedDescinRangeSavedShowtimes = inRangeSavedShowtimes.sort(
       (a, b) => b.datetime.getTime() - a.datetime.getTime()

@@ -1,9 +1,9 @@
-import type { IShowtimeRepository } from "modules/showtimes/repository";
-import type { IReservationRepository } from "../repository";
+import type { IShowtimeDao } from "modules/showtimes/dao";
+import type { IReservationDao } from "../dao";
 import type { Reservation, ReservationCreateInput } from "../types";
 import type { IReservationService } from "./reservation.service.interface";
-import type { ISeatRepository } from "modules/seats/repository";
-import type { IUserRepository } from "modules/users/repository";
+import type { ISeatDao } from "modules/seats/dao";
+import type { IUserDao } from "modules/users/dao";
 import { ShowtimeNotFoundError } from "modules/showtimes/errors";
 import { UserNotFoundError } from "modules/users/errors";
 import {
@@ -17,22 +17,20 @@ import { ShowtimeInThePastError } from "modules/showtimes/errors/showtime.errors
 
 export class ReservationService implements IReservationService {
   constructor(
-    private readonly reservationRepository: IReservationRepository,
-    private readonly showtimeRepository: IShowtimeRepository,
-    private readonly seatRepository: ISeatRepository,
-    private readonly userRepository: IUserRepository
+    private readonly reservationDao: IReservationDao,
+    private readonly showtimeDao: IShowtimeDao,
+    private readonly seatDao: ISeatDao,
+    private readonly userDao: IUserDao
   ) {}
 
   async cancel(reservationId: string, userId: string): Promise<void> {
-    const reservation = await this.reservationRepository.findById(
-      reservationId
-    );
+    const reservation = await this.reservationDao.findById(reservationId);
 
     if (!reservation) {
       throw new ReservationNotFoundError();
     }
 
-    const userCount = await this.userRepository.countById(userId);
+    const userCount = await this.userDao.countById(userId);
 
     if (!userCount) {
       throw new UserNotFoundError();
@@ -42,29 +40,27 @@ export class ReservationService implements IReservationService {
       throw new ForbiddenError();
     }
 
-    const showtime = await this.showtimeRepository.findById(
-      reservation.showtimeId
-    );
+    const showtime = await this.showtimeDao.findById(reservation.showtimeId);
 
     if (showtime && showtime.datetime < new Date()) {
       throw new ShowtimeInThePastError();
     }
 
-    await this.reservationRepository.cancel(reservationId);
+    await this.reservationDao.cancel(reservationId);
   }
 
   async list(): Promise<Array<Reservation>> {
-    return await this.reservationRepository.list();
+    return await this.reservationDao.list();
   }
 
   async listByUserId(userId: string): Promise<Array<Reservation>> {
-    const userCount = await this.userRepository.countById(userId);
+    const userCount = await this.userDao.countById(userId);
 
     if (!userCount) {
       throw new UserNotFoundError();
     }
 
-    return await this.reservationRepository.listByUserId(
+    return await this.reservationDao.listByUserId(
       userId,
       ReservationStatus.CONFIRMED
     );
@@ -73,10 +69,10 @@ export class ReservationService implements IReservationService {
   async create(
     reservationCreateInput: ReservationCreateInput
   ): Promise<Array<Reservation>> {
-    // const showtimeCount = await this.showtimeRepository.countById(
+    // const showtimeCount = await this.showtimeDao.countById(
     //   reservationCreateInput.showtimeId
     // );
-    const showtime = await this.showtimeRepository.findById(
+    const showtime = await this.showtimeDao.findById(
       reservationCreateInput.showtimeId
     );
 
@@ -84,7 +80,7 @@ export class ReservationService implements IReservationService {
       throw new ShowtimeNotFoundError();
     }
 
-    const userCount = await this.userRepository.countById(
+    const userCount = await this.userDao.countById(
       reservationCreateInput.userId
     );
 
@@ -92,7 +88,7 @@ export class ReservationService implements IReservationService {
       throw new UserNotFoundError();
     }
 
-    const seatsInShowtimeRoom = await this.seatRepository.scanForSeatsInRoom(
+    const seatsInShowtimeRoom = await this.seatDao.scanForSeatsInRoom(
       showtime.roomId,
       reservationCreateInput.seatIds
     );
@@ -105,7 +101,7 @@ export class ReservationService implements IReservationService {
     }
 
     const seatsAlreadyReserved =
-      await this.seatRepository.scanForReservedSeatsByShowtimeId(
+      await this.seatDao.scanForReservedSeatsByShowtimeId(
         reservationCreateInput.seatIds,
         reservationCreateInput.showtimeId
       );
@@ -114,6 +110,6 @@ export class ReservationService implements IReservationService {
       throw new SeatAlreadyReservedError(seatsAlreadyReserved);
     }
 
-    return await this.reservationRepository.create(reservationCreateInput);
+    return await this.reservationDao.create(reservationCreateInput);
   }
 }

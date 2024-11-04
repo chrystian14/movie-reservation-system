@@ -1,49 +1,40 @@
-import {
-  MovieRepository,
-  type IMovieRepository,
-} from "modules/movies/repository";
+import { MovieDao, type IMovieDao } from "modules/movies/dao";
 import type { Movie } from "modules/movies/types";
 import { MovieService, type IMovieService } from "modules/movies/service";
 import { MovieBuilder } from "modules/movies/builder";
-import {
-  GenreRepository,
-  type IGenreRepository,
-} from "modules/genres/repository";
+import { GenreDao, type IGenreDao } from "modules/genres/dao";
 
-jest.mock("modules/movies/repository/movie.repository.ts");
-jest.mock("modules/genres/repository/genre.repository.ts");
+jest.mock("modules/movies/dao/movie.dao.ts");
+jest.mock("modules/genres/dao/genre.dao.ts");
 
 describe("UNIT: MovieService.delete", () => {
   let movieBuilder: MovieBuilder;
   let movieService: IMovieService;
   let movie: Movie;
 
-  let mockedMovieRepository: jest.Mocked<IMovieRepository>;
-  let mockedGenreRepository: jest.Mocked<IGenreRepository>;
+  let mockedMovieDao: jest.Mocked<IMovieDao>;
+  let mockedGenreDao: jest.Mocked<IGenreDao>;
 
   beforeEach(() => {
-    mockedMovieRepository = jest.mocked(new MovieRepository());
-    mockedGenreRepository = jest.mocked(new GenreRepository());
+    mockedMovieDao = jest.mocked(new MovieDao());
+    mockedGenreDao = jest.mocked(new GenreDao());
 
-    movieService = new MovieService(
-      mockedMovieRepository,
-      mockedGenreRepository
-    );
+    movieService = new MovieService(mockedMovieDao, mockedGenreDao);
 
     movieBuilder = new MovieBuilder();
     movie = movieBuilder.build();
   });
 
   test("should throw an error if deleting a movie with non-existing id", async () => {
-    mockedMovieRepository.countById.mockResolvedValueOnce(0);
+    mockedMovieDao.countById.mockResolvedValueOnce(0);
 
     await expect(movieService.delete(movie.id)).rejects.toThrow(
       "Movie not found"
     );
 
-    expect(mockedMovieRepository.countById).toHaveBeenCalledTimes(1);
-    expect(mockedMovieRepository.countById).toHaveBeenCalledWith(movie.id);
+    expect(mockedMovieDao.countById).toHaveBeenCalledTimes(1);
+    expect(mockedMovieDao.countById).toHaveBeenCalledWith(movie.id);
 
-    expect(mockedMovieRepository.delete).not.toHaveBeenCalled();
+    expect(mockedMovieDao.delete).not.toHaveBeenCalled();
   });
 });

@@ -1,34 +1,32 @@
-import type { IRoomRepository } from "modules/rooms/repository";
-import type { IShowtimeRepository } from "../repository";
+import type { IRoomDao } from "modules/rooms/dao";
+import type { IShowtimeDao } from "../dao";
 import type { Showtime, ShowtimeCreateInput } from "../types";
 import type { IShowtimeService } from "./showtime.service.interface";
-import type { IMovieRepository } from "modules/movies/repository";
+import type { IMovieDao } from "modules/movies/dao";
 import { RoomNotFoundError } from "modules/rooms/errors";
 import { MovieNotFoundError } from "modules/movies/errors";
 import { DatetimeInThePastError } from "../errors";
 import type { Seat } from "modules/seats/types";
-import type { ISeatRepository } from "modules/seats/repository";
+import type { ISeatDao } from "modules/seats/dao";
 import { ShowtimeNotFoundError } from "../errors/showtime.errors";
 import { MAX_PER_PAGE_NUMBER } from "modules/_shared/pagination/pagination.middleware";
 
 export class ShowtimeService implements IShowtimeService {
   constructor(
-    private readonly showtimeRepository: IShowtimeRepository,
-    private readonly roomRepository: IRoomRepository,
-    private readonly movieRepository: IMovieRepository,
-    private readonly seatRepository: ISeatRepository
+    private readonly showtimeDao: IShowtimeDao,
+    private readonly roomDao: IRoomDao,
+    private readonly movieDao: IMovieDao,
+    private readonly seatDao: ISeatDao
   ) {}
 
   async create(showtimeCreateInput: ShowtimeCreateInput): Promise<Showtime> {
-    const roomCount = await this.roomRepository.countById(
-      showtimeCreateInput.roomId
-    );
+    const roomCount = await this.roomDao.countById(showtimeCreateInput.roomId);
 
     if (!roomCount) {
       throw new RoomNotFoundError();
     }
 
-    const movieCount = await this.movieRepository.countById(
+    const movieCount = await this.movieDao.countById(
       showtimeCreateInput.movieId
     );
 
@@ -40,7 +38,7 @@ export class ShowtimeService implements IShowtimeService {
       throw new DatetimeInThePastError();
     }
 
-    return await this.showtimeRepository.create(showtimeCreateInput);
+    return await this.showtimeDao.create(showtimeCreateInput);
   }
 
   async list(
@@ -54,7 +52,7 @@ export class ShowtimeService implements IShowtimeService {
         startDate.getTime() + 1 * 24 * 60 * 60 * 1000
       );
 
-      return await this.showtimeRepository.listByDate(
+      return await this.showtimeDao.listByDate(
         startDate,
         oneDayAfterStartDate,
         page,
@@ -62,16 +60,16 @@ export class ShowtimeService implements IShowtimeService {
       );
     }
 
-    return await this.showtimeRepository.list(page, perPage);
+    return await this.showtimeDao.list(page, perPage);
   }
 
   async getAvailableSeats(showtimeId: string): Promise<Array<Seat>> {
-    const showtimeCount = await this.showtimeRepository.countById(showtimeId);
+    const showtimeCount = await this.showtimeDao.countById(showtimeId);
 
     if (!showtimeCount) {
       throw new ShowtimeNotFoundError();
     }
 
-    return await this.seatRepository.getAvailableSeats(showtimeId);
+    return await this.seatDao.getAvailableSeats(showtimeId);
   }
 }

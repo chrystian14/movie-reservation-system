@@ -5,24 +5,21 @@ import { apiClient } from "modules/_shared/tests";
 import { status } from "modules/_shared/utils";
 import { generateToken } from "modules/auth/jwt";
 import { GenreBuilder } from "modules/genres/builder";
-import { GenreRepository } from "modules/genres/repository";
+import { GenreDao } from "modules/genres/dao";
 import { MovieBuilder } from "modules/movies/builder";
-import { MovieRepository } from "modules/movies/repository";
+import { MovieDao } from "modules/movies/dao";
 import { ReservationBuilder } from "modules/reservations/builder";
 import type { ReservationPostBody } from "modules/reservations/builder/reservation.builder";
-import {
-  ReservationRepository,
-  type IReservationRepository,
-} from "modules/reservations/repository";
+import { ReservationDao, type IReservationDao } from "modules/reservations/dao";
 import { type ReservationCreateInput } from "modules/reservations/types";
 import { RoomBuilder } from "modules/rooms/builder";
-import { RoomRepository } from "modules/rooms/repository";
+import { RoomDao } from "modules/rooms/dao";
 import { SeatBuilder } from "modules/seats/builder";
-import { SeatRepository, type ISeatRepository } from "modules/seats/repository";
+import { SeatDao, type ISeatDao } from "modules/seats/dao";
 import { ShowtimeBuilder } from "modules/showtimes/builder";
-import { ShowtimeRepository } from "modules/showtimes/repository";
+import { ShowtimeDao } from "modules/showtimes/dao";
 import { UserBuilder } from "modules/users/builder";
-import { UserRepository } from "modules/users/repository";
+import { UserDao } from "modules/users/dao";
 import type { User } from "modules/users/types";
 
 describe("INTEGRATION: ReservationControler.create - POST /api/v1/reservations", () => {
@@ -34,34 +31,34 @@ describe("INTEGRATION: ReservationControler.create - POST /api/v1/reservations",
   let createdRoom: Room;
   let createdShowtime: Showtime;
 
-  let reservationRepository: IReservationRepository;
-  let seatRepository: ISeatRepository;
+  let reservationDao: IReservationDao;
+  let seatDao: ISeatDao;
 
   beforeEach(async () => {
     await clearDatabase();
 
-    const userRepository = new UserRepository();
+    const userDao = new UserDao();
     const regularUserBuilder = new UserBuilder().withNonAdminRole();
-    regularUser = await regularUserBuilder.save(userRepository);
+    regularUser = await regularUserBuilder.save(userDao);
     regularUserToken = generateToken(regularUser);
 
-    const createdGenre = await new GenreBuilder().save(new GenreRepository());
+    const createdGenre = await new GenreBuilder().save(new GenreDao());
     const createdMovie = await new MovieBuilder()
       .withGenreId(createdGenre.id)
-      .save(new MovieRepository());
+      .save(new MovieDao());
 
     ({ room: createdRoom } = await new RoomBuilder().save(
-      new RoomRepository(),
-      new SeatRepository()
+      new RoomDao(),
+      new SeatDao()
     ));
 
     createdShowtime = await new ShowtimeBuilder()
       .withMovieId(createdMovie.id)
       .withRoomId(createdRoom.id)
-      .save(new ShowtimeRepository());
+      .save(new ShowtimeDao());
 
-    seatRepository = new SeatRepository();
-    reservationRepository = new ReservationRepository();
+    seatDao = new SeatDao();
+    reservationDao = new ReservationDao();
   });
 
   test("should return a 401 when user is not authenticated", async () => {
@@ -79,7 +76,7 @@ describe("INTEGRATION: ReservationControler.create - POST /api/v1/reservations",
     expect(response.statusCode).toBe(status.HTTP_401_UNAUTHORIZED);
     expect(response.body).toStrictEqual(expectedResponseBody);
 
-    const reservationCount = await reservationRepository.count();
+    const reservationCount = await reservationDao.count();
     expect(reservationCount).toBe(0);
   });
 
@@ -108,7 +105,7 @@ describe("INTEGRATION: ReservationControler.create - POST /api/v1/reservations",
       expectedResponseBody.details
     );
 
-    const reservationCount = await reservationRepository.count();
+    const reservationCount = await reservationDao.count();
     expect(reservationCount).toBe(0);
   });
 
@@ -130,20 +127,20 @@ describe("INTEGRATION: ReservationControler.create - POST /api/v1/reservations",
     // expect(response.status).toBe(status.HTTP_404_NOT_FOUND);
     expect(response.body).toStrictEqual(expectedResponseBody);
 
-    const reservationCount = await reservationRepository.count();
+    const reservationCount = await reservationDao.count();
     expect(reservationCount).toBe(0);
   });
 
   test("should return a 422 when any of the pretended seats is already reserved", async () => {
     const seatAlreadyReserved = await new SeatBuilder()
       .withRoomId(createdRoom.id)
-      .save(seatRepository);
+      .save(seatDao);
 
     await new ReservationBuilder()
       .withUserId(regularUser.id)
       .withSeatIds([seatAlreadyReserved.id])
       .withShowtimeId(createdShowtime.id)
-      .save(reservationRepository);
+      .save(reservationDao);
 
     const reservationWithAlreadyReservedSeatInput: ReservationPostBody =
       new ReservationBuilder()
@@ -163,7 +160,7 @@ describe("INTEGRATION: ReservationControler.create - POST /api/v1/reservations",
     expect(response.status).toBe(status.HTTP_422_UNPROCESSABLE_ENTITY);
     expect(response.body).toStrictEqual(expectedResponseBody);
 
-    const reservationCount = await reservationRepository.count();
+    const reservationCount = await reservationDao.count();
     expect(reservationCount).toBe(1);
   });
 
@@ -186,7 +183,7 @@ describe("INTEGRATION: ReservationControler.create - POST /api/v1/reservations",
     expect(response.status).toBe(status.HTTP_422_UNPROCESSABLE_ENTITY);
     expect(response.body).toStrictEqual(expectedResponseBody);
 
-    const reservationCount = await reservationRepository.count();
+    const reservationCount = await reservationDao.count();
     expect(reservationCount).toBe(0);
   });
 
@@ -214,14 +211,14 @@ describe("INTEGRATION: ReservationControler.create - POST /api/v1/reservations",
     expect(response.status).toBe(status.HTTP_400_BAD_REQUEST);
     expect(response.body).toStrictEqual(expectedResponseBody);
 
-    const reservationCount = await reservationRepository.count();
+    const reservationCount = await reservationDao.count();
     expect(reservationCount).toBe(0);
   });
 
   test("should create a reservation with regular user credentials", async () => {
     const firstSeatToReserve = await new SeatBuilder()
       .withRoomId(createdRoom.id)
-      .save(seatRepository);
+      .save(seatDao);
 
     const validReservationCreateInput: ReservationPostBody =
       new ReservationBuilder()
@@ -248,18 +245,18 @@ describe("INTEGRATION: ReservationControler.create - POST /api/v1/reservations",
     expect(response.statusCode).toBe(status.HTTP_201_CREATED);
     expect(response.body).toStrictEqual(expectedResponseBody);
 
-    const reservationCount = await reservationRepository.count();
+    const reservationCount = await reservationDao.count();
     expect(reservationCount).toBe(1);
   });
 
   test("should create multiple reservations when more than one valid seatId is passed", async () => {
     const firstSeatToReserve = await new SeatBuilder()
       .withRoomId(createdRoom.id)
-      .save(seatRepository);
+      .save(seatDao);
 
     const secondSeatToReserve = await new SeatBuilder()
       .withRoomId(createdRoom.id)
-      .save(seatRepository);
+      .save(seatDao);
 
     const seatIdsToReserve: [string, ...string[]] = [
       firstSeatToReserve.id,
@@ -290,7 +287,7 @@ describe("INTEGRATION: ReservationControler.create - POST /api/v1/reservations",
     expect(response.statusCode).toBe(status.HTTP_201_CREATED);
     expect(response.body).toStrictEqual(expectedResponseBody);
 
-    const reservationCount = await reservationRepository.count();
+    const reservationCount = await reservationDao.count();
     expect(reservationCount).toBe(seatIdsToReserve.length);
   });
 });

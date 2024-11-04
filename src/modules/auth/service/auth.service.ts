@@ -1,4 +1,4 @@
-import type { IUserRepository } from "modules/users/repository";
+import type { IUserDao } from "modules/users/dao";
 import type { LoginInput } from "../types";
 import { InvalidCredentialsError } from "../errors";
 import type { IAuthService } from "./auth.service.interface";
@@ -7,10 +7,10 @@ import { generateToken } from "../jwt/jwt.handlers";
 import { Logger } from "configs/loggers";
 
 export class AuthService implements IAuthService {
-  constructor(private userRepository: IUserRepository) {}
+  constructor(private userDao: IUserDao) {}
 
   async login({ email, password }: LoginInput) {
-    const user = await this.userRepository.findByEmail(email);
+    const user = await this.userDao.findByEmail(email);
 
     if (!user) {
       throw new InvalidCredentialsError();

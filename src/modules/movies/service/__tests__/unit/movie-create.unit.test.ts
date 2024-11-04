@@ -1,49 +1,40 @@
-import {
-  MovieRepository,
-  type IMovieRepository,
-} from "modules/movies/repository";
+import { MovieDao, type IMovieDao } from "modules/movies/dao";
 import type { MovieCreateInput } from "modules/movies/types";
 import { MovieService, type IMovieService } from "modules/movies/service";
 import { MovieBuilder } from "modules/movies/builder";
-import {
-  GenreRepository,
-  type IGenreRepository,
-} from "modules/genres/repository";
+import { GenreDao, type IGenreDao } from "modules/genres/dao";
 
-jest.mock("modules/movies/repository/movie.repository.ts");
-jest.mock("modules/genres/repository/genre.repository.ts");
+jest.mock("modules/movies/dao/movie.dao.ts");
+jest.mock("modules/genres/dao/genre.dao.ts");
 
 describe("UNIT: MovieService.create", () => {
   let movieCreateInput: MovieCreateInput;
   let movieService: IMovieService;
 
-  let mockedMovieRepository: jest.Mocked<IMovieRepository>;
-  let mockedGenreRepository: jest.Mocked<IGenreRepository>;
+  let mockedMovieDao: jest.Mocked<IMovieDao>;
+  let mockedGenreDao: jest.Mocked<IGenreDao>;
 
   beforeEach(() => {
-    mockedMovieRepository = jest.mocked(new MovieRepository());
-    mockedGenreRepository = jest.mocked(new GenreRepository());
+    mockedMovieDao = jest.mocked(new MovieDao());
+    mockedGenreDao = jest.mocked(new GenreDao());
 
-    movieService = new MovieService(
-      mockedMovieRepository,
-      mockedGenreRepository
-    );
+    movieService = new MovieService(mockedMovieDao, mockedGenreDao);
 
     movieCreateInput = new MovieBuilder().requiredForCreation();
   });
 
   test("should throw an error if creating a movie with non-existent genre id", async () => {
-    mockedGenreRepository.countById.mockResolvedValueOnce(0);
+    mockedGenreDao.countById.mockResolvedValueOnce(0);
 
     await expect(movieService.create(movieCreateInput)).rejects.toThrow(
       "Genre not found"
     );
 
-    expect(mockedGenreRepository.countById).toHaveBeenCalledTimes(1);
-    expect(mockedGenreRepository.countById).toHaveBeenCalledWith(
+    expect(mockedGenreDao.countById).toHaveBeenCalledTimes(1);
+    expect(mockedGenreDao.countById).toHaveBeenCalledWith(
       movieCreateInput.genreId
     );
 
-    expect(mockedMovieRepository.create).not.toHaveBeenCalled();
+    expect(mockedMovieDao.create).not.toHaveBeenCalled();
   });
 });

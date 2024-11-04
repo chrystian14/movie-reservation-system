@@ -4,26 +4,23 @@ import { apiClient } from "modules/_shared/tests";
 import { status } from "modules/_shared/utils";
 import { generateToken } from "modules/auth/jwt";
 import { GenreBuilder } from "modules/genres/builder";
-import {
-  GenreRepository,
-  type IGenreRepository,
-} from "modules/genres/repository";
+import { GenreDao, type IGenreDao } from "modules/genres/dao";
 import type { Genre } from "modules/genres/types";
 import { MovieBuilder } from "modules/movies/builder";
-import { MovieRepository } from "modules/movies/repository";
+import { MovieDao } from "modules/movies/dao";
 import { type Movie, type MovieUpdateInput } from "modules/movies/types";
 import { UserBuilder } from "modules/users/builder";
-import { UserRepository } from "modules/users/repository";
+import { UserDao } from "modules/users/dao";
 
 describe("INTEGRATION: MovieControler.update - PATCH /api/v1/movies/{id}", () => {
   const movieEndpoint = "/api/v1/movies";
 
   let movieBuilder: MovieBuilder;
   let movie: Movie;
-  let movieRepository: MovieRepository;
+  let movieDao: MovieDao;
 
   let genreBuilder: GenreBuilder;
-  let genreRepository: IGenreRepository;
+  let genreDao: IGenreDao;
   let createdActionGenre: Genre;
   let createdThrillerGenre: Genre;
 
@@ -33,28 +30,28 @@ describe("INTEGRATION: MovieControler.update - PATCH /api/v1/movies/{id}", () =>
   beforeEach(async () => {
     await clearDatabase();
 
-    genreRepository = new GenreRepository();
+    genreDao = new GenreDao();
     genreBuilder = new GenreBuilder();
     genreBuilder.withName("action");
-    createdActionGenre = await genreBuilder.save(genreRepository);
+    createdActionGenre = await genreBuilder.save(genreDao);
 
     genreBuilder = new GenreBuilder();
     genreBuilder.withName("thriller");
-    createdThrillerGenre = await genreBuilder.save(genreRepository);
+    createdThrillerGenre = await genreBuilder.save(genreDao);
 
-    movieRepository = new MovieRepository();
+    movieDao = new MovieDao();
     movieBuilder = new MovieBuilder();
     movie = await movieBuilder
       .withGenreId(createdActionGenre.id)
-      .save(movieRepository);
+      .save(movieDao);
 
-    const userRepository = new UserRepository();
+    const userDao = new UserDao();
     const regularUserBuilder = new UserBuilder().withNonAdminRole();
-    const regularUser = await regularUserBuilder.save(userRepository);
+    const regularUser = await regularUserBuilder.save(userDao);
     regularUserToken = generateToken(regularUser);
 
     const adminUserBuilder = new UserBuilder().withAdminRole();
-    const adminUser = await adminUserBuilder.save(userRepository);
+    const adminUser = await adminUserBuilder.save(userDao);
     adminUserToken = generateToken(adminUser);
   });
 
@@ -68,7 +65,7 @@ describe("INTEGRATION: MovieControler.update - PATCH /api/v1/movies/{id}", () =>
     expect(response.statusCode).toBe(status.HTTP_401_UNAUTHORIZED);
     expect(response.body).toEqual(expectedResponseBody);
 
-    const movieCount = await movieRepository.countById(movie.id);
+    const movieCount = await movieDao.countById(movie.id);
     expect(movieCount).toBe(1);
   });
 
@@ -84,7 +81,7 @@ describe("INTEGRATION: MovieControler.update - PATCH /api/v1/movies/{id}", () =>
     expect(response.statusCode).toBe(status.HTTP_403_FORBIDDEN);
     expect(response.body).toEqual(expectedResponseBody);
 
-    const movieCount = await movieRepository.countById(movie.id);
+    const movieCount = await movieDao.countById(movie.id);
     expect(movieCount).toBe(1);
   });
 
@@ -101,7 +98,7 @@ describe("INTEGRATION: MovieControler.update - PATCH /api/v1/movies/{id}", () =>
     expect(response.statusCode).toBe(status.HTTP_404_NOT_FOUND);
     expect(response.body).toEqual(expectedResponseBody);
 
-    const movieCount = await movieRepository.countById(movie.id);
+    const movieCount = await movieDao.countById(movie.id);
     expect(movieCount).toBe(1);
   });
 

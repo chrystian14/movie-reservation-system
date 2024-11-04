@@ -1,8 +1,8 @@
 import { randomUUID } from "crypto";
-import type { IMovieRepository } from "../repository";
+import type { IMovieDao } from "../dao";
 import type { Movie, MovieCreateInput } from "../types";
 import type { FixedLengthArray } from "modules/_shared/utils/types.util";
-import type { IGenreRepository } from "modules/genres/repository";
+import type { IGenreDao } from "modules/genres/dao";
 
 export class MovieBuilder {
   protected entity: Movie;
@@ -36,14 +36,14 @@ export class MovieBuilder {
     return this.entities as FixedLengthArray<Movie, Length>;
   }
 
-  async save(repository: IMovieRepository) {
-    return await repository.create(this.entity);
+  async save(dao: IMovieDao) {
+    return await dao.create(this.entity);
   }
 
-  async saveAll(repository: IMovieRepository) {
+  async saveAll(dao: IMovieDao) {
     const savedMovies = [];
     for (const movie of this.entities) {
-      const savedMovie = await repository.create(movie);
+      const savedMovie = await dao.create(movie);
       savedMovies.push(savedMovie);
     }
     return savedMovies;

@@ -1,7 +1,7 @@
 import type { ReservationStatus } from "@prisma/client";
 import type { Reservation, ReservationCreateInput } from "../types";
 
-export interface IReservationRepository {
+export interface IReservationDao {
   cancel(reservationId: string): Promise<void>;
   create(
     reservationCreateInput: ReservationCreateInput

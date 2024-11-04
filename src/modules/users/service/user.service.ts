@@ -1,5 +1,5 @@
 import type { UserCreateInput, UserWithoutPassword } from "../types";
-import type { IUserRepository } from "../repository";
+import type { IUserDao } from "../dao";
 import type { IUserService } from "./user.service.interface";
 import { EmailAlreadyExistsError } from "../errors";
 import { userWithoutPasswordSchema } from "../types/schemas";
@@ -7,10 +7,10 @@ import { hashPassword } from "../utils";
 import { Logger } from "configs/loggers";
 
 export class UserService implements IUserService {
-  constructor(private userRepository: IUserRepository) {}
+  constructor(private userDao: IUserDao) {}
 
   async create(userCreateInput: UserCreateInput): Promise<UserWithoutPassword> {
-    const userEmailCount = await this.userRepository.countByEmail(
+    const userEmailCount = await this.userDao.countByEmail(
       userCreateInput.email
     );
 
@@ -20,7 +20,7 @@ export class UserService implements IUserService {
 
     userCreateInput.password = await hashPassword(userCreateInput.password);
 
-    const user = await this.userRepository.create(userCreateInput);
+    const user = await this.userDao.create(userCreateInput);
 
     Logger.info(`User created with id: ${user.id}`);
 

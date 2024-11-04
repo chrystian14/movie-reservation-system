@@ -1,9 +1,9 @@
 import { randomUUID } from "crypto";
-import type { IRoomRepository } from "../repository";
+import type { IRoomDao } from "../dao";
 import type { Room, RoomAndSeats, RoomCreateInput } from "../types";
 import { Chance } from "chance";
 import type { Seat } from "modules/seats/types";
-import type { ISeatRepository } from "modules/seats/repository";
+import type { ISeatDao } from "modules/seats/dao";
 import { SeatBuilder } from "modules/seats/builder";
 
 export class RoomBuilder {
@@ -26,14 +26,11 @@ export class RoomBuilder {
     return this.entity;
   }
 
-  async save(
-    roomRepository: IRoomRepository,
-    seatRepository: ISeatRepository
-  ): Promise<RoomAndSeats> {
-    const savedRoom = await roomRepository.create(this.entity);
+  async save(roomDao: IRoomDao, seatDao: ISeatDao): Promise<RoomAndSeats> {
+    const savedRoom = await roomDao.create(this.entity);
     const savedSeats: Seat[] = [];
     for (const seat of this.seats) {
-      const savedSeat = await seatRepository.create(seat);
+      const savedSeat = await seatDao.create(seat);
       savedSeats.push(savedSeat);
     }
 

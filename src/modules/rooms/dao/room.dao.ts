@@ -1,9 +1,9 @@
 import type { SeatWithoutRoomId } from "modules/seats/types";
 import type { Room, RoomCreateInput } from "../types";
-import type { IRoomRepository } from "./room.repository.interface";
+import type { IRoomDao } from "./room.dao.interface";
 import { prisma } from "configs/prisma-client.config";
 
-export class RoomRepository implements IRoomRepository {
+export class RoomDao implements IRoomDao {
   async create(roomCreateInput: RoomCreateInput): Promise<Room> {
     return await prisma.room.create({
       data: roomCreateInput,

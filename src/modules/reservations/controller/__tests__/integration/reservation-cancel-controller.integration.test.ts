@@ -10,22 +10,19 @@ import { apiClient } from "modules/_shared/tests";
 import { status } from "modules/_shared/utils";
 import { generateToken } from "modules/auth/jwt";
 import { GenreBuilder } from "modules/genres/builder";
-import { GenreRepository } from "modules/genres/repository";
+import { GenreDao } from "modules/genres/dao";
 import { MovieBuilder } from "modules/movies/builder";
-import { MovieRepository } from "modules/movies/repository";
+import { MovieDao } from "modules/movies/dao";
 import { ReservationBuilder } from "modules/reservations/builder";
-import {
-  ReservationRepository,
-  type IReservationRepository,
-} from "modules/reservations/repository";
+import { ReservationDao, type IReservationDao } from "modules/reservations/dao";
 import { RoomBuilder } from "modules/rooms/builder";
-import { RoomRepository } from "modules/rooms/repository";
-import { SeatRepository } from "modules/seats/repository";
+import { RoomDao } from "modules/rooms/dao";
+import { SeatDao } from "modules/seats/dao";
 import type { Seat } from "modules/seats/types";
 import { ShowtimeBuilder } from "modules/showtimes/builder";
-import { ShowtimeRepository } from "modules/showtimes/repository";
+import { ShowtimeDao } from "modules/showtimes/dao";
 import { UserBuilder } from "modules/users/builder";
-import { UserRepository } from "modules/users/repository";
+import { UserDao } from "modules/users/dao";
 import type { User } from "modules/users/types";
 
 describe("INTEGRATION: ReservationControler.cancel - DEL /api/v1/reservations/:id", () => {
@@ -44,36 +41,36 @@ describe("INTEGRATION: ReservationControler.cancel - DEL /api/v1/reservations/:i
 
   let createdMovie: Movie;
 
-  let reservationRepository: IReservationRepository;
+  let reservationDao: IReservationDao;
 
   beforeEach(async () => {
     await clearDatabase();
 
-    const userRepository = new UserRepository();
+    const userDao = new UserDao();
     const regularUserOneBuilder = new UserBuilder().withNonAdminRole();
-    regularUserOne = await regularUserOneBuilder.save(userRepository);
+    regularUserOne = await regularUserOneBuilder.save(userDao);
     regularUserOneToken = generateToken(regularUserOne);
 
     const regularUserTwoBuilder = new UserBuilder().withNonAdminRole();
-    regularUserTwo = await regularUserTwoBuilder.save(userRepository);
+    regularUserTwo = await regularUserTwoBuilder.save(userDao);
     regularUserTwoToken = generateToken(regularUserTwo);
 
-    const createdGenre = await new GenreBuilder().save(new GenreRepository());
+    const createdGenre = await new GenreBuilder().save(new GenreDao());
     createdMovie = await new MovieBuilder()
       .withGenreId(createdGenre.id)
-      .save(new MovieRepository());
+      .save(new MovieDao());
 
     ({ room: savedRoomOne, seats: savedSeatsForRoomOne } =
       await new RoomBuilder()
         .generateSeats(5, 5)
-        .save(new RoomRepository(), new SeatRepository()));
+        .save(new RoomDao(), new SeatDao()));
 
     savedShowtimeOne = await new ShowtimeBuilder()
       .withMovieId(createdMovie.id)
       .withRoomId(savedRoomOne.id)
-      .save(new ShowtimeRepository());
+      .save(new ShowtimeDao());
 
-    reservationRepository = new ReservationRepository();
+    reservationDao = new ReservationDao();
   });
 
   test("should return a 401 when user is not authenticated", async () => {
@@ -114,7 +111,7 @@ describe("INTEGRATION: ReservationControler.cancel - DEL /api/v1/reservations/:i
       .withUserId(regularUserOne.id)
       .withSeatIds([userOneSeatOne.id])
       .withShowtimeId(savedShowtimeOne.id)
-      .save(reservationRepository);
+      .save(reservationDao);
 
     const reservationCancelEndpoint =
       reservationEndpoint + "/" + userOneReservationOne.id;
@@ -129,9 +126,7 @@ describe("INTEGRATION: ReservationControler.cancel - DEL /api/v1/reservations/:i
     expect(response.statusCode).toBe(status.HTTP_403_FORBIDDEN);
     expect(response.body).toStrictEqual(expectedResponseBody);
 
-    const reservation = await reservationRepository.findById(
-      userOneReservationOne.id
-    );
+    const reservation = await reservationDao.findById(userOneReservationOne.id);
     expect(reservation?.status).toBe(ReservationStatus.CONFIRMED);
   });
 
@@ -144,15 +139,15 @@ describe("INTEGRATION: ReservationControler.cancel - DEL /api/v1/reservations/:i
       .withMovieId(createdMovie.id)
       .withRoomId(savedRoomOne.id)
       .withIsoDatetime(mockedPastDate)
-      .save(new ShowtimeRepository());
+      .save(new ShowtimeDao());
 
     const [userOneSeatOne, ..._restSeats] = savedSeatsForRoomOne;
-    const reservationRepository = new ReservationRepository();
+    const reservationDao = new ReservationDao();
     const [userOneReservationOne] = await new ReservationBuilder()
       .withUserId(regularUserOne.id)
       .withSeatIds([userOneSeatOne.id])
       .withShowtimeId(savedShowtimeFromPast.id)
-      .save(reservationRepository);
+      .save(reservationDao);
 
     const reservationCancelEndpoint =
       reservationEndpoint + "/" + userOneReservationOne.id;
@@ -168,9 +163,7 @@ describe("INTEGRATION: ReservationControler.cancel - DEL /api/v1/reservations/:i
     expect(response.statusCode).toBe(status.HTTP_422_UNPROCESSABLE_ENTITY);
     expect(response.body).toStrictEqual(expectedResponseBody);
 
-    const reservation = await reservationRepository.findById(
-      userOneReservationOne.id
-    );
+    const reservation = await reservationDao.findById(userOneReservationOne.id);
     expect(reservation?.status).toBe(ReservationStatus.CONFIRMED);
   });
 
@@ -181,7 +174,7 @@ describe("INTEGRATION: ReservationControler.cancel - DEL /api/v1/reservations/:i
       .withUserId(regularUserOne.id)
       .withSeatIds([userOneSeatOne.id])
       .withShowtimeId(savedShowtimeOne.id)
-      .save(reservationRepository);
+      .save(reservationDao);
 
     const reservationCancelEndpoint =
       reservationEndpoint + "/" + userOneReservationOne.id;
@@ -191,7 +184,7 @@ describe("INTEGRATION: ReservationControler.cancel - DEL /api/v1/reservations/:i
 
     expect(response.statusCode).toBe(status.HTTP_204_NO_CONTENT);
 
-    const updatedReservation = await reservationRepository.findById(
+    const updatedReservation = await reservationDao.findById(
       userOneReservationOne.id
     );
     expect(updatedReservation?.status).toBe(ReservationStatus.CANCELLED);

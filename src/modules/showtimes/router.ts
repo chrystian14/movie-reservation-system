@@ -1,29 +1,29 @@
 import { Router } from "express";
 import { ShowtimeController } from "./controller";
 import { ShowtimeService } from "./service";
-import { ShowtimeRepository } from "./repository";
+import { ShowtimeDao } from "./dao";
 import { isAdmin, isAuthenticated } from "modules/auth/middlewares";
 import { validateBody, validateQueryParams } from "modules/_shared/middlewares";
 import {
   showtimeCreateInputSchema,
   showtimeDateQueryParamSchema,
 } from "./types/schemas";
-import { RoomRepository } from "modules/rooms/repository";
-import { MovieRepository } from "modules/movies/repository";
-import { SeatRepository } from "modules/seats/repository";
+import { RoomDao } from "modules/rooms/dao";
+import { MovieDao } from "modules/movies/dao";
+import { SeatDao } from "modules/seats/dao";
 
 export const showtimeRouter = Router();
 
-const seatRepository = new SeatRepository();
-const roomRepository = new RoomRepository();
-const movieRepository = new MovieRepository();
-const showtimeRepository = new ShowtimeRepository();
+const seatDao = new SeatDao();
+const roomDao = new RoomDao();
+const movieDao = new MovieDao();
+const showtimeDao = new ShowtimeDao();
 
 const showtimeService = new ShowtimeService(
-  showtimeRepository,
-  roomRepository,
-  movieRepository,
-  seatRepository
+  showtimeDao,
+  roomDao,
+  movieDao,
+  seatDao
 );
 const showtimeController = new ShowtimeController(showtimeService);
 

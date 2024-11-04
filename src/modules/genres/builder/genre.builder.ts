@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import type { IGenreRepository } from "../repository";
+import type { IGenreDao } from "../dao";
 import type { Genre, GenreCreateInput } from "../types";
 
 export class GenreBuilder {
@@ -36,8 +36,8 @@ export class GenreBuilder {
     return this.entity;
   }
 
-  async save(repository: IGenreRepository) {
-    return await repository.create(this.entity);
+  async save(dao: IGenreDao) {
+    return await dao.create(this.entity);
   }
 
   withUUID(newUUID: string) {

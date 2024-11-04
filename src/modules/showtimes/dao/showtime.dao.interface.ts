@@ -1,6 +1,6 @@
 import type { Showtime, ShowtimeCreateInput } from "../types";
 
-export interface IShowtimeRepository {
+export interface IShowtimeDao {
   create(showtimeCreateInput: ShowtimeCreateInput): Promise<Showtime>;
   list(page: number, perPage: number): Promise<Array<Showtime>>;
   listByDate(

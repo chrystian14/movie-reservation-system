@@ -1,41 +1,41 @@
-import { RoomRepository, type IRoomRepository } from "modules/rooms/repository";
-import { SeatRepository, type ISeatRepository } from "modules/seats/repository";
+import { RoomDao, type IRoomDao } from "modules/rooms/dao";
+import { SeatDao, type ISeatDao } from "modules/seats/dao";
 import type { SeatCreateInput } from "modules/seats/types";
 import type { ISeatService } from "../../seat.service.interface";
 import { SeatService } from "../../seat.service";
 import { SeatBuilder } from "modules/seats/builder";
 
-jest.mock("modules/rooms/repository/room.repository.ts");
-jest.mock("modules/seats/repository/seat.repository.ts");
+jest.mock("modules/rooms/dao/room.dao.ts");
+jest.mock("modules/seats/dao/seat.dao.ts");
 
 describe("UNIT: SeatService.create", () => {
   let seatCreateInput: SeatCreateInput;
   let seatService: ISeatService;
 
-  let mockedSeatRepository: jest.Mocked<ISeatRepository>;
-  let mockedRoomRepository: jest.Mocked<IRoomRepository>;
+  let mockedSeatDao: jest.Mocked<ISeatDao>;
+  let mockedRoomDao: jest.Mocked<IRoomDao>;
 
   beforeEach(() => {
-    mockedSeatRepository = jest.mocked(new SeatRepository());
-    mockedRoomRepository = jest.mocked(new RoomRepository());
+    mockedSeatDao = jest.mocked(new SeatDao());
+    mockedRoomDao = jest.mocked(new RoomDao());
 
     seatCreateInput = new SeatBuilder().requiredForCreation();
 
-    seatService = new SeatService(mockedSeatRepository, mockedRoomRepository);
+    seatService = new SeatService(mockedSeatDao, mockedRoomDao);
   });
 
   test("should throw an error if creating a seat with non-existent room id", async () => {
-    mockedRoomRepository.countById.mockResolvedValue(0);
+    mockedRoomDao.countById.mockResolvedValue(0);
 
     await expect(seatService.create(seatCreateInput)).rejects.toThrow(
       "Room not found"
     );
 
-    expect(mockedRoomRepository.countById).toHaveBeenCalledTimes(1);
-    expect(mockedRoomRepository.countById).toHaveBeenCalledWith(
+    expect(mockedRoomDao.countById).toHaveBeenCalledTimes(1);
+    expect(mockedRoomDao.countById).toHaveBeenCalledWith(
       seatCreateInput.roomId
     );
 
-    expect(mockedSeatRepository.create).not.toHaveBeenCalled();
+    expect(mockedSeatDao.create).not.toHaveBeenCalled();
   });
 });

@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { MovieController } from "./controller";
 import { MovieService } from "./service";
-import { MovieRepository } from "./repository";
-import { GenreRepository } from "modules/genres/repository";
+import { MovieDao } from "./dao";
+import { GenreDao } from "modules/genres/dao";
 import { isAdmin, isAuthenticated } from "modules/auth/middlewares";
 import { validateBody } from "modules/_shared/middlewares";
 import {
@@ -12,9 +12,9 @@ import {
 
 export const movieRouter = Router();
 
-const movieRepository = new MovieRepository();
-const genreRepository = new GenreRepository();
-const movieService = new MovieService(movieRepository, genreRepository);
+const movieDao = new MovieDao();
+const genreDao = new GenreDao();
+const movieService = new MovieService(movieDao, genreDao);
 const movieController = new MovieController(movieService);
 
 movieRouter.post(

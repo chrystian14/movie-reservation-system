@@ -5,15 +5,12 @@ import { apiClient } from "modules/_shared/tests";
 import { status } from "modules/_shared/utils";
 import { generateToken } from "modules/auth/jwt";
 import { GenreBuilder } from "modules/genres/builder";
-import {
-  GenreRepository,
-  type IGenreRepository,
-} from "modules/genres/repository";
+import { GenreDao, type IGenreDao } from "modules/genres/dao";
 import type { Genre } from "modules/genres/types";
 import { MovieBuilder } from "modules/movies/builder";
 import { type Movie, type MovieCreateInput } from "modules/movies/types";
 import { UserBuilder } from "modules/users/builder";
-import { UserRepository } from "modules/users/repository";
+import { UserDao } from "modules/users/dao";
 
 describe("INTEGRATION: MovieControler.create - POST /api/v1/movies", () => {
   const movieEndpoint = "/api/v1/movies";
@@ -22,7 +19,7 @@ describe("INTEGRATION: MovieControler.create - POST /api/v1/movies", () => {
   let movieWithValidGenre: MovieCreateInput;
 
   let genreBuilder: GenreBuilder;
-  let genreRepository: IGenreRepository;
+  let genreDao: IGenreDao;
   let createdGenre: Genre;
 
   let regularUserToken: string;
@@ -32,21 +29,21 @@ describe("INTEGRATION: MovieControler.create - POST /api/v1/movies", () => {
     await clearDatabase();
 
     genreBuilder = new GenreBuilder();
-    genreRepository = new GenreRepository();
-    createdGenre = await genreBuilder.save(genreRepository);
+    genreDao = new GenreDao();
+    createdGenre = await genreBuilder.save(genreDao);
 
     movieBuilder = new MovieBuilder();
     movieWithValidGenre = movieBuilder
       .withGenreId(createdGenre.id)
       .requiredForCreation();
 
-    const userRepository = new UserRepository();
+    const userDao = new UserDao();
     const regularUserBuilder = new UserBuilder().withNonAdminRole();
-    const regularUser = await regularUserBuilder.save(userRepository);
+    const regularUser = await regularUserBuilder.save(userDao);
     regularUserToken = generateToken(regularUser);
 
     const adminUserBuilder = new UserBuilder().withAdminRole();
-    const adminUser = await adminUserBuilder.save(userRepository);
+    const adminUser = await adminUserBuilder.save(userDao);
     adminUserToken = generateToken(adminUser);
   });
 

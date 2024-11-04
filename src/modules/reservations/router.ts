@@ -1,26 +1,26 @@
 import { Router } from "express";
 import { ReservationController } from "./controller";
 import { ReservationService } from "./service";
-import { ReservationRepository } from "./repository";
+import { ReservationDao } from "./dao";
 import { isAuthenticated } from "modules/auth/middlewares";
 import { validateBody } from "modules/_shared/middlewares";
 import { reservationCreateWithoutUserSchema } from "./types/schemas";
-import { ShowtimeRepository } from "modules/showtimes/repository";
-import { SeatRepository } from "modules/seats/repository";
-import { UserRepository } from "modules/users/repository";
+import { ShowtimeDao } from "modules/showtimes/dao";
+import { SeatDao } from "modules/seats/dao";
+import { UserDao } from "modules/users/dao";
 
 export const reservationRouter = Router();
 
-const showtimeRepository = new ShowtimeRepository();
-const seatRepository = new SeatRepository();
-const userRepository = new UserRepository();
-const reservationRepository = new ReservationRepository();
+const showtimeDao = new ShowtimeDao();
+const seatDao = new SeatDao();
+const userDao = new UserDao();
+const reservationDao = new ReservationDao();
 
 const reservationService = new ReservationService(
-  reservationRepository,
-  showtimeRepository,
-  seatRepository,
-  userRepository
+  reservationDao,
+  showtimeDao,
+  seatDao,
+  userDao
 );
 const reservationController = new ReservationController(reservationService);
 

@@ -4,22 +4,22 @@ import { apiClient } from "modules/_shared/tests";
 import { status } from "modules/_shared/utils";
 import { generateToken } from "modules/auth/jwt";
 import { GenreBuilder } from "modules/genres/builder";
-import { GenreRepository } from "modules/genres/repository";
+import { GenreDao } from "modules/genres/dao";
 import { MovieBuilder } from "modules/movies/builder";
-import { MovieRepository } from "modules/movies/repository";
+import { MovieDao } from "modules/movies/dao";
 import type { Movie } from "modules/movies/types";
 import { ReservationBuilder } from "modules/reservations/builder";
-import { ReservationRepository } from "modules/reservations/repository";
+import { ReservationDao } from "modules/reservations/dao";
 import { RoomBuilder } from "modules/rooms/builder";
-import { RoomRepository } from "modules/rooms/repository";
+import { RoomDao } from "modules/rooms/dao";
 import type { Room } from "modules/rooms/types";
 import { SeatBuilder } from "modules/seats/builder";
-import { SeatRepository, type ISeatRepository } from "modules/seats/repository";
+import { SeatDao, type ISeatDao } from "modules/seats/dao";
 import { ShowtimeBuilder } from "modules/showtimes/builder";
-import { ShowtimeRepository } from "modules/showtimes/repository";
+import { ShowtimeDao } from "modules/showtimes/dao";
 import type { Showtime } from "modules/showtimes/types";
 import { UserBuilder } from "modules/users/builder";
-import { UserRepository } from "modules/users/repository";
+import { UserDao } from "modules/users/dao";
 import type { User } from "modules/users/types";
 
 describe("INTEGRATION: ShowtimeControler.getAvailableSeats - GET /api/v1/showtimes/:id/available-seats", () => {
@@ -33,35 +33,33 @@ describe("INTEGRATION: ShowtimeControler.getAvailableSeats - GET /api/v1/showtim
   let createdMovie: Movie;
   let createdRoom: Room;
 
-  let seatRepository: ISeatRepository;
+  let seatDao: ISeatDao;
 
   beforeEach(async () => {
     await clearDatabase();
 
-    seatRepository = new SeatRepository();
+    seatDao = new SeatDao();
 
-    const userRepository = new UserRepository();
-    regularUser = await new UserBuilder()
-      .withNonAdminRole()
-      .save(userRepository);
+    const userDao = new UserDao();
+    regularUser = await new UserBuilder().withNonAdminRole().save(userDao);
     regularUserToken = generateToken(regularUser);
 
-    const createdGenre = await new GenreBuilder().save(new GenreRepository());
+    const createdGenre = await new GenreBuilder().save(new GenreDao());
 
     createdMovie = await new MovieBuilder()
       .withGenreId(createdGenre.id)
-      .save(new MovieRepository());
+      .save(new MovieDao());
 
     ({ room: createdRoom } = await new RoomBuilder().save(
-      new RoomRepository(),
-      new SeatRepository()
+      new RoomDao(),
+      new SeatDao()
     ));
 
     // showtimeBuilder = new ShowtimeBuilder();
     createdShowtime = await new ShowtimeBuilder()
       .withMovieId(createdMovie.id)
       .withRoomId(createdRoom.id)
-      .save(new ShowtimeRepository());
+      .save(new ShowtimeDao());
   });
 
   test("should return a 401 when user is not authenticated", async () => {
@@ -97,7 +95,7 @@ describe("INTEGRATION: ShowtimeControler.getAvailableSeats - GET /api/v1/showtim
       .get(getAvailableSeatsEndpoint)
       .set("Authorization", `Bearer ${regularUserToken}`);
 
-    const showtimeSeats = await seatRepository.getAllSeatsByShowtimeId(
+    const showtimeSeats = await seatDao.getAllSeatsByShowtimeId(
       createdShowtime.id
     );
 
@@ -115,11 +113,11 @@ describe("INTEGRATION: ShowtimeControler.getAvailableSeats - GET /api/v1/showtim
   test("should return only available seats when reservations exist for the showtime", async () => {
     const firstSeatToReserve = await new SeatBuilder()
       .withRoomId(createdRoom.id)
-      .save(seatRepository);
+      .save(seatDao);
 
     const secondSeatToReserve = await new SeatBuilder()
       .withRoomId(createdRoom.id)
-      .save(seatRepository);
+      .save(seatDao);
 
     const seatIdsToReserve: [string, ...string[]] = [
       firstSeatToReserve.id,
@@ -130,9 +128,9 @@ describe("INTEGRATION: ShowtimeControler.getAvailableSeats - GET /api/v1/showtim
       .withUserId(regularUser.id)
       .withShowtimeId(createdShowtime.id)
       .withSeatIds(seatIdsToReserve)
-      .save(new ReservationRepository());
+      .save(new ReservationDao());
 
-    const showtimeSeats = await seatRepository.getAllSeatsByShowtimeId(
+    const showtimeSeats = await seatDao.getAllSeatsByShowtimeId(
       createdShowtime.id
     );
 

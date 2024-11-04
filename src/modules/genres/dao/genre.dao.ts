@@ -1,8 +1,8 @@
 import type { Genre, GenreCreateInput } from "../types";
-import type { IGenreRepository } from "./genre.repository.interface";
+import type { IGenreDao } from "./genre.dao.interface";
 import { prisma } from "configs/prisma-client.config";
 
-export class GenreRepository implements IGenreRepository {
+export class GenreDao implements IGenreDao {
   async create(genreCreateInput: GenreCreateInput): Promise<Genre> {
     return await prisma.genre.create({
       data: genreCreateInput,

@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import type { User, UserCreateInput } from "../types";
-import type { IUserRepository } from "../repository";
+import type { IUserDao } from "../dao";
 import { hashPassword } from "../utils";
 import { Chance } from "chance";
 import type { FixedLengthArray } from "modules/_shared/utils/types.util";
@@ -43,20 +43,20 @@ export class UserBuilder {
     return this.entities as FixedLengthArray<User, Length>;
   }
 
-  async save(repository: IUserRepository) {
+  async save(dao: IUserDao) {
     const hashedPassword = await hashPassword(this.entity.password);
 
-    return await repository.create({
+    return await dao.create({
       ...this.entity,
       password: hashedPassword,
     });
   }
 
-  async saveAll(repository: IUserRepository) {
+  async saveAll(dao: IUserDao) {
     const savedUsers = [];
     for (const user of this.entities) {
       const hashedPassword = await hashPassword(user.password);
-      const savedUser = await repository.create({
+      const savedUser = await dao.create({
         ...user,
         password: hashedPassword,
       });

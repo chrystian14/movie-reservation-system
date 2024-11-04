@@ -1,9 +1,9 @@
 import { ReservationStatus } from "@prisma/client";
 import type { Reservation, ReservationCreateInput } from "../types";
-import type { IReservationRepository } from "./reservation.repository.interface";
+import type { IReservationDao } from "./reservation.dao.interface";
 import { prisma } from "configs/prisma-client.config";
 
-export class ReservationRepository implements IReservationRepository {
+export class ReservationDao implements IReservationDao {
   async count(): Promise<number> {
     return await prisma.reservation.count();
   }

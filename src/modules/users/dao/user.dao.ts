@@ -1,8 +1,8 @@
 import type { User, UserCreateInput } from "../types";
-import type { IUserRepository } from "./user.repository.interface";
+import type { IUserDao } from "./user.dao.interface";
 import { prisma } from "configs/prisma-client.config";
 
-export class UserRepository implements IUserRepository {
+export class UserDao implements IUserDao {
   async create(userCreateInput: UserCreateInput): Promise<User> {
     return await prisma.user.create({
       data: userCreateInput,

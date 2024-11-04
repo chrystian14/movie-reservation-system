@@ -1,33 +1,30 @@
 import { GenreService, type IGenreService } from "modules/genres/service";
-import {
-  GenreRepository,
-  type IGenreRepository,
-} from "modules/genres/repository";
+import { GenreDao, type IGenreDao } from "modules/genres/dao";
 import { randomUUID } from "crypto";
 
-jest.mock("modules/genres/repository/genre.repository.ts");
+jest.mock("modules/genres/dao/genre.dao.ts");
 
 describe("UNIT: GenreService.delete", () => {
   let genreService: IGenreService;
 
-  let mockedGenreRepository: jest.Mocked<IGenreRepository>;
+  let mockedGenreDao: jest.Mocked<IGenreDao>;
 
   beforeEach(() => {
-    mockedGenreRepository = jest.mocked(new GenreRepository());
-    genreService = new GenreService(mockedGenreRepository);
+    mockedGenreDao = jest.mocked(new GenreDao());
+    genreService = new GenreService(mockedGenreDao);
   });
 
   test("should throw an error if deleting a genre with non-existing id", async () => {
-    mockedGenreRepository.countById.mockResolvedValueOnce(0);
+    mockedGenreDao.countById.mockResolvedValueOnce(0);
 
     const mockedGenreId = randomUUID();
     await expect(genreService.delete(mockedGenreId)).rejects.toThrow(
       "Genre not found"
     );
 
-    expect(mockedGenreRepository.countById).toHaveBeenCalledTimes(1);
-    expect(mockedGenreRepository.countById).toHaveBeenCalledWith(mockedGenreId);
+    expect(mockedGenreDao.countById).toHaveBeenCalledTimes(1);
+    expect(mockedGenreDao.countById).toHaveBeenCalledWith(mockedGenreId);
 
-    expect(mockedGenreRepository.delete).not.toHaveBeenCalled();
+    expect(mockedGenreDao.delete).not.toHaveBeenCalled();
   });
 });

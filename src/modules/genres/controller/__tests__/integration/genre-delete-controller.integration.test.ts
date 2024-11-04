@@ -3,12 +3,12 @@ import { randomUUID } from "crypto";
 import { apiClient } from "modules/_shared/tests";
 import { status } from "modules/_shared/utils";
 import { generateToken } from "modules/auth/jwt";
-import { type IGenreRepository } from "modules/genres/repository";
+import { type IGenreDao } from "modules/genres/dao";
 import { GenreBuilder } from "modules/genres/builder";
-import { GenreRepository } from "modules/genres/repository";
+import { GenreDao } from "modules/genres/dao";
 import { type Genre } from "modules/genres/types";
 import { UserBuilder } from "modules/users/builder";
-import { UserRepository } from "modules/users/repository";
+import { UserDao } from "modules/users/dao";
 
 describe("INTEGRATION: GenreControler.delete - DEL /api/v1/genres/{id}", () => {
   const genreEndpoint = "/api/v1/genres";
@@ -16,25 +16,23 @@ describe("INTEGRATION: GenreControler.delete - DEL /api/v1/genres/{id}", () => {
   let regularUserToken: string;
   let adminUserToken: string;
 
-  let genreRepository: IGenreRepository;
+  let genreDao: IGenreDao;
   let createdGenre: Genre;
 
   beforeEach(async () => {
     await clearDatabase();
 
-    const userRepository = new UserRepository();
+    const userDao = new UserDao();
     const regularUser = await new UserBuilder()
       .withNonAdminRole()
-      .save(userRepository);
+      .save(userDao);
     regularUserToken = generateToken(regularUser);
 
-    const adminUser = await new UserBuilder()
-      .withAdminRole()
-      .save(userRepository);
+    const adminUser = await new UserBuilder().withAdminRole().save(userDao);
     adminUserToken = generateToken(adminUser);
 
-    genreRepository = new GenreRepository();
-    createdGenre = await new GenreBuilder().save(genreRepository);
+    genreDao = new GenreDao();
+    createdGenre = await new GenreBuilder().save(genreDao);
   });
 
   test("should return a 401 when user is not authenticated", async () => {
@@ -49,7 +47,7 @@ describe("INTEGRATION: GenreControler.delete - DEL /api/v1/genres/{id}", () => {
     expect(response.statusCode).toBe(status.HTTP_401_UNAUTHORIZED);
     expect(response.body).toEqual(expectedResponseBody);
 
-    const genreCount = await genreRepository.countById(createdGenre.id);
+    const genreCount = await genreDao.countById(createdGenre.id);
     expect(genreCount).toBe(1);
   });
 
@@ -65,7 +63,7 @@ describe("INTEGRATION: GenreControler.delete - DEL /api/v1/genres/{id}", () => {
     expect(response.statusCode).toBe(status.HTTP_403_FORBIDDEN);
     expect(response.body).toEqual(expectedResponseBody);
 
-    const genreCount = await genreRepository.countById(createdGenre.id);
+    const genreCount = await genreDao.countById(createdGenre.id);
     expect(genreCount).toBe(1);
   });
 
@@ -82,7 +80,7 @@ describe("INTEGRATION: GenreControler.delete - DEL /api/v1/genres/{id}", () => {
     expect(response.statusCode).toBe(status.HTTP_404_NOT_FOUND);
     expect(response.body).toEqual(expectedResponseBody);
 
-    const genreCount = await genreRepository.countById(createdGenre.id);
+    const genreCount = await genreDao.countById(createdGenre.id);
     expect(genreCount).toBe(1);
   });
 
@@ -93,7 +91,7 @@ describe("INTEGRATION: GenreControler.delete - DEL /api/v1/genres/{id}", () => {
 
     expect(response.statusCode).toBe(status.HTTP_204_NO_CONTENT);
 
-    const genreCount = await genreRepository.countById(createdGenre.id);
+    const genreCount = await genreDao.countById(createdGenre.id);
     expect(genreCount).toBe(0);
   });
 });

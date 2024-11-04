@@ -1,9 +1,9 @@
 import { ReservationStatus } from "@prisma/client";
 import type { Seat, SeatCreateInput } from "../types";
-import type { ISeatRepository } from "./seat.repository.interface";
+import type { ISeatDao } from "./seat.dao.interface";
 import { prisma } from "configs/prisma-client.config";
 
-export class SeatRepository implements ISeatRepository {
+export class SeatDao implements ISeatDao {
   async create(seatCreateInput: SeatCreateInput): Promise<Seat> {
     return await prisma.seat.create({
       data: seatCreateInput,

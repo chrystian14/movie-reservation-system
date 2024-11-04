@@ -1,8 +1,8 @@
 import type { Showtime, ShowtimeCreateInput } from "../types";
-import type { IShowtimeRepository } from "./showtime.repository.interface";
+import type { IShowtimeDao } from "./showtime.dao.interface";
 import { prisma } from "configs/prisma-client.config";
 
-export class ShowtimeRepository implements IShowtimeRepository {
+export class ShowtimeDao implements IShowtimeDao {
   async create(showtimeCreateInput: ShowtimeCreateInput): Promise<Showtime> {
     return await prisma.showtime.create({
       data: showtimeCreateInput,

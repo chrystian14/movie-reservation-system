@@ -3,11 +3,11 @@ import { apiClient } from "modules/_shared/tests";
 import { status, toDecimal } from "modules/_shared/utils";
 import { generateToken } from "modules/auth/jwt";
 import { RoomBuilder } from "modules/rooms/builder";
-import { RoomRepository, type IRoomRepository } from "modules/rooms/repository";
+import { RoomDao, type IRoomDao } from "modules/rooms/dao";
 import { type Room } from "modules/rooms/types";
-import { SeatRepository, type ISeatRepository } from "modules/seats/repository";
+import { SeatDao, type ISeatDao } from "modules/seats/dao";
 import { UserBuilder } from "modules/users/builder";
-import { UserRepository } from "modules/users/repository";
+import { UserDao } from "modules/users/dao";
 
 describe("INTEGRATION: RoomControler.create - POST /api/v1/rooms", () => {
   const roomEndpoint = "/api/v1/rooms";
@@ -15,22 +15,22 @@ describe("INTEGRATION: RoomControler.create - POST /api/v1/rooms", () => {
   let regularUserToken: string;
   let adminUserToken: string;
 
-  let roomRepository: IRoomRepository;
-  let seatRepository: ISeatRepository;
+  let roomDao: IRoomDao;
+  let seatDao: ISeatDao;
 
   beforeEach(async () => {
     await clearDatabase();
 
-    seatRepository = new SeatRepository();
-    roomRepository = new RoomRepository();
+    seatDao = new SeatDao();
+    roomDao = new RoomDao();
 
-    const userRepository = new UserRepository();
+    const userDao = new UserDao();
     const regularUserBuilder = new UserBuilder().withNonAdminRole();
-    const regularUser = await regularUserBuilder.save(userRepository);
+    const regularUser = await regularUserBuilder.save(userDao);
     regularUserToken = generateToken(regularUser);
 
     const adminUserBuilder = new UserBuilder().withAdminRole();
-    const adminUser = await adminUserBuilder.save(userRepository);
+    const adminUser = await adminUserBuilder.save(userDao);
     adminUserToken = generateToken(adminUser);
   });
 
@@ -48,7 +48,7 @@ describe("INTEGRATION: RoomControler.create - POST /api/v1/rooms", () => {
     expect(response.statusCode).toBe(status.HTTP_401_UNAUTHORIZED);
     expect(response.body).toEqual(expectedResponseBody);
 
-    const roomCount = await roomRepository.count();
+    const roomCount = await roomDao.count();
     expect(roomCount).toBe(0);
   });
 
@@ -67,7 +67,7 @@ describe("INTEGRATION: RoomControler.create - POST /api/v1/rooms", () => {
     expect(response.statusCode).toBe(status.HTTP_403_FORBIDDEN);
     expect(response.body).toEqual(expectedResponseBody);
 
-    const roomCount = await roomRepository.count();
+    const roomCount = await roomDao.count();
     expect(roomCount).toBe(0);
   });
 
@@ -93,7 +93,7 @@ describe("INTEGRATION: RoomControler.create - POST /api/v1/rooms", () => {
     expect(response.status).toBe(status.HTTP_400_BAD_REQUEST);
     expect(response.body).toEqual(expectedResponseBody);
 
-    const roomCount = await roomRepository.count();
+    const roomCount = await roomDao.count();
     expect(roomCount).toBe(0);
   });
 });

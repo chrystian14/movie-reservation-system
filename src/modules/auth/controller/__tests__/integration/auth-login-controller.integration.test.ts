@@ -3,12 +3,12 @@ import { clearDatabase } from "modules/_shared/tests/clear-database";
 import { status } from "modules/_shared/utils";
 import type { LoginInput } from "modules/auth/types";
 import { UserBuilder } from "modules/users/builder";
-import { UserRepository, type IUserRepository } from "modules/users/repository";
+import { UserDao, type IUserDao } from "modules/users/dao";
 
 describe("INTEGRATION: AuthController.login - POST /api/v1/login", () => {
   const authEndpoint = "/api/v1/login";
 
-  let userRepository: IUserRepository;
+  let userDao: IUserDao;
   let userBuilder: UserBuilder;
 
   let validLoginInput: LoginInput;
@@ -16,13 +16,13 @@ describe("INTEGRATION: AuthController.login - POST /api/v1/login", () => {
   beforeEach(async () => {
     await clearDatabase();
 
-    userRepository = new UserRepository();
+    userDao = new UserDao();
 
     userBuilder = new UserBuilder();
     const userData = userBuilder.build();
     validLoginInput = { email: userData.email, password: userData.password };
 
-    await userBuilder.save(userRepository);
+    await userBuilder.save(userDao);
   });
 
   test("should return a 401 if the user email is not found", async () => {

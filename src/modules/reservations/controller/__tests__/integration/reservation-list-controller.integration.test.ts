@@ -4,22 +4,19 @@ import { apiClient } from "modules/_shared/tests";
 import { status } from "modules/_shared/utils";
 import { generateToken } from "modules/auth/jwt";
 import { GenreBuilder } from "modules/genres/builder";
-import { GenreRepository } from "modules/genres/repository";
+import { GenreDao } from "modules/genres/dao";
 import { MovieBuilder } from "modules/movies/builder";
-import { MovieRepository } from "modules/movies/repository";
+import { MovieDao } from "modules/movies/dao";
 import { ReservationBuilder } from "modules/reservations/builder";
-import {
-  ReservationRepository,
-  type IReservationRepository,
-} from "modules/reservations/repository";
+import { ReservationDao, type IReservationDao } from "modules/reservations/dao";
 import { RoomBuilder } from "modules/rooms/builder";
-import { RoomRepository } from "modules/rooms/repository";
-import { SeatRepository } from "modules/seats/repository";
+import { RoomDao } from "modules/rooms/dao";
+import { SeatDao } from "modules/seats/dao";
 import type { Seat } from "modules/seats/types";
 import { ShowtimeBuilder } from "modules/showtimes/builder";
-import { ShowtimeRepository } from "modules/showtimes/repository";
+import { ShowtimeDao } from "modules/showtimes/dao";
 import { UserBuilder } from "modules/users/builder";
-import { UserRepository } from "modules/users/repository";
+import { UserDao } from "modules/users/dao";
 import type { User } from "modules/users/types";
 
 describe("INTEGRATION: ReservationControler.list - GET /api/v1/reservations", () => {
@@ -35,33 +32,33 @@ describe("INTEGRATION: ReservationControler.list - GET /api/v1/reservations", ()
 
   let savedShowtimeOne: Showtime;
 
-  let reservationRepository: IReservationRepository;
+  let reservationDao: IReservationDao;
 
   beforeEach(async () => {
     await clearDatabase();
 
-    const userRepository = new UserRepository();
+    const userDao = new UserDao();
     const regularUserOneBuilder = new UserBuilder().withNonAdminRole();
-    regularUserOne = await regularUserOneBuilder.save(userRepository);
+    regularUserOne = await regularUserOneBuilder.save(userDao);
     regularUserOneToken = generateToken(regularUserOne);
 
     const regularUserTwoBuilder = new UserBuilder().withNonAdminRole();
-    regularUserTwo = await regularUserTwoBuilder.save(userRepository);
+    regularUserTwo = await regularUserTwoBuilder.save(userDao);
 
-    const createdGenre = await new GenreBuilder().save(new GenreRepository());
+    const createdGenre = await new GenreBuilder().save(new GenreDao());
     const createdMovie = await new MovieBuilder()
       .withGenreId(createdGenre.id)
-      .save(new MovieRepository());
+      .save(new MovieDao());
 
     ({ room: savedRoomOne, seats: savedSeatsForRoomOne } =
       await new RoomBuilder()
         .generateSeats(5, 5)
-        .save(new RoomRepository(), new SeatRepository()));
+        .save(new RoomDao(), new SeatDao()));
 
     savedShowtimeOne = await new ShowtimeBuilder()
       .withMovieId(createdMovie.id)
       .withRoomId(savedRoomOne.id)
-      .save(new ShowtimeRepository());
+      .save(new ShowtimeDao());
   });
 
   test("should return a 401 when user is not authenticated", async () => {
@@ -84,19 +81,19 @@ describe("INTEGRATION: ReservationControler.list - GET /api/v1/reservations", ()
       ..._seatsRest
     ] = savedSeatsForRoomOne;
 
-    reservationRepository = new ReservationRepository();
+    reservationDao = new ReservationDao();
 
     const userOneReservations = await new ReservationBuilder()
       .withUserId(regularUserOne.id)
       .withSeatIds([userOneSeatOne.id, userOneSeatTwo.id])
       .withShowtimeId(savedShowtimeOne.id)
-      .save(reservationRepository);
+      .save(reservationDao);
 
     await new ReservationBuilder()
       .withUserId(regularUserTwo.id)
       .withSeatIds([userTwoSeatOne.id, userTwoSeatTwo.id])
       .withShowtimeId(savedShowtimeOne.id)
-      .save(reservationRepository);
+      .save(reservationDao);
 
     const response = await apiClient
       .get(reservationEndpoint)
@@ -118,7 +115,7 @@ describe("INTEGRATION: ReservationControler.list - GET /api/v1/reservations", ()
   test("should return all reservations when user is admin", async () => {
     const adminUser = await new UserBuilder()
       .withAdminRole()
-      .save(new UserRepository());
+      .save(new UserDao());
     const adminToken = generateToken(adminUser);
 
     const [
@@ -129,19 +126,19 @@ describe("INTEGRATION: ReservationControler.list - GET /api/v1/reservations", ()
       ..._seatsRest
     ] = savedSeatsForRoomOne;
 
-    reservationRepository = new ReservationRepository();
+    reservationDao = new ReservationDao();
 
     const userOneReservations = await new ReservationBuilder()
       .withUserId(regularUserOne.id)
       .withSeatIds([userOneSeatOne.id, userOneSeatTwo.id])
       .withShowtimeId(savedShowtimeOne.id)
-      .save(reservationRepository);
+      .save(reservationDao);
 
     const userTwoReservations = await new ReservationBuilder()
       .withUserId(regularUserTwo.id)
       .withSeatIds([userTwoSeatOne.id, userTwoSeatTwo.id])
       .withShowtimeId(savedShowtimeOne.id)
-      .save(reservationRepository);
+      .save(reservationDao);
 
     const response = await apiClient
       .get(reservationEndpoint)

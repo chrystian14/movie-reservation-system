@@ -1,8 +1,8 @@
 import type { Movie, MovieCreateInput, MovieUpdateInput } from "../types";
-import type { IMovieRepository } from "./movie.repository.interface";
+import type { IMovieDao } from "./movie.dao.interface";
 import { prisma } from "configs/prisma-client.config";
 
-export class MovieRepository implements IMovieRepository {
+export class MovieDao implements IMovieDao {
   async create(movieCreateInput: MovieCreateInput): Promise<Movie> {
     return await prisma.movie.create({
       data: movieCreateInput,

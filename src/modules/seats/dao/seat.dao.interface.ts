@@ -1,6 +1,6 @@
 import type { Seat, SeatCreateInput } from "../types";
 
-export interface ISeatRepository {
+export interface ISeatDao {
   create(seatCreateInput: SeatCreateInput): Promise<Seat>;
   countByRoomId(roomId: string): Promise<number>;
   getAllSeatsByShowtimeId(showtimeId: string): Promise<Array<Seat>>;

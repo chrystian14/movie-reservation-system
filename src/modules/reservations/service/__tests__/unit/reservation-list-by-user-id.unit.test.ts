@@ -1,48 +1,42 @@
-import {
-  ReservationRepository,
-  type IReservationRepository,
-} from "modules/reservations/repository";
+import { ReservationDao, type IReservationDao } from "modules/reservations/dao";
 import {
   ReservationService,
   type IReservationService,
 } from "modules/reservations/service";
-import {
-  ShowtimeRepository,
-  type IShowtimeRepository,
-} from "modules/showtimes/repository";
-import { SeatRepository, type ISeatRepository } from "modules/seats/repository";
-import { UserRepository, type IUserRepository } from "modules/users/repository";
+import { ShowtimeDao, type IShowtimeDao } from "modules/showtimes/dao";
+import { SeatDao, type ISeatDao } from "modules/seats/dao";
+import { UserDao, type IUserDao } from "modules/users/dao";
 import { randomUUID } from "crypto";
 
-jest.mock("modules/reservations/repository/reservation.repository.ts");
-jest.mock("modules/showtimes/repository/showtime.repository.ts");
-jest.mock("modules/seats/repository/seat.repository.ts");
-jest.mock("modules/users/repository/user.repository.ts");
+jest.mock("modules/reservations/dao/reservation.dao.ts");
+jest.mock("modules/showtimes/dao/showtime.dao.ts");
+jest.mock("modules/seats/dao/seat.dao.ts");
+jest.mock("modules/users/dao/user.dao.ts");
 
 describe("UNIT: ReservationService.listByUserId", () => {
   let reservationService: IReservationService;
 
-  let mockedReservationRepository: jest.Mocked<IReservationRepository>;
-  let mockedShowtimeRepository: jest.Mocked<IShowtimeRepository>;
-  let mockedSeatRepository: jest.Mocked<ISeatRepository>;
-  let mockedUserRepository: jest.Mocked<IUserRepository>;
+  let mockedReservationDao: jest.Mocked<IReservationDao>;
+  let mockedShowtimeDao: jest.Mocked<IShowtimeDao>;
+  let mockedSeatDao: jest.Mocked<ISeatDao>;
+  let mockedUserDao: jest.Mocked<IUserDao>;
 
   beforeEach(() => {
-    mockedReservationRepository = jest.mocked(new ReservationRepository());
-    mockedShowtimeRepository = jest.mocked(new ShowtimeRepository());
-    mockedSeatRepository = jest.mocked(new SeatRepository());
-    mockedUserRepository = jest.mocked(new UserRepository());
+    mockedReservationDao = jest.mocked(new ReservationDao());
+    mockedShowtimeDao = jest.mocked(new ShowtimeDao());
+    mockedSeatDao = jest.mocked(new SeatDao());
+    mockedUserDao = jest.mocked(new UserDao());
 
     reservationService = new ReservationService(
-      mockedReservationRepository,
-      mockedShowtimeRepository,
-      mockedSeatRepository,
-      mockedUserRepository
+      mockedReservationDao,
+      mockedShowtimeDao,
+      mockedSeatDao,
+      mockedUserDao
     );
   });
 
   test("should throw an error if listing a reservation with non-existing user id", async () => {
-    mockedUserRepository.countById.mockResolvedValueOnce(0);
+    mockedUserDao.countById.mockResolvedValueOnce(0);
 
     const mockedUserId = randomUUID();
 
@@ -50,9 +44,9 @@ describe("UNIT: ReservationService.listByUserId", () => {
       "User not found"
     );
 
-    expect(mockedUserRepository.countById).toHaveBeenCalledTimes(1);
-    expect(mockedUserRepository.countById).toHaveBeenCalledWith(mockedUserId);
+    expect(mockedUserDao.countById).toHaveBeenCalledTimes(1);
+    expect(mockedUserDao.countById).toHaveBeenCalledWith(mockedUserId);
 
-    expect(mockedReservationRepository.listByUserId).not.toHaveBeenCalled();
+    expect(mockedReservationDao.listByUserId).not.toHaveBeenCalled();
   });
 });

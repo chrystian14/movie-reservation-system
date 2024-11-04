@@ -1,18 +1,18 @@
 import { AuthService } from "modules/auth/service";
 import { UserBuilder } from "modules/users/builder";
-import { UserRepository, type IUserRepository } from "modules/users/repository";
+import { UserDao, type IUserDao } from "modules/users/dao";
 import * as passwordHashing from "modules/users/utils/password-hashing";
 import jwt from "jsonwebtoken";
 
-jest.mock("modules/users/repository/user.repository.ts");
+jest.mock("modules/users/dao/user.dao.ts");
 
 describe("UNIT: AuthService.login", () => {
   let authService: AuthService;
-  let mockedUserRepository: jest.Mocked<IUserRepository>;
+  let mockedUserDao: jest.Mocked<IUserDao>;
 
   beforeEach(async () => {
-    mockedUserRepository = jest.mocked(new UserRepository());
-    authService = new AuthService(mockedUserRepository);
+    mockedUserDao = jest.mocked(new UserDao());
+    authService = new AuthService(mockedUserDao);
   });
 
   test("should throw an error if login-in with non registered email", async () => {
@@ -21,21 +21,21 @@ describe("UNIT: AuthService.login", () => {
       password: "1234567",
     };
 
-    mockedUserRepository.findByEmail.mockResolvedValueOnce(null);
+    mockedUserDao.findByEmail.mockResolvedValueOnce(null);
 
     await expect(
       authService.login(nonRegisteredEmailLoginData)
     ).rejects.toThrow("Invalid credentials");
 
-    expect(mockedUserRepository.findByEmail).toHaveBeenCalledTimes(1);
-    expect(mockedUserRepository.findByEmail).toHaveBeenCalledWith(
+    expect(mockedUserDao.findByEmail).toHaveBeenCalledTimes(1);
+    expect(mockedUserDao.findByEmail).toHaveBeenCalledWith(
       nonRegisteredEmailLoginData.email
     );
   });
 
   test("should throw an error if login-in with non matching password", async () => {
     const mockedUser = new UserBuilder().build();
-    mockedUserRepository.findByEmail.mockResolvedValueOnce(mockedUser);
+    mockedUserDao.findByEmail.mockResolvedValueOnce(mockedUser);
 
     const comparePasswordSpy = jest
       .spyOn(passwordHashing, "comparePassword")
@@ -50,8 +50,8 @@ describe("UNIT: AuthService.login", () => {
       authService.login(nonMatchingPasswordLoginData)
     ).rejects.toThrow("Invalid credentials");
 
-    expect(mockedUserRepository.findByEmail).toHaveBeenCalledTimes(1);
-    expect(mockedUserRepository.findByEmail).toHaveBeenCalledWith(
+    expect(mockedUserDao.findByEmail).toHaveBeenCalledTimes(1);
+    expect(mockedUserDao.findByEmail).toHaveBeenCalledWith(
       nonMatchingPasswordLoginData.email
     );
 
@@ -65,7 +65,7 @@ describe("UNIT: AuthService.login", () => {
   test("should return a token with user data and `isAdmin` flag if login-in with matching password", async () => {
     const mockedUser = new UserBuilder().build();
 
-    mockedUserRepository.findByEmail.mockResolvedValueOnce(mockedUser);
+    mockedUserDao.findByEmail.mockResolvedValueOnce(mockedUser);
     const comparePasswordSpy = jest
       .spyOn(passwordHashing, "comparePassword")
       .mockResolvedValueOnce(true);
@@ -77,8 +77,8 @@ describe("UNIT: AuthService.login", () => {
 
     const token = await authService.login(matchingPasswordLoginData);
 
-    expect(mockedUserRepository.findByEmail).toHaveBeenCalledTimes(1);
-    expect(mockedUserRepository.findByEmail).toHaveBeenCalledWith(
+    expect(mockedUserDao.findByEmail).toHaveBeenCalledTimes(1);
+    expect(mockedUserDao.findByEmail).toHaveBeenCalledWith(
       matchingPasswordLoginData.email
     );
 
