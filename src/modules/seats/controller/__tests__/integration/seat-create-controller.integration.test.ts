@@ -125,11 +125,40 @@ describe("INTEGRATION: SeatControler.create - POST /api/v1/rooms/:roomId/seats",
       details: "Room not found",
     };
 
-    // expect(response.status).toBe(status.HTTP_404_NOT_FOUND);
+    expect(response.status).toBe(status.HTTP_404_NOT_FOUND);
     expect(response.body).toStrictEqual(expectedResponseBody);
 
     const seatCount = await seatDao.count();
     expect(seatCount).toBe(0);
+  });
+
+  test("should return a 422 when creating a seat in a room with column and row already taken", async () => {
+    const columnAlreadyTaken = "A";
+    const rowAlreadyTaken = 1;
+
+    const seatBuilder = new SeatBuilder()
+      .withColumn(columnAlreadyTaken)
+      .withRow(rowAlreadyTaken)
+      .withRoomId(createdRoom.id);
+
+    await seatBuilder.save(seatDao);
+    const seatColumnAndRowAlreadyTaken = seatBuilder.requiredForPostBody();
+
+    const seatCreateEndpoint = `${roomEndpoint}/${createdRoom.id}/seats`;
+    const response = await apiClient
+      .post(seatCreateEndpoint)
+      .set("Authorization", `Bearer ${adminUserToken}`)
+      .send(seatColumnAndRowAlreadyTaken);
+
+    const expectedResponseBody = {
+      details: "Seat column and row already taken",
+    };
+
+    expect(response.status).toBe(status.HTTP_422_UNPROCESSABLE_ENTITY);
+    expect(response.body).toStrictEqual(expectedResponseBody);
+
+    const seatCount = await seatDao.count();
+    expect(seatCount).toBe(1);
   });
 
   test("should return a 201 and create a seat with admin user credentials", async () => {
