@@ -19,3 +19,9 @@ export class SeatNotInShowtimeError extends UnprocessableEntity {
     this.errors = seatsNotFound.map((seatId) => ({ seatId, message }));
   }
 }
+
+export class SeatColumnRowAlreadyTaken extends UnprocessableEntity {
+  constructor(readonly message: string = "Seat column and row already taken") {
+    super(message);
+  }
+}

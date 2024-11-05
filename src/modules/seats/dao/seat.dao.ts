@@ -20,6 +20,16 @@ export class SeatDao implements ISeatDao {
     return await prisma.seat.count();
   }
 
+  async countByColumnAndRowByRoomId(
+    column: string,
+    row: number,
+    roomId: string
+  ): Promise<number> {
+    return await prisma.seat.count({
+      where: { column, row, roomId },
+    });
+  }
+
   async scanForSeatsInRoom(
     roomId: string,
     seatIds: Array<string>

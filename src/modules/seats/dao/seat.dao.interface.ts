@@ -4,6 +4,11 @@ export interface ISeatDao {
   create(seatCreateInput: SeatCreateInput): Promise<Seat>;
   count(): Promise<number>;
   countByRoomId(roomId: string): Promise<number>;
+  countByColumnAndRowByRoomId(
+    column: string,
+    row: number,
+    roomId: string
+  ): Promise<number>;
   getAllSeatsByShowtimeId(showtimeId: string): Promise<Array<Seat>>;
   getAvailableSeats(showtimeId: string): Promise<Array<Seat>>;
   scanForSeatsInRoom(roomId: string, seatIds: Array<string>): Promise<Seat[]>;

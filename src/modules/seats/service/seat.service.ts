@@ -3,6 +3,7 @@ import type { ISeatDao } from "../dao";
 import type { Seat, SeatCreateInput } from "../types";
 import type { ISeatService } from "./seat.service.interface";
 import { RoomNotFoundError } from "modules/rooms/errors";
+import { SeatColumnRowAlreadyTaken } from "../errors/seat.errors";
 
 export class SeatService implements ISeatService {
   constructor(
@@ -15,6 +16,17 @@ export class SeatService implements ISeatService {
 
     if (!roomCount) {
       throw new RoomNotFoundError();
+    }
+
+    const seatColumnAndRowAlreadyTaken =
+      await this.seatDao.countByColumnAndRowByRoomId(
+        seatCreateInput.column,
+        seatCreateInput.row,
+        seatCreateInput.roomId
+      );
+
+    if (seatColumnAndRowAlreadyTaken) {
+      throw new SeatColumnRowAlreadyTaken();
     }
 
     return await this.seatDao.create(seatCreateInput);
