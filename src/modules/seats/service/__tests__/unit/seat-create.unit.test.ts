@@ -38,4 +38,22 @@ describe("UNIT: SeatService.create", () => {
 
     expect(mockedSeatDao.create).not.toHaveBeenCalled();
   });
+
+  test("should throw an error if seat column and row already taken", async () => {
+    mockedRoomDao.countById.mockResolvedValueOnce(1);
+    mockedSeatDao.countByColumnAndRowByRoomId.mockResolvedValueOnce(1);
+
+    await expect(seatService.create(seatCreateInput)).rejects.toThrow(
+      "Seat column and row already taken"
+    );
+
+    expect(mockedSeatDao.countByColumnAndRowByRoomId).toHaveBeenCalledTimes(1);
+    expect(mockedSeatDao.countByColumnAndRowByRoomId).toHaveBeenCalledWith(
+      seatCreateInput.column,
+      seatCreateInput.row,
+      seatCreateInput.roomId
+    );
+
+    expect(mockedSeatDao.create).not.toHaveBeenCalled();
+  });
 });
