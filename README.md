@@ -1,15 +1,28 @@
 # Sistema de Reservas de Filmes
 
-O Movie Reservation System é uma aplicação para gerenciar reservas de assentos para sessões de filmes. Este projeto utiliza TypeScript, Express, Prisma e PostgreSQL, e está configurado para ser executado com Docker.
+Aplicação para gerenciar reservas de assentos para sessões de filmes, desenvolvida com:
+
+- Desenvolvimento com TypeScript
+- API REST comExpress
+- Validação com Zod
+- ORM Prisma
+- Banco de dados PostgreSQL
+- Containerização com Docker
+- Testes com Jest / ts-jest
+- Logging com Winston e Morgan
+- Documentação com Swagger
+- Linting com Eslint
+- Formatação com Prettier
 
 ## Índice
 
 - [Instalação](#instalação)
 - [Configuração](#configuração)
 - [Subindo o ambiente com Docker](#subindo-o-ambiente-com-docker)
+  - [Seeding](#seeding)
+  - [Testes](#testes)
 - [Modelos do Prisma](#modelos-do-prisma)
-- [Operações Disponíveis](#operações-disponíveis)
-- [Ferramentas e Tecnologias](#ferramentas-e-tecnologias)
+  - [Operações Disponíveis](#operações-disponíveis)
 - [Licença](#licença)
 
 ## Instalação
@@ -33,7 +46,7 @@ cp .env.example .env
 | ---------------- | --------------------------------------------- | --------------------------------------------- |
 | DATABASE_URL     | Credenciais do banco de dados utilizado       | obrigatório somente para rodar fora do docker |
 | JWT_SECRET_KEY   | Chave secreta utilizada pela autenticação JWT | obrigatório                                   |
-| JWT_EXPIRES_IN   | Chave secreta utilizada pela autenticação JWT | obrigatório                                   |
+| JWT_EXPIRES_IN   | Tempo de expiração do token                   | obrigatório                                   |
 
 ## Subindo o ambiente com Docker
 
@@ -45,12 +58,22 @@ docker-compose up dev -d
 
 Acesse a aplicação em http://localhost:3000.
 
-## Seeding
+### Seeding
 
 Caso deseje fazer seeding de dados, execute o comando abaixo:
 
 ```bash
 docker-compose exec dev npx db seed
+```
+
+Um usuário administrador com credenciais de email `admin@admin.com` e senha `admin` será criado ao executar o seeding.
+
+### Testes
+
+Para executar os testes, execute o comando abaixo:
+
+```bash
+docker-compose up test -d
 ```
 
 ## Modelos do Prisma
@@ -111,19 +134,6 @@ A documentação completa do projeto está disponível em http://localhost:3000/
 | Listar próprias reservations | autenticado                           |
 | Listar todas as reservations | admin                                 |
 | Cancelar reservation         | autenticado (somente dono da reserva) |
-
-## Ferramentas e Tecnologias
-
-- Node.js
-- TypeScript
-- Prisma
-- Docker
-- Express
-- Jest
-- Swagger
-- ESLint
-- Winston
-- Zod
 
 ## Licença
 

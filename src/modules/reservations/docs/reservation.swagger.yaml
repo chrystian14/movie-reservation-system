@@ -46,6 +46,7 @@ paths:
       tags:
         - Reservations
       description: Cancels a reservation.
+      summary: Only reservation owner.
       security:
         - bearerAuth: []
       parameters:
