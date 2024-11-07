@@ -1,7 +1,6 @@
 import morgan from "morgan";
 import { Logger } from "./winston.logger";
 import type { Request, Response } from "express";
-import { parsedEnv } from "configs/env.config";
 
 export const customMorganLogger = morgan("combined", {
   stream: {
@@ -10,6 +9,6 @@ export const customMorganLogger = morgan("combined", {
     },
   },
   skip: (req: Request, _res: Response) => {
-    return req.baseUrl.includes("docs");
+    return req.baseUrl?.includes("docs");
   },
 });
