@@ -23,10 +23,11 @@ async function main() {
 
   // Admin user
   const ADMIN_EMAIL = "admin@admin.com";
-  const ADMIN_PASSWORD = "admin";
+  const ADMIN_PASSWORD = "admin123456";
   const savedAdminUser = new UserBuilder()
     .withEmail(ADMIN_EMAIL)
     .withPassword(ADMIN_PASSWORD)
+    .withAdminRole()
     .save(userDao);
 
   Logger.info(

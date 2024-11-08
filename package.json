@@ -10,6 +10,7 @@
     "watch": "watchy --no-init-spawn --debounce 1 -w src -- docker compose restart dev",
     "migrate:dev": "prisma migrate dev",
     "dev": "tsnd --cls --rs --respawn -r tsconfig-paths/register src/server.ts",
+    "seed:dev": "prisma db seed",
     "lint": "eslint 'src/**/*.ts'",
     "test": "jest --runInBand --verbose --expand"
   },

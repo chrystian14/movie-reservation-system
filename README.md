@@ -66,7 +66,7 @@ Caso deseje fazer seeding de dados, execute o comando abaixo:
 docker-compose exec dev npx db seed
 ```
 
-Um usuário administrador com credenciais de email `admin@admin.com` e senha `admin` será criado ao executar o seeding.
+Um usuário administrador com credenciais de email `admin@admin.com` e senha `admin123456` será criado ao executar o seeding.
 
 ### Testes
 
