@@ -12,7 +12,7 @@ import { type Movie } from "modules/movies/types";
 import { UserBuilder } from "modules/users/builder";
 import { UserDao } from "modules/users/dao";
 
-describe("INTEGRATION: MovieControler.delete - DEL /api/v1/movies/{id}", () => {
+describe("INTEGRATION: MovieController.delete - DEL /api/v1/movies/{id}", () => {
   const movieEndpoint = "/api/v1/movies";
 
   let movieBuilder: MovieBuilder;

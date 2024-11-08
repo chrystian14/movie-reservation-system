@@ -6,7 +6,7 @@ import { UserBuilder } from "modules/users/builder";
 import { UserDao, type IUserDao } from "modules/users/dao";
 import { type UserCreateInput } from "modules/users/types";
 
-describe("INTEGRATION: UserControler.create", () => {
+describe("INTEGRATION: UserController.create", () => {
   const userEndpoint = "/api/v1/users";
 
   let userBuilder: UserBuilder;

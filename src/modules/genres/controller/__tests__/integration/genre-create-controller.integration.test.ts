@@ -9,7 +9,7 @@ import type { Genre } from "modules/genres/types";
 import { UserBuilder } from "modules/users/builder";
 import { UserDao } from "modules/users/dao";
 
-describe("INTEGRATION: GenreControler.create - POST /api/v1/genres", () => {
+describe("INTEGRATION: GenreController.create - POST /api/v1/genres", () => {
   const genreEndpoint = "/api/v1/genres";
 
   let regularUserToken: string;

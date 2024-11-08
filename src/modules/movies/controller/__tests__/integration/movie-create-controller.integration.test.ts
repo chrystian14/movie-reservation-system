@@ -12,7 +12,7 @@ import { type Movie, type MovieCreateInput } from "modules/movies/types";
 import { UserBuilder } from "modules/users/builder";
 import { UserDao } from "modules/users/dao";
 
-describe("INTEGRATION: MovieControler.create - POST /api/v1/movies", () => {
+describe("INTEGRATION: MovieController.create - POST /api/v1/movies", () => {
   const movieEndpoint = "/api/v1/movies";
 
   let movieBuilder: MovieBuilder;

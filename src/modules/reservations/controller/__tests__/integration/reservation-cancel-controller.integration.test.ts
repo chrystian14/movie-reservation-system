@@ -25,7 +25,7 @@ import { UserBuilder } from "modules/users/builder";
 import { UserDao } from "modules/users/dao";
 import type { User } from "modules/users/types";
 
-describe("INTEGRATION: ReservationControler.cancel - DEL /api/v1/reservations/:id", () => {
+describe("INTEGRATION: ReservationController.cancel - DEL /api/v1/reservations/:id", () => {
   const reservationEndpoint = "/api/v1/reservations";
 
   let regularUserOne: User;

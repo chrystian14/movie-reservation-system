@@ -1,13 +1,13 @@
 import { status } from "modules/_shared/utils";
 import type { IReservationService } from "../service";
 import type { Request } from "express";
-import type { AutheticatedResponse } from "modules/auth/types";
+import type { AuthenticatedResponse } from "modules/auth/types";
 import type { ReservationCreateInput } from "../types";
 
 export class ReservationController {
   constructor(private readonly reservationService: IReservationService) {}
 
-  list = async (req: Request, res: AutheticatedResponse) => {
+  list = async (req: Request, res: AuthenticatedResponse) => {
     const { sub, isAdmin } = res.locals.authenticatedUser;
 
     if (isAdmin) {
@@ -21,7 +21,7 @@ export class ReservationController {
       .json(await this.reservationService.listByUserId(sub));
   };
 
-  create = async (req: Request, res: AutheticatedResponse) => {
+  create = async (req: Request, res: AuthenticatedResponse) => {
     const { sub } = res.locals.authenticatedUser;
 
     const reservationCreateInput: ReservationCreateInput = {
@@ -36,7 +36,7 @@ export class ReservationController {
     return res.status(status.HTTP_201_CREATED).json(reservation);
   };
 
-  cancel = async (req: Request, res: AutheticatedResponse) => {
+  cancel = async (req: Request, res: AuthenticatedResponse) => {
     const { sub } = res.locals.authenticatedUser;
 
     const reservationId = req.params.id;

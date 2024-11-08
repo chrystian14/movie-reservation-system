@@ -9,7 +9,7 @@ import { SeatDao, type ISeatDao } from "modules/seats/dao";
 import { UserBuilder } from "modules/users/builder";
 import { UserDao } from "modules/users/dao";
 
-describe("INTEGRATION: RoomControler.create - POST /api/v1/rooms", () => {
+describe("INTEGRATION: RoomController.create - POST /api/v1/rooms", () => {
   const roomEndpoint = "/api/v1/rooms";
 
   let regularUserToken: string;

@@ -19,7 +19,7 @@ import { UserBuilder } from "modules/users/builder";
 import { UserDao } from "modules/users/dao";
 import type { User } from "modules/users/types";
 
-describe("INTEGRATION: ReservationControler.list - GET /api/v1/reservations", () => {
+describe("INTEGRATION: ReservationController.list - GET /api/v1/reservations", () => {
   const reservationEndpoint = "/api/v1/reservations";
 
   let regularUserOne: User;

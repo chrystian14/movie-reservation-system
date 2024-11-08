@@ -1,10 +1,10 @@
 import type { Request, NextFunction } from "express";
 import { ForbiddenError } from "modules/_shared/errors";
-import type { AutheticatedResponse } from "../types";
+import type { AuthenticatedResponse } from "../types";
 
 export function isAdmin(
   req: Request,
-  res: AutheticatedResponse,
+  res: AuthenticatedResponse,
   next: NextFunction
 ) {
   const { isAdmin } = res.locals.authenticatedUser;

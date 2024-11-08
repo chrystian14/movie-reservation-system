@@ -12,7 +12,7 @@ import { SeatBuilder } from "modules/seats/builder";
 import type { SeatPostBody } from "modules/seats/builder/seat.builder";
 import { randomUUID } from "crypto";
 
-describe("INTEGRATION: SeatControler.create - POST /api/v1/rooms/:roomId/seats", () => {
+describe("INTEGRATION: SeatController.create - POST /api/v1/rooms/:roomId/seats", () => {
   const roomEndpoint = "/api/v1/rooms";
 
   let regularUserToken: string;

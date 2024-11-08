@@ -17,7 +17,7 @@ import { UserBuilder } from "modules/users/builder";
 import { UserDao } from "modules/users/dao";
 import type { User } from "modules/users/types";
 
-describe("INTEGRATION: ShowtimeControler.list - GET /api/v1/showtimes", () => {
+describe("INTEGRATION: ShowtimeController.list - GET /api/v1/showtimes", () => {
   const showtimeEndpoint = "/api/v1/showtimes";
 
   let regularUser: User;

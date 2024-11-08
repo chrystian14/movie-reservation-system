@@ -10,7 +10,7 @@ type AuthenticatedResLocals = {
   authenticatedUser: TokenPayload;
 };
 
-export type AutheticatedResponse<T = unknown> = Response<
+export type AuthenticatedResponse<T = unknown> = Response<
   T,
   AuthenticatedResLocals
 >;

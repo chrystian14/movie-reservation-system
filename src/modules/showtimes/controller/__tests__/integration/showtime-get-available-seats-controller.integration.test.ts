@@ -22,7 +22,7 @@ import { UserBuilder } from "modules/users/builder";
 import { UserDao } from "modules/users/dao";
 import type { User } from "modules/users/types";
 
-describe("INTEGRATION: ShowtimeControler.getAvailableSeats - GET /api/v1/showtimes/:id/available-seats", () => {
+describe("INTEGRATION: ShowtimeController.getAvailableSeats - GET /api/v1/showtimes/:id/available-seats", () => {
   const showtimeEndpoint = "/api/v1/showtimes";
 
   let createdShowtime: Showtime;

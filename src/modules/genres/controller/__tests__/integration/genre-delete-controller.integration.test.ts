@@ -10,7 +10,7 @@ import { type Genre } from "modules/genres/types";
 import { UserBuilder } from "modules/users/builder";
 import { UserDao } from "modules/users/dao";
 
-describe("INTEGRATION: GenreControler.delete - DEL /api/v1/genres/{id}", () => {
+describe("INTEGRATION: GenreController.delete - DEL /api/v1/genres/{id}", () => {
   const genreEndpoint = "/api/v1/genres";
 
   let regularUserToken: string;

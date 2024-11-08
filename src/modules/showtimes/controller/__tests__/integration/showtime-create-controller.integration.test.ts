@@ -17,7 +17,7 @@ import { type ShowtimeCreateInput } from "modules/showtimes/types";
 import { UserBuilder } from "modules/users/builder";
 import { UserDao } from "modules/users/dao";
 
-describe("INTEGRATION: ShowtimeControler.create - POST /api/v1/showtimes", () => {
+describe("INTEGRATION: ShowtimeController.create - POST /api/v1/showtimes", () => {
   const showtimeEndpoint = "/api/v1/showtimes";
 
   let showtimeDao: IShowtimeDao;

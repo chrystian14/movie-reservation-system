@@ -1,13 +1,13 @@
 import { status } from "modules/_shared/utils";
 import type { IMovieService } from "../service";
 import type { Request } from "express";
-import type { AutheticatedResponse } from "modules/auth/types";
+import type { AuthenticatedResponse } from "modules/auth/types";
 import { Logger } from "configs/loggers";
 
 export class MovieController {
   constructor(private readonly movieService: IMovieService) {}
 
-  create = async (req: Request, res: AutheticatedResponse) => {
+  create = async (req: Request, res: AuthenticatedResponse) => {
     const movie = await this.movieService.create(req.body);
 
     const { authenticatedUser } = res.locals;
@@ -18,7 +18,7 @@ export class MovieController {
     return res.status(status.HTTP_201_CREATED).json(movie);
   };
 
-  delete = async (req: Request, res: AutheticatedResponse) => {
+  delete = async (req: Request, res: AuthenticatedResponse) => {
     await this.movieService.delete(req.params.id);
 
     const { authenticatedUser } = res.locals;
@@ -30,7 +30,7 @@ export class MovieController {
     return res.status(status.HTTP_204_NO_CONTENT).end();
   };
 
-  update = async (req: Request, res: AutheticatedResponse) => {
+  update = async (req: Request, res: AuthenticatedResponse) => {
     const updatedMovie = await this.movieService.update(
       req.params.id,
       req.body
