@@ -1,4 +1,9 @@
-import type { Request } from "express";
+import type { Request, Response } from "express";
+
+export type PaginatedLocals<T = unknown> = Response<
+  T,
+  { page: number; perPage: number }
+>;
 
 export type PaginatedResponse<T> = {
   count: number;
