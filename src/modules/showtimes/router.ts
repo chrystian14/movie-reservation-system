@@ -11,6 +11,10 @@ import {
 import { RoomDao } from "modules/rooms/dao";
 import { MovieDao } from "modules/movies/dao";
 import { SeatDao } from "modules/seats/dao";
+import {
+  handlePaginationParams,
+  validatePaginationQuery,
+} from "modules/_shared/pagination";
 
 export const showtimeRouter = Router();
 
@@ -39,6 +43,7 @@ showtimeRouter.get(
   "",
   isAuthenticated,
   validateQueryParams(showtimeDateQueryParamSchema),
+  handlePaginationParams,
   showtimeController.list
 );
 
