@@ -10,3 +10,4 @@ export type ShowtimeCreateInput = z.infer<typeof showtimeCreateInputSchema>;
 export type ShowtimeDateQueryParam = z.infer<
   typeof showtimeDateQueryParamSchema
 >;
+export type ShowtimeWithCount = { count: number; showtimes: Array<Showtime> };

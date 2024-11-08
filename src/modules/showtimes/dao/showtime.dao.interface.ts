@@ -2,7 +2,7 @@ import type { Showtime, ShowtimeCreateInput } from "../types";
 
 export interface IShowtimeDao {
   create(showtimeCreateInput: ShowtimeCreateInput): Promise<Showtime>;
-  list(page: number, perPage: number): Promise<Array<Showtime>>;
+  list(page: number, perPage: number): Promise<Showtime[]>;
   listByDate(
     startDate: Date,
     endDate: Date,

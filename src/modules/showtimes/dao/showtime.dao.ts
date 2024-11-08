@@ -9,7 +9,7 @@ export class ShowtimeDao implements IShowtimeDao {
     });
   }
 
-  async list(page: number, perPage: number): Promise<Array<Showtime>> {
+  async list(page: number, perPage: number): Promise<Showtime[]> {
     return await prisma.showtime.findMany({
       skip: (page - 1) * perPage,
       take: perPage,

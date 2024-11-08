@@ -1,6 +1,10 @@
 import type { IRoomDao } from "modules/rooms/dao";
 import type { IShowtimeDao } from "../dao";
-import type { Showtime, ShowtimeCreateInput } from "../types";
+import type {
+  Showtime,
+  ShowtimeCreateInput,
+  ShowtimeWithCount,
+} from "../types";
 import type { IShowtimeService } from "./showtime.service.interface";
 import type { IMovieDao } from "modules/movies/dao";
 import { RoomNotFoundError } from "modules/rooms/errors";
@@ -45,22 +49,28 @@ export class ShowtimeService implements IShowtimeService {
     dateFilter?: string,
     page: number = 1,
     perPage: number = MAX_PER_PAGE_NUMBER
-  ): Promise<Array<Showtime>> {
+  ): Promise<ShowtimeWithCount> {
+    const showtimeCount = await this.showtimeDao.count();
+
     if (dateFilter) {
       const startDate = new Date(dateFilter);
       const oneDayAfterStartDate = new Date(
         startDate.getTime() + 1 * 24 * 60 * 60 * 1000
       );
 
-      return await this.showtimeDao.listByDate(
+      const showtimesByDate = await this.showtimeDao.listByDate(
         startDate,
         oneDayAfterStartDate,
         page,
         perPage
       );
+
+      return { count: showtimeCount, showtimes: showtimesByDate };
     }
 
-    return await this.showtimeDao.list(page, perPage);
+    const showtimes = await this.showtimeDao.list(page, perPage);
+
+    return { count: showtimeCount, showtimes };
   }
 
   async getAvailableSeats(showtimeId: string): Promise<Array<Seat>> {

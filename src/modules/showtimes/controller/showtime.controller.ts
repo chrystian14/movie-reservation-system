@@ -21,10 +21,12 @@ export class ShowtimeController {
     const dateQueryParam = req.query.date ? String(req.query.date) : undefined;
     const { page, perPage } = res.locals;
 
-    const showtimes = await this.showtimeService.list(dateQueryParam);
+    const { count, showtimes } = await this.showtimeService.list(
+      dateQueryParam
+    );
 
     const paginatedResponse = getPaginatedResponse<Showtime>(
-      showtimes.length,
+      count,
       page,
       perPage,
       showtimes,

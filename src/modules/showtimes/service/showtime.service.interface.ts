@@ -1,5 +1,9 @@
 import type { Seat } from "modules/seats/types";
-import type { ShowtimeCreateInput, Showtime } from "../types";
+import type {
+  ShowtimeCreateInput,
+  Showtime,
+  ShowtimeWithCount,
+} from "../types";
 
 export interface IShowtimeService {
   create(showtimeCreateInput: ShowtimeCreateInput): Promise<Showtime>;
@@ -7,6 +11,6 @@ export interface IShowtimeService {
     dateFilter?: string,
     page?: number,
     perPage?: number
-  ): Promise<Array<Showtime>>;
+  ): Promise<ShowtimeWithCount>;
   getAvailableSeats(showtimeId: string): Promise<Array<Seat>>;
 }
