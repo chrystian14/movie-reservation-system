@@ -13,15 +13,39 @@ paths:
             format: date
           description: Optional. Date in ISO8601 format.
           example: "2022-01-01"
+        - in: query
+          name: page
+          required: false
+          schema:
+            type: number
+            format: integer
+            minimum: 1
+          description: Optional. Page number. Default to 1.
+          example: 1
+        - in: query
+          name: perPage
+          required: false
+          schema:
+            type: number
+            format: integer
+            minimum: 1
+            maximum: 10
+          description: Optional. Number of items per page. Default to 10.
+          example: 10
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Showtime"
+                allOf:
+                  - $ref: "#/components/schemas/PaginationResponse"
+                  - type: object
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Showtime"
         401:
           $ref: "#/components/responses/Unauthorized"
     post:
@@ -69,9 +93,14 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Seat"
+                allOf:
+                  - $ref: "#/components/schemas/PaginationResponse"
+                  - type: object
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Seat"
         401:
           $ref: "#/components/responses/Unauthorized"
         404:
